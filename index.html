@@ -29,6 +29,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       background: #2563eb;
       color: white;
       padding: 10px;
@@ -38,6 +39,7 @@
       width: 90px;
       height: 110px;
       box-shadow: 3px 3px 10px #111;
+      transition: all 0.2s ease;
     }
     .button img {
       width: 60px;
@@ -54,6 +56,11 @@
       box-shadow: 5px 5px 15px #111;
     }
   </style>
+
+  <!-- TON Web3 SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@tonclient/core/dist/tonclient.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tonclient/lib-web/dist/tonclient.node.js"></script>
+
 </head>
 <body>
 
@@ -70,7 +77,7 @@
     <p><strong>Rentabilidad Simulada:</strong> +4.8%</p>
   </div>
 
-  <!-- Botones tipo panadería con iconos adecuados -->
+  <!-- Botones tipo panadería con iconos coherentes -->
   <div class="section">
     <h3>🏭 Gestión de Panadería</h3>
     <div class="grid">
@@ -96,7 +103,7 @@
       </a>
 
       <a href="#" class="button">
-        <img src="https://img.icons8.com/color/96/000000/mixer.png" alt="Sinsumos"/>
+        <img src="https://img.icons8.com/color/96/000000/mixer.png" alt="Mezcladora"/>
         <span>Mezcladora</span>
       </a>
 
@@ -110,22 +117,27 @@
         <span>Vendedor</span>
       </a>
 
-      <a href="#" class="button">
+      <a href="#" class="button" id="depositButton">
         <img src="https://img.icons8.com/color/96/000000/receive-cash.png" alt="Depositar"/>
         <span>Depositar</span>
       </a>
 
-      <a href="#" class="button">
+      <a href="#" class="button" id="withdrawButton">
         <img src="https://img.icons8.com/color/96/000000/pay.png" alt="Retirar"/>
         <span>Retirar</span>
       </a>
 
-      <a href="#" class="button">
-        <img src="https://img.icons8.com/color/96/000000/shopping-cart.png" alt="Comprar"/>
-        <span>Comprar</span>
-      </a>
-
     </div>
+  </div>
+
+  <!-- Conectar Wallet -->
+  <div class="section">
+    <h3>🔗 Conectar Wallet</h3>
+    <button id="connectWallet" class="button">
+      <img src="https://img.icons8.com/color/96/000000/wallet.png" alt="Wallet"/>
+      <span>Conectar</span>
+    </button>
+    <p id="walletAddress"></p>
   </div>
 
   <!-- Lista de Espera -->
@@ -138,5 +150,28 @@
     </a>
   </div>
 
-</body>
-</html>
+  <!-- Script Wallet + Depósito / Retiro demo -->
+  <script>
+    async function connectWallet() {
+      if (window.ton && window.ton.isTonConnect) {
+        try {
+          const walletInfo = await window.ton.send("ton_requestAccounts");
+          const address = walletInfo[0];
+          document.getElementById("walletAddress").innerText = "Conectado: " + address;
+          console.log("Wallet conectada:", address);
+        } catch (err) {
+          console.error("Error conectando wallet:", err);
+        }
+      } else {
+        alert("Instala una wallet compatible TON (TON Wallet o Tonkeeper)");
+      }
+    }
+
+    async function deposit() {
+      const address = document.getElementById("walletAddress").innerText.replace("Conectado: ","");
+      if(!address) return alert("Conecta tu wallet primero");
+      alert("Iniciando depósito demo para: " + address);
+      // Aquí se integra la función real de depósito TON/USDT
+    }
+
+    async function withdraw() {
