@@ -60,118 +60,138 @@
   <!-- TON Web3 SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@tonclient/core/dist/tonclient.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tonclient/lib-web/dist/tonclient.node.js"></script>
-
+  <script src="https://unpkg.com/tonconnect/dist/tonconnect.umd.js"></script>
 </head>
 <body>
 
-  <h2>🏛 PAN Digital Group</h2>
-  <p>Mini App Demo Ecosystem</p>
+<h2>🏛 PAN Digital Group</h2>
+<p>Mini App Demo Ecosystem</p>
 
-  <!-- Dashboard Demo -->
-  <div class="section">
-    <h3>📊 Dashboard Demo</h3>
-    <p><strong>Token:</strong> PAN</p>
-    <p><strong>Precio Interno:</strong> 0.10 USDT</p>
-    <p><strong>Saldo Demo:</strong> 1,000 PAN</p>
-    <p><strong>Ciclo:</strong> 30 días</p>
-    <p><strong>Rentabilidad Simulada:</strong> +4.8%</p>
-  </div>
+<!-- Dashboard Demo -->
+<div class="section">
+  <h3>📊 Dashboard Demo</h3>
+  <p><strong>Token:</strong> PAN</p>
+  <p><strong>Precio Interno:</strong> 0.10 USDT</p>
+  <p><strong>Saldo Demo:</strong> 1,000 PAN</p>
+  <p><strong>Ciclo:</strong> 30 días</p>
+  <p><strong>Rentabilidad Simulada:</strong> +4.8%</p>
+</div>
 
-  <!-- Botones tipo panadería con iconos coherentes -->
-  <div class="section">
-    <h3>🏭 Gestión de Panadería</h3>
-    <div class="grid">
+<!-- Botones tipo panadería -->
+<div class="section">
+  <h3>🏭 Gestión de Panadería</h3>
+  <div class="grid">
 
-      <a href="#" class="button">
-        <img src="https://img.icons8.com/color/96/000000/baker.png" alt="Panadero"/>
-        <span>Panadero</span>
-      </a>
-
-      <a href="#" class="button">
-        <img src="https://img.icons8.com/color/96/000000/ingredients.png" alt="Insumos"/>
-        <span>Insumos</span>
-      </a>
-
-      <a href="#" class="button">
-        <img src="https://img.icons8.com/color/96/000000/bread.png" alt="Productos"/>
-        <span>Productos</span>
-      </a>
-
-      <a href="#" class="button">
-        <img src="https://img.icons8.com/color/96/000000/oven.png" alt="Maquinaria"/>
-        <span>Maquinaria</span>
-      </a>
-
-      <a href="#" class="button">
-        <img src="https://img.icons8.com/color/96/000000/mixer.png" alt="Mezcladora"/>
-        <span>Mezcladora</span>
-      </a>
-
-      <a href="#" class="button">
-        <img src="https://img.icons8.com/color/96/000000/box.png" alt="Empacador"/>
-        <span>Empacador</span>
-      </a>
-
-      <a href="#" class="button">
-        <img src="https://img.icons8.com/color/96/000000/shop.png" alt="Vendedor"/>
-        <span>Vendedor</span>
-      </a>
-
-      <a href="#" class="button" id="depositButton">
-        <img src="https://img.icons8.com/color/96/000000/receive-cash.png" alt="Depositar"/>
-        <span>Depositar</span>
-      </a>
-
-      <a href="#" class="button" id="withdrawButton">
-        <img src="https://img.icons8.com/color/96/000000/pay.png" alt="Retirar"/>
-        <span>Retirar</span>
-      </a>
-
-    </div>
-  </div>
-
-  <!-- Conectar Wallet -->
-  <div class="section">
-    <h3>🔗 Conectar Wallet</h3>
-    <button id="connectWallet" class="button">
-      <img src="https://img.icons8.com/color/96/000000/wallet.png" alt="Wallet"/>
-      <span>Conectar</span>
-    </button>
-    <p id="walletAddress"></p>
-  </div>
-
-  <!-- Lista de Espera -->
-  <div class="section">
-    <h3>🔐 Fase Privada</h3>
-    <p>Acceso limitado a 100 miembros fundadores.</p>
     <a href="#" class="button">
-      <img src="https://img.icons8.com/color/96/000000/group.png" alt="Lista de espera"/>
-      <span>Unirme</span>
+      <img src="https://img.icons8.com/color/96/000000/baker.png" alt="Panadero"/>
+      <span>Panadero</span>
+    </a>
+
+    <a href="#" class="button">
+      <img src="https://img.icons8.com/color/96/000000/ingredients.png" alt="Insumos"/>
+      <span>Insumos</span>
+    </a>
+
+    <a href="#" class="button">
+      <img src="https://img.icons8.com/color/96/000000/bread.png" alt="Productos"/>
+      <span>Productos</span>
+    </a>
+
+    <a href="#" class="button">
+      <img src="https://img.icons8.com/color/96/000000/oven.png" alt="Maquinaria"/>
+      <span>Maquinaria</span>
+    </a>
+
+    <a href="#" class="button">
+      <img src="https://img.icons8.com/color/96/000000/mixer.png" alt="Mezcladora"/>
+      <span>Mezcladora</span>
+    </a>
+
+    <a href="#" class="button">
+      <img src="https://img.icons8.com/color/96/000000/box.png" alt="Empacador"/>
+      <span>Empacador</span>
+    </a>
+
+    <a href="#" class="button">
+      <img src="https://img.icons8.com/color/96/000000/shop.png" alt="Vendedor"/>
+      <span>Vendedor</span>
+    </a>
+
+  </div>
+</div>
+
+<!-- Wallet y acciones -->
+<div class="section">
+  <h3>🔗 Conectar Wallet</h3>
+  <button id="connectWallet" class="button">
+    <img src="https://img.icons8.com/color/96/000000/wallet.png" alt="Wallet"/>
+    <span>Conectar</span>
+  </button>
+  <p id="walletAddress"></p>
+
+  <div class="grid" style="margin-top:15px;">
+    <a href="#" class="button" id="depositButton">
+      <img src="https://img.icons8.com/color/96/000000/receive-cash.png" alt="Depositar"/>
+      <span>Depositar</span>
+    </a>
+
+    <a href="#" class="button" id="withdrawButton">
+      <img src="https://img.icons8.com/color/96/000000/pay.png" alt="Retirar"/>
+      <span>Retirar</span>
     </a>
   </div>
+</div>
 
-  <!-- Script Wallet + Depósito / Retiro demo -->
-  <script>
-    async function connectWallet() {
-      if (window.ton && window.ton.isTonConnect) {
-        try {
-          const walletInfo = await window.ton.send("ton_requestAccounts");
-          const address = walletInfo[0];
-          document.getElementById("walletAddress").innerText = "Conectado: " + address;
-          console.log("Wallet conectada:", address);
-        } catch (err) {
-          console.error("Error conectando wallet:", err);
-        }
-      } else {
-        alert("Instala una wallet compatible TON (TON Wallet o Tonkeeper)");
+<!-- Lista de Espera -->
+<div class="section">
+  <h3>🔐 Fase Privada</h3>
+  <p>Acceso limitado a 100 miembros fundadores.</p>
+  <a href="#" class="button">
+    <img src="https://img.icons8.com/color/96/000000/group.png" alt="Lista de espera"/>
+    <span>Unirme</span>
+  </a>
+</div>
+
+<script>
+  // Inicializa TonConnect
+  const tonConnect = new TonConnectUI.TonConnect({bridgeUrl: "https://bridge.tonapi.io"});
+  let connectedAddress = null;
+
+  // Conectar Wallet real TON
+  async function connectWallet() {
+    try {
+      await tonConnect.connect();
+      connectedAddress = tonConnect.account?.address;
+      if (connectedAddress) {
+        document.getElementById("walletAddress").innerText = "Conectado: " + connectedAddress;
+        console.log("Wallet conectada:", connectedAddress);
       }
+    } catch (err) {
+      alert("Error conectando wallet: " + err.message);
+      console.error(err);
     }
+  }
 
-    async function deposit() {
-      const address = document.getElementById("walletAddress").innerText.replace("Conectado: ","");
-      if(!address) return alert("Conecta tu wallet primero");
-      alert("Iniciando depósito demo para: " + address);
-      // Aquí se integra la función real de depósito TON/USDT
-    }
+  // Depósito demo con wallet conectada
+  async function deposit() {
+    if(!connectedAddress) return alert("Conecta tu wallet primero");
+    // Flujo demo: en real, enviar token PAN/USDT a wallet del proyecto
+    alert("Depósito demo simulado para: " + connectedAddress);
+    console.log("Depósito demo: usuario -> wallet del proyecto");
+  }
 
-    async function withdraw() {
+  // Retiro demo con wallet conectada
+  async function withdraw() {
+    if(!connectedAddress) return alert("Conecta tu wallet primero");
+    // Flujo demo: en real, enviar token PAN/USDT desde wallet del proyecto al usuario
+    alert("Retiro demo simulado para: " + connectedAddress);
+    console.log("Retiro demo: wallet del proyecto -> usuario");
+  }
+
+  document.getElementById("connectWallet").addEventListener("click", connectWallet);
+  document.getElementById("depositButton").addEventListener("click", deposit);
+  document.getElementById("withdrawButton").addEventListener("click", withdraw);
+</script>
+
+</body>
+</html>
