@@ -13,36 +13,40 @@
       text-align: center;
       padding: 20px;
     }
-    .card {
+    .section {
       background: #1e293b;
       padding: 20px;
       border-radius: 12px;
       margin: 15px 0;
     }
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
     .button {
-      display: inline-block;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       background: #2563eb;
       color: white;
-      padding: 12px;
-      margin: 8px;
+      padding: 10px;
       border-radius: 12px;
       text-decoration: none;
       font-weight: bold;
-      width: 100px;
-      height: 120px;
-      vertical-align: top;
-      text-align: center;
-      position: relative;
+      width: 90px;
+      height: 110px;
       box-shadow: 3px 3px 10px #111;
     }
     .button img {
-      width: 70px;
-      height: 70px;
-      margin-bottom: 5px;
+      width: 60px;
+      height: 60px;
+      margin-bottom: 6px;
     }
     .button span {
-      display: block;
       font-size: 14px;
+      white-space: nowrap;
     }
     .button:hover {
       background: #1d4ed8;
@@ -57,7 +61,7 @@
   <p>Mini App Demo Ecosystem</p>
 
   <!-- Dashboard Demo -->
-  <div class="card">
+  <div class="section">
     <h3>📊 Dashboard Demo</h3>
     <p><strong>Token:</strong> PAN</p>
     <p><strong>Precio Interno:</strong> 0.10 USDT</p>
@@ -66,72 +70,72 @@
     <p><strong>Rentabilidad Simulada:</strong> +4.8%</p>
   </div>
 
-  <!-- Botones tipo panadería con ilustraciones 3D gratuitas -->
-  <div class="card">
+  <!-- Botones tipo panadería con iconos adecuados -->
+  <div class="section">
     <h3>🏭 Gestión de Panadería</h3>
+    <div class="grid">
 
-    <a href="#" class="button">
-      <img src="https://cdn-icons-png.flaticon.com/512/681/681494.png" alt="Maquinaria">
-      <span>Maquinaria</span>
-    </a>
+      <a href="#" class="button">
+        <img src="https://img.icons8.com/color/96/000000/baker.png" alt="Panadero"/>
+        <span>Panadero</span>
+      </a>
 
-    <a href="#" class="button">
-      <img src="https://cdn-icons-png.flaticon.com/512/1046/1046771.png" alt="Pandero">
-      <span>Pandero</span>
-    </a>
+      <a href="#" class="button">
+        <img src="https://img.icons8.com/color/96/000000/ingredients.png" alt="Insumos"/>
+        <span>Insumos</span>
+      </a>
 
-    <a href="#" class="button">
-      <img src="https://cdn-icons-png.flaticon.com/512/1046/1046765.png" alt="Hornero">
-      <span>Hornero</span>
-    </a>
+      <a href="#" class="button">
+        <img src="https://img.icons8.com/color/96/000000/bread.png" alt="Productos"/>
+        <span>Productos</span>
+      </a>
 
-    <a href="#" class="button">
-      <img src="https://cdn-icons-png.flaticon.com/512/1046/1046750.png" alt="Empacador">
-      <span>Empacador</span>
-    </a>
+      <a href="#" class="button">
+        <img src="https://img.icons8.com/color/96/000000/oven.png" alt="Maquinaria"/>
+        <span>Maquinaria</span>
+      </a>
 
-    <a href="#" class="button">
-      <img src="https://cdn-icons-png.flaticon.com/512/1046/1046780.png" alt="Sinsumos">
-      <span>Sinsumos</span>
-    </a>
+      <a href="#" class="button">
+        <img src="https://img.icons8.com/color/96/000000/mixer.png" alt="Sinsumos"/>
+        <span>Mezcladora</span>
+      </a>
 
-    <a href="#" class="button">
-      <img src="https://cdn-icons-png.flaticon.com/512/1046/1046775.png" alt="Productos">
-      <span>Productos</span>
-    </a>
+      <a href="#" class="button">
+        <img src="https://img.icons8.com/color/96/000000/box.png" alt="Empacador"/>
+        <span>Empacador</span>
+      </a>
 
-    <a href="#" class="button">
-      <img src="https://cdn-icons-png.flaticon.com/512/1046/1046790.png" alt="Empaque">
-      <span>Empaque</span>
-    </a>
+      <a href="#" class="button">
+        <img src="https://img.icons8.com/color/96/000000/shop.png" alt="Vendedor"/>
+        <span>Vendedor</span>
+      </a>
 
-    <a href="#" class="button">
-      <img src="https://cdn-icons-png.flaticon.com/512/1046/1046760.png" alt="Vendedor">
-      <span>Vendedor</span>
-    </a>
+      <a href="#" class="button">
+        <img src="https://img.icons8.com/color/96/000000/receive-cash.png" alt="Depositar"/>
+        <span>Depositar</span>
+      </a>
 
-    <a href="#" class="button">
-      <img src="https://cdn-icons-png.flaticon.com/512/1828/1828906.png" alt="Depositar">
-      <span>Depositar</span>
-    </a>
+      <a href="#" class="button">
+        <img src="https://img.icons8.com/color/96/000000/pay.png" alt="Retirar"/>
+        <span>Retirar</span>
+      </a>
 
-    <a href="#" class="button">
-      <img src="https://cdn-icons-png.flaticon.com/512/1046/1046784.png" alt="Comprar">
-      <span>Comprar</span>
-    </a>
+      <a href="#" class="button">
+        <img src="https://img.icons8.com/color/96/000000/shopping-cart.png" alt="Comprar"/>
+        <span>Comprar</span>
+      </a>
 
-    <a href="#" class="button">
-      <img src="https://cdn-icons-png.flaticon.com/512/1828/1828906.png" alt="Retirar">
-      <span>Retirar</span>
-    </a>
-
+    </div>
   </div>
 
   <!-- Lista de Espera -->
-  <div class="card">
+  <div class="section">
     <h3>🔐 Fase Privada</h3>
     <p>Acceso limitado a 100 miembros fundadores.</p>
-    <a href="#" class="button">Unirme a Lista de Espera</a>
+    <a href="#" class="button">
+      <img src="https://img.icons8.com/color/96/000000/group.png" alt="Lista de espera"/>
+      <span>Unirme</span>
+    </a>
   </div>
 
 </body>
