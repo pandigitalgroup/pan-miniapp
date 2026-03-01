@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Yesman Bakery - Inversiones</title>
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+
 <style>
 body{
     margin:0;
@@ -14,7 +15,7 @@ body{
 header{
     background:#8B4513;
     color:white;
-    padding:15px;
+    padding:18px;
     text-align:center;
     font-size:22px;
     font-weight:bold;
@@ -22,24 +23,40 @@ header{
 
 .container{
     padding:20px;
+    max-width:500px;
+    margin:auto;
 }
 
 .card{
     background:white;
     padding:20px;
-    margin-bottom:15px;
+    margin-bottom:20px;
     border-radius:15px;
-    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    box-shadow:0 6px 15px rgba(0,0,0,0.08);
+}
+
+h3{
+    margin-top:0;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:1px solid #ccc;
+    margin-top:10px;
+    font-size:15px;
 }
 
 button{
     width:100%;
-    padding:12px;
+    padding:13px;
     border:none;
     border-radius:10px;
     font-size:16px;
-    margin-top:10px;
+    margin-top:15px;
     cursor:pointer;
+    font-weight:bold;
 }
 
 .deposit-btn{
@@ -52,16 +69,18 @@ button{
     color:white;
 }
 
-#ton-connect{
-    margin-bottom:20px;
+.status-box{
+    background:#f8f8f8;
+    padding:15px;
+    border-radius:10px;
+    font-size:14px;
 }
 
-input{
-    width:100%;
-    padding:10px;
-    border-radius:10px;
-    border:1px solid #ccc;
-    margin-top:10px;
+.receiver{
+    font-size:12px;
+    word-break: break-all;
+    margin-top:8px;
+    color:#555;
 }
 </style>
 </head>
@@ -76,25 +95,33 @@ input{
 
 <div class="card">
 <h3>Depositar TON</h3>
-<input type="number" id="amount" placeholder="Cantidad en TON">
+<p>Envía TON a la wallet del proyecto:</p>
+<div class="receiver">
+UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J
+</div>
+
+<input type="number" id="amount" placeholder="Cantidad en TON" min="0.01" step="0.01">
+
 <button class="deposit-btn" onclick="deposit()">Depositar</button>
 </div>
 
 <div class="card">
-<h3>Retirar</h3>
+<h3>Retiro</h3>
 <p>Los retiros se procesan manualmente.</p>
 <button class="withdraw-btn" onclick="requestWithdraw()">Solicitar Retiro</button>
 </div>
 
 <div class="card">
 <h3>Estado</h3>
-<p id="status">Wallet no conectada</p>
+<div class="status-box" id="status">
+Wallet no conectada
+</div>
 </div>
 
 </div>
 
 <script>
-const receiverAddress = "UQDl39VhMg-Hwa898TA-WHOBgGkGQFvBMftpuDm4yyTCdfZ2";
+const receiverAddress = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
 
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
     manifestUrl: 'https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json',
@@ -103,16 +130,18 @@ const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
 
 tonConnectUI.onStatusChange(wallet => {
     if(wallet){
-        document.getElementById("status").innerText = "Wallet conectada: " + wallet.account.address;
+        document.getElementById("status").innerHTML =
+        "✅ Wallet conectada:<br><br>" + wallet.account.address;
     }else{
-        document.getElementById("status").innerText = "Wallet no conectada";
+        document.getElementById("status").innerHTML = "Wallet no conectada";
     }
 });
 
 async function deposit(){
     const amount = document.getElementById("amount").value;
-    if(!amount){
-        alert("Ingresa cantidad");
+
+    if(!amount || amount <= 0){
+        alert("Ingresa una cantidad válida");
         return;
     }
 
@@ -128,14 +157,14 @@ async function deposit(){
 
     try{
         await tonConnectUI.sendTransaction(transaction);
-        alert("Transacción enviada correctamente");
+        alert("✅ Transacción enviada correctamente a la wallet del proyecto");
     }catch(e){
-        alert("Error al enviar transacción");
+        alert("❌ Transacción cancelada o error");
     }
 }
 
 function requestWithdraw(){
-    alert("Solicitud enviada. El retiro será procesado manualmente.");
+    alert("Solicitud enviada. El retiro será revisado manualmente.");
 }
 </script>
 
