@@ -3,249 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PAN Digital Group</title>
-
-<!-- TON Connect UI versión fija para mayor compatibilidad -->
+<title>Prueba Wallet TON</title>
 <script src="https://unpkg.com/@tonconnect/ui@0.4.0/dist/tonconnect-ui.min.js"></script>
-
-<style>
-body{margin:0;font-family:Inter,sans-serif;background:#0F172A;color:#E2E8F0;}
-.container{max-width:460px;margin:auto;padding:18px;}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;}
-.logo{font-weight:600;font-size:20px;}
-.level{background:#1E293B;padding:6px 12px;border-radius:12px;font-size:12px;color:#94A3B8;}
-.card{background:#162033;padding:16px;border-radius:16px;margin-bottom:14px;box-shadow:0 4px 12px rgba(0,0,0,0.3);}
-.section-title{font-size:13px;color:#94A3B8;margin-bottom:10px;}
-button{width:100%;padding:12px;border:none;border-radius:12px;margin-bottom:8px;font-weight:600;cursor:pointer;}
-.btn-primary{background:#2563EB;color:white;}
-.btn-success{background:#15803D;color:white;}
-.btn-warning{background:#C2410C;color:white;}
-.btn-danger{background:#B91C1C;color:white;}
-.btn-gray{background:#334155;color:white;}
-.btn-soft{background:#1E293B;color:#E2E8F0;}
-input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;background:#1E293B;color:white;}
-.footer{text-align:center;font-size:11px;color:#64748B;margin-top:15px;}
-.plan-button{margin-bottom:6px;}
-.value{font-weight:600;}
-#connectWalletBtn{width:100%;padding:12px;border:none;border-radius:12px;margin-bottom:8px;font-weight:600;background:#2563EB;color:white;cursor:pointer;}
-</style>
 </head>
 <body>
-
-<div class="container">
-
-<div class="header">
-<div class="logo">PAN Digital Group</div>
-<div class="level" id="level">Nivel Bronce</div>
-</div>
-
-<!-- Wallet -->
-<div class="card">
-<div class="section-title">Wallet</div>
-<div id="walletText">No conectada</div>
+<h2>Conectar Wallet TON</h2>
+<div id="walletText">Wallet no conectada</div>
 <button id="connectWalletBtn">Conectar Wallet</button>
-</div>
-
-<!-- Dashboard -->
-<div class="card">
-<div class="section-title">Dashboard</div>
-<div>Balance TON: <span id="tonBalance">0</span></div>
-<div>Balance PAN: <span id="panBalance">0</span></div>
-<div>Ganancia Pendiente: <span id="pendingProfit">0</span></div>
-<div>Plan activo: <span id="activePlan">Ninguno</span></div>
-<div>Días restantes: <span id="daysLeft">0</span></div>
-<div>Rentabilidad diaria: 2%</div>
-</div>
-
-<!-- Depósito -->
-<div class="card">
-<div class="section-title">Depósito</div>
-<input type="number" id="depositAmount" placeholder="Monto a depositar en TON">
-<button class="btn-primary" onclick="deposit()">Depositar</button>
-</div>
-
-<!-- Activar Planes -->
-<div class="card">
-<div class="section-title">Activar Plan</div>
-<input type="number" id="planAmount" placeholder="Monto para el plan en TON/USD">
-<button class="btn-success plan-button" onclick="activatePlan(1)">Plan 1 - Prueba (Simulación)</button>
-<button class="btn-success plan-button" onclick="activatePlan(2)">Plan 2 - 30 días (20-100 USD TON)</button>
-<button class="btn-success plan-button" onclick="activatePlan(3)">Plan 3 - 60 días (101-200 USD TON)</button>
-<button class="btn-success plan-button" onclick="activatePlan(4)">Plan 4 - 90 días (201-10000 USD TON)</button>
-<button class="btn-success" onclick="reinvestPlan()">Reinvertir (+20 PAN min)</button>
-</div>
-
-<!-- Finanzas -->
-<div class="card">
-<div class="section-title">Finanzas</div>
-<button class="btn-warning" onclick="claim()">Reclamar PAN</button>
-<button class="btn-soft" onclick="stake()">Staking PAN</button>
-<button class="btn-danger" onclick="withdraw()">Retirar</button>
-<button class="btn-gray" onclick="historyLog()">Historial</button>
-</div>
-
-<!-- Comunidad -->
-<div class="card">
-<div class="section-title">Comunidad</div>
-<a href="https://t.me/MANDON1" target="_blank"><button class="btn-primary">Soporte</button></a>
-<a href="https://t.me/CanalEjemplo" target="_blank"><button class="btn-soft">Canal de Telegram</button></a>
-<a href="https://t.me/GrupoEjemplo" target="_blank"><button class="btn-soft">Grupo de Telegram</button></a>
-<a href="https://www.youtube.com/" target="_blank"><button class="btn-soft">Canal de YouTube</button></a>
-<a href="https://www.tiktok.com/" target="_blank"><button class="btn-soft">Canal de TikTok</button></a>
-<a href="https://www.instagram.com/" target="_blank"><button class="btn-soft">Canal de Instagram</button></a>
-<a href="mailto:contacto@pandigitalgroup.com"><button class="btn-soft">Correo corporativo</button></a>
-<a href="https://t.me/MANDON1" target="_blank"><button class="btn-soft">Referidos</button></a>
-</div>
-
-<div class="footer">
-PAN Digital Group © 2026
-</div>
-
-</div>
 
 <script>
-// ===== Estado =====
-let tonBalance = 0;
-let panBalance = 0;
-let pendingProfit = 0;
-let planActive = false;
-let currentPlan = 0;
-let planDaysLeft = 0;
-let walletAddress = null;
-let history = [];
-
-// ===== Sistema de Referidos 3 niveles (simulado) =====
-let referrals = {};
-function registerReferral(userWallet, referrerWallet){
-  if(!referrals[userWallet]){
-    referrals[userWallet] = {referrer: referrerWallet, level1: [], level2: [], level3: []};
-    if(referrerWallet && referrals[referrerWallet]){
-      referrals[referrerWallet].level1.push(userWallet);
-      let parent = referrals[referrerWallet].referrer;
-      if(parent && referrals[parent]){
-        referrals[parent].level2.push(userWallet);
-        let grandparent = referrals[parent].referrer;
-        if(grandparent && referrals[grandparent]){
-          referrals[grandparent].level3.push(userWallet);
-        }
-      }
-    }
-  }
-}
-
-// ===== Wallet REAL =====
-const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-  manifestUrl:'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json'
+    manifestUrl: 'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json'
 });
 
-document.getElementById("connectWalletBtn").addEventListener("click", async ()=>{
-  try{
-    const wallet = await tonConnectUI.connect();
-    if(wallet && wallet.account){
-      walletAddress = wallet.account.address;
-      document.getElementById("walletText").innerText = walletAddress.slice(0,6)+"...";
-      alert("Wallet conectada: "+walletAddress);
+let walletAddress = null;
+
+document.getElementById("connectWalletBtn").addEventListener("click", async () => {
+    try {
+        const wallet = await tonConnectUI.connect();
+        if(wallet && wallet.account) {
+            walletAddress = wallet.account.address;
+            document.getElementById("walletText").innerText = "Wallet conectada: " + walletAddress;
+            alert("Wallet conectada: " + walletAddress);
+        } else {
+            alert("No se pudo obtener la wallet");
+        }
+    } catch(e) {
+        alert("Error al conectar la wallet: " + e);
     }
-  }catch(e){ alert("No se pudo conectar la wallet: "+e); }
 });
-
-// ===== UI =====
-function updateUI(){
-  document.getElementById("tonBalance").innerText = tonBalance.toFixed(2);
-  document.getElementById("panBalance").innerText = panBalance.toFixed(2);
-  document.getElementById("pendingProfit").innerText = pendingProfit.toFixed(2);
-  document.getElementById("activePlan").innerText = planActive ? `Plan ${currentPlan}` : "Ninguno";
-  document.getElementById("daysLeft").innerText = planDaysLeft;
-}
-
-// ===== Funciones simuladas o reales =====
-async function deposit(){
-  let amount = parseFloat(document.getElementById("depositAmount").value);
-  if(amount<=0){ alert("Monto inválido"); return; }
-  if(walletAddress){
-    try{
-      await tonConnectUI.sendTransaction({ validUntil: Math.floor(Date.now()/1000)+600, messages:[{address: TON_RECEIVER,amount:(amount*1e9).toString()}] });
-      tonBalance += amount;
-      history.push(`Depósito: ${amount} TON (real)`);
-      updateUI();
-      alert("Depósito enviado");
-    }catch(e){ alert("Error transacción: "+e); }
-  } else {
-    tonBalance += amount;
-    history.push(`Depósito: ${amount} TON (simulado)`);
-    updateUI();
-    alert("Depósito simulado");
-  }
-}
-
-async function activatePlan(plan){
-  let amount = parseFloat(document.getElementById("planAmount").value);
-  if(amount<=0){ alert("Monto inválido"); return; }
-  let min=0,max=0,days=0;
-  if(plan===1){ min=0; max=100000; days=7; } // prueba
-  if(plan===2){ min=20; max=100; days=30; }
-  if(plan===3){ min=101; max=200; days=60; }
-  if(plan===4){ min=201; max=10000; days=90; }
-  if(amount<min || amount>max){ alert(`Monto inválido: ${min}-${max}`); return; }
-
-  if(plan!==1 && walletAddress){
-    await tonConnectUI.sendTransaction({ validUntil: Math.floor(Date.now()/1000)+600, messages:[{address: TON_RECEIVER,amount:(amount*1e9).toString()}] });
-    history.push(`Plan ${plan} activado: ${amount} TON (real)`);
-  } else {
-    history.push(`Plan ${plan} activado: ${amount} TON (simulado)`);
-  }
-  tonBalance += amount;
-  planActive=true; currentPlan=plan; planDaysLeft=days;
-  updateUI();
-  alert(`Plan ${plan} activado`);
-}
-
-function reinvestPlan(){
-  if(panBalance<20){ alert("Monto mínimo 20 PAN"); return; }
-  tonBalance += panBalance;
-  history.push(`Reinvertido: ${panBalance} PAN`);
-  panBalance=0;
-  updateUI();
-  alert("Reinvertido correctamente");
-}
-
-function generateProfit(){
-  if(planActive){
-    let profit = tonBalance*0.02;
-    pendingProfit += profit;
-    planDaysLeft = Math.max(planDaysLeft-1,0);
-    if(planDaysLeft===0) planActive=false;
-    updateUI();
-  }
-}
-setInterval(generateProfit,10000);
-
-function claim(){ panBalance+=pendingProfit; history.push(`Reclamado: ${pendingProfit} PAN`); pendingProfit=0; updateUI(); alert("Ganancia reclamada"); }
-function stake(){ let reward=panBalance*0.05; panBalance+=reward; history.push("Staking +5%"); updateUI(); alert("Staking aplicado"); }
-async function withdraw(){
-  let amount=parseFloat(prompt("Monto a retirar"));
-  if(amount>0 && amount<=tonBalance){
-    if(walletAddress){
-      try{
-        await tonConnectUI.sendTransaction({ validUntil: Math.floor(Date.now()/1000)+600, messages:[{address: walletAddress,amount:(amount*1e9).toString()}] });
-        tonBalance-=amount;
-        history.push(`Retiro: ${amount} TON (real)`);
-        updateUI();
-        alert("Retiro realizado");
-      }catch(e){ alert("Error transacción: "+e); }
-    } else {
-      tonBalance-=amount;
-      history.push(`Retiro: ${amount} TON (simulado)`);
-      updateUI();
-      alert("Retiro simulado");
-    }
-  }
-}
-
-function historyLog(){ alert(history.join("\n")); }
-
-updateUI();
 </script>
 </body>
 </html>
