@@ -3,242 +3,287 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Inversión</title>
+<title>PAN Capital</title>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
 <style>
+
 body{
-  margin:0;
-  font-family:'Segoe UI',sans-serif;
-  background:#f4f6f9;
-  color:#1e293b;
+margin:0;
+font-family: 'Inter', sans-serif;
+background:#0F172A;
+color:#E2E8F0;
 }
 
 .container{
-  max-width:1100px;
-  margin:auto;
-  padding:20px;
+max-width:460px;
+margin:auto;
+padding:18px;
+}
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:15px;
+}
+
+.logo{
+font-weight:600;
+font-size:20px;
+}
+
+.level{
+background:#1E293B;
+padding:6px 12px;
+border-radius:12px;
+font-size:12px;
+color:#94A3B8;
 }
 
 .card{
-  background:white;
-  border-radius:16px;
-  padding:20px;
-  margin-bottom:20px;
-  box-shadow:0 4px 15px rgba(0,0,0,0.05);
+background:#162033;
+padding:16px;
+border-radius:16px;
+margin-bottom:14px;
+box-shadow:0 4px 12px rgba(0,0,0,0.3);
 }
 
-h1{
-  text-align:center;
-  font-weight:600;
+.section-title{
+font-size:13px;
+color:#94A3B8;
+margin-bottom:10px;
 }
 
-.prices{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:15px;
-  text-align:center;
-}
-
-.price-box{
-  background:#f1f5f9;
-  padding:15px;
-  border-radius:12px;
-}
-
-.price{
-  font-size:20px;
-  font-weight:bold;
-  margin-top:5px;
-  color:#2563eb;
-}
-
-.buttons{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  justify-content:center;
-  margin-top:15px;
+.value{
+font-weight:600;
 }
 
 button{
-  padding:10px 16px;
-  border-radius:8px;
-  border:none;
-  font-weight:600;
-  cursor:pointer;
-  transition:0.2s;
-}
-
-.primary{
-  background:#2563eb;
-  color:white;
-}
-
-.secondary{
-  background:#e2e8f0;
-  color:#1e293b;
+width:100%;
+padding:12px;
+border:none;
+border-radius:12px;
+margin-bottom:8px;
+font-weight:600;
+cursor:pointer;
+transition:0.2s;
 }
 
 button:hover{
-  opacity:0.85;
+opacity:0.85;
 }
+
+.btn-primary{background:#2563EB;color:white;}
+.btn-success{background:#15803D;color:white;}
+.btn-warning{background:#C2410C;color:white;}
+.btn-danger{background:#B91C1C;color:white;}
+.btn-gray{background:#334155;color:white;}
+.btn-soft{background:#1E293B;color:#E2E8F0;}
 
 input{
-  padding:10px;
-  border-radius:8px;
-  border:1px solid #cbd5e1;
-  width:150px;
-}
-
-.calc-result{
-  margin-top:10px;
-  font-weight:600;
-  color:#16a34a;
-}
-
-canvas{
-  margin-top:20px;
+width:100%;
+padding:10px;
+border-radius:10px;
+border:none;
+margin-bottom:8px;
+background:#1E293B;
+color:white;
 }
 
 .footer{
-  text-align:center;
-  font-size:13px;
-  color:#64748b;
-  margin-top:20px;
+text-align:center;
+font-size:11px;
+color:#64748B;
+margin-top:15px;
 }
+
 </style>
 </head>
+
 <body>
 
 <div class="container">
 
-<h1>Panel de Inversión</h1>
-
-<div class="card">
-<div class="prices">
-  <div class="price-box">
-    TON
-    <div class="price" id="tonPrice">Cargando...</div>
-  </div>
-  <div class="price-box">
-    USDT
-    <div class="price" id="usdtPrice">Cargando...</div>
-  </div>
-  <div class="price-box">
-    COP (USD)
-    <div class="price" id="copPrice">Cargando...</div>
-  </div>
-  <div class="price-box">
-    PAN
-    <div class="price">Próximamente</div>
-  </div>
-</div>
+<div class="header">
+<div class="logo">PAN Capital</div>
+<div class="level">Nivel Bronce</div>
 </div>
 
+<!-- WALLET -->
 <div class="card">
-<div class="buttons">
-  <button class="primary">Conectar Wallet</button>
-  <button class="secondary">Depositar</button>
-  <button class="secondary">Retirar</button>
-  <button class="secondary">Reinvertir</button>
-  <button class="primary" onclick="window.open('https://t.me/MANDON1')">Soporte</button>
-</div>
+<div class="section-title">Wallet</div>
+<div id="walletText">No conectada</div>
+<button class="btn-primary" id="connectWallet">Conectar Wallet</button>
 </div>
 
+<!-- PRECIOS -->
 <div class="card">
-<h3>Calculadora</h3>
-<input type="number" id="amount" placeholder="Monto USD">
-<button class="primary" onclick="calculate()">Calcular 6% mensual</button>
-<div class="calc-result" id="result"></div>
+<div class="section-title">Mercado en Tiempo Real</div>
+<div>TON → USD: <span class="value" id="tonUsd">-</span></div>
+<div>TON → COP: <span class="value" id="tonCop">-</span></div>
+<div>USDT → COP: <span class="value" id="usdtCop">-</span></div>
+<div>PAN (estimado): <span class="value" id="panPrice">0.10 USD</span></div>
 </div>
 
+<!-- CALCULADORA -->
 <div class="card">
-<div class="buttons">
-  <button id="btn7" class="primary">7 Días</button>
-  <button id="btn30" class="secondary">30 Días</button>
+<div class="section-title">Calculadora</div>
+<input type="number" id="calcInput" placeholder="Cantidad en TON" oninput="convert()">
+<div>En USD: <span id="calcUsd">0</span></div>
+<div>En COP: <span id="calcCop">0</span></div>
+<div>En PAN: <span id="calcPan">0</span></div>
 </div>
-<canvas id="tonChart"></canvas>
+
+<!-- DASHBOARD -->
+<div class="card">
+<div class="section-title">Dashboard</div>
+<div>Balance TON: <span id="tonBalance">0</span></div>
+<div>Balance PAN: <span id="panBalance">0</span></div>
+<div>Rentabilidad diaria: 2%</div>
+</div>
+
+<!-- INVERSION -->
+<div class="card">
+<div class="section-title">Inversión</div>
+<input type="number" id="amount" placeholder="Monto en TON">
+<button class="btn-primary" onclick="deposit()">Depositar</button>
+<button class="btn-success" onclick="activate()">Activar Plan</button>
+<button class="btn-success" onclick="reinvest()">Reinvertir</button>
+</div>
+
+<!-- FINANZAS -->
+<div class="card">
+<div class="section-title">Finanzas</div>
+<button class="btn-warning" onclick="claim()">Reclamar PAN</button>
+<button class="btn-soft" onclick="stake()">Staking PAN</button>
+<button class="btn-danger" onclick="withdraw()">Retirar</button>
+<button class="btn-gray" onclick="historyLog()">Historial</button>
+</div>
+
+<!-- COMUNIDAD -->
+<div class="card">
+<div class="section-title">Comunidad</div>
+<button class="btn-soft">Referidos</button>
+<button class="btn-soft">Ranking</button>
+<a href="https://t.me/MANDON1" target="_blank">
+<button class="btn-primary">Soporte</button>
+</a>
 </div>
 
 <div class="footer">
-Datos en tiempo real vía CoinGecko API
+PAN Capital © 2026
 </div>
 
 </div>
 
 <script>
 
-let chart;
+// PRECIOS EN TIEMPO REAL
+let tonUsdPrice = 0;
+let tonCopPrice = 0;
+let usdtCopPrice = 0;
+let panUsdPrice = 0.10;
 
-async function fetchPrices(){
-  try{
-    const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=toncoin,tether&vs_currencies=usd,cop");
-    const data = await res.json();
+async function loadPrices(){
+try{
+const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=toncoin,tether&vs_currencies=usd,cop");
+const data = await res.json();
 
-    document.getElementById("tonPrice").innerText="$"+data.toncoin.usd;
-    document.getElementById("usdtPrice").innerText="$"+data.tether.usd;
-    document.getElementById("copPrice").innerText=data.toncoin.cop+" COP";
-  }catch{
-    document.getElementById("tonPrice").innerText="Error";
-  }
+tonUsdPrice = data.toncoin.usd;
+tonCopPrice = data.toncoin.cop;
+usdtCopPrice = data.tether.cop;
+
+document.getElementById("tonUsd").innerText = tonUsdPrice.toFixed(3)+" USD";
+document.getElementById("tonCop").innerText = tonCopPrice.toFixed(0)+" COP";
+document.getElementById("usdtCop").innerText = usdtCopPrice.toFixed(0)+" COP";
+
+}catch(e){console.log("Error precios");}
 }
 
-async function loadChart(days){
-  const res = await fetch(`https://api.coingecko.com/api/v3/coins/toncoin/market_chart?vs_currency=usd&days=${days}`);
-  const data = await res.json();
+loadPrices();
+setInterval(loadPrices,30000);
 
-  const prices=data.prices.map(p=>({x:new Date(p[0]),y:p[1]}));
+// CALCULADORA
+function convert(){
+let amount = parseFloat(document.getElementById("calcInput").value) || 0;
 
-  if(chart) chart.destroy();
-
-  chart=new Chart(document.getElementById("tonChart"),{
-    type:"line",
-    data:{
-      datasets:[{
-        data:prices,
-        borderColor:"#2563eb",
-        backgroundColor:"rgba(37,99,235,0.1)",
-        fill:true,
-        tension:0.3
-      }]
-    },
-    options:{
-      plugins:{legend:{display:false}},
-      scales:{
-        x:{type:"time",time:{unit:"day"}}
-      }
-    }
-  });
+document.getElementById("calcUsd").innerText = (amount * tonUsdPrice).toFixed(2);
+document.getElementById("calcCop").innerText = (amount * tonCopPrice).toFixed(0);
+document.getElementById("calcPan").innerText = ((amount * tonUsdPrice)/panUsdPrice).toFixed(2);
 }
 
-function calculate(){
-  let amount=document.getElementById("amount").value;
-  if(amount){
-    let profit=amount*0.06;
-    let total=parseFloat(amount)+profit;
-    document.getElementById("result").innerText=
-      "Ganancia: $"+profit.toFixed(2)+" | Total estimado: $"+total.toFixed(2);
-  }
+// WALLET
+const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+manifestUrl:'https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json',
+buttonRootId:'connectWallet'
+});
+
+tonConnectUI.onStatusChange(wallet=>{
+if(wallet){
+document.getElementById("walletText").innerText =
+wallet.account.address.slice(0,6)+"...";
+}
+});
+
+// SIMULACION INTERNA
+let tonBalance = 0;
+let panBalance = 0;
+
+function updateUI(){
+document.getElementById("tonBalance").innerText = tonBalance.toFixed(2);
+document.getElementById("panBalance").innerText = panBalance.toFixed(2);
 }
 
-document.getElementById("btn7").onclick=()=>{
-  loadChart(7);
-  btn7.className="primary";
-  btn30.className="secondary";
-};
+function deposit(){
+let amount = parseFloat(document.getElementById("amount").value);
+if(amount>0){
+tonBalance += amount;
+updateUI();
+alert("Depósito agregado");
+}
+}
 
-document.getElementById("btn30").onclick=()=>{
-  loadChart(30);
-  btn30.className="primary";
-  btn7.className="secondary";
-};
+function activate(){
+if(tonBalance>0){
+panBalance += tonBalance * 0.02;
+updateUI();
+alert("Plan activado");
+}
+}
 
-fetchPrices();
-loadChart(7);
-setInterval(fetchPrices,60000);
+function reinvest(){
+if(panBalance>0){
+tonBalance += panBalance;
+panBalance = 0;
+updateUI();
+alert("Reinvertido correctamente");
+}
+}
+
+function claim(){
+alert("PAN reclamado (simulado)");
+}
+
+function stake(){
+panBalance += panBalance * 0.05;
+updateUI();
+alert("Staking aplicado +5%");
+}
+
+function withdraw(){
+let amount = parseFloat(prompt("Monto a retirar"));
+if(amount>0 && amount<=tonBalance){
+tonBalance -= amount;
+updateUI();
+alert("Retiro solicitado");
+}
+}
+
+function historyLog(){
+alert("Historial en desarrollo");
+}
 
 </script>
 
