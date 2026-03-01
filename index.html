@@ -18,7 +18,7 @@ button{width:100%;padding:12px;border:none;border-radius:10px;font-size:15px;mar
 .plan{border:2px solid #eee;padding:12px;border-radius:12px;margin-bottom:12px;}
 .plan.active{border:2px solid #27ae60;background:#f0fff4;}
 .balance{font-size:26px;font-weight:bold;color:#27ae60;}
-.history{font-size:13px;max-height:130px;overflow:auto;background:#fafafa;padding:10px;border-radius:8px;}
+.history{font-size:13px;max-height:140px;overflow:auto;background:#fafafa;padding:10px;border-radius:8px;}
 input{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-top:8px;}
 .small{font-size:12px;color:#555;word-break:break-all;}
 </style>
@@ -30,16 +30,34 @@ input{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-top
 
 <div class="container">
 
-<!-- 1 WALLET -->
+<!-- 1 CONECTAR WALLET -->
 <div class="card">
 <h3>1️⃣ Conectar Wallet</h3>
 <div id="ton-connect"></div>
 <p id="walletStatus">Wallet no conectada</p>
 </div>
 
-<!-- 2 PLANES -->
+<!-- 2 DEPOSITO -->
 <div class="card">
-<h3>2️⃣ Elegir Plan</h3>
+<h3>2️⃣ Depósito</h3>
+<p class="small">Enviar a wallet del proyecto:</p>
+<p class="small">UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J</p>
+
+<input type="number" id="amount" placeholder="Cantidad en TON">
+<button class="blue" onclick="sendToBlockchain()">Enviar a Blockchain</button>
+<button onclick="confirmDeposit()">Confirmar depósito</button>
+</div>
+
+<!-- 3 RETIRO -->
+<div class="card">
+<h3>3️⃣ Retiro</h3>
+<input type="number" id="withdrawAmount" placeholder="Cantidad a retirar">
+<button class="red" onclick="requestWithdraw()">Solicitar retiro</button>
+</div>
+
+<!-- 4 PLANES -->
+<div class="card">
+<h3>4️⃣ Planes</h3>
 
 <div class="plan" id="planPanadero">
 <b>🥉 Panadero</b><br>
@@ -64,29 +82,11 @@ Rentabilidad: 4%
 
 </div>
 
-<!-- 3 DEPOSITO REAL -->
+<!-- 5 SALDO -->
 <div class="card">
-<h3>3️⃣ Depositar</h3>
-<p class="small">Enviar a wallet del proyecto:</p>
-<p class="small">UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J</p>
-
-<input type="number" id="amount" placeholder="Cantidad en TON">
-<button class="blue" onclick="sendToBlockchain()">Enviar a Blockchain</button>
-<button onclick="confirmDeposit()">Confirmar depósito</button>
-</div>
-
-<!-- 4 SALDO -->
-<div class="card">
-<h3>4️⃣ Saldo</h3>
+<h3>5️⃣ Saldo</h3>
 <div class="balance" id="balance">0 TON</div>
 <p>Plan activo: <b id="activePlan">Ninguno</b></p>
-</div>
-
-<!-- 5 RETIRO -->
-<div class="card">
-<h3>5️⃣ Retiro</h3>
-<input type="number" id="withdrawAmount" placeholder="Cantidad a retirar">
-<button class="red" onclick="requestWithdraw()">Solicitar retiro</button>
 </div>
 
 <!-- 6 HISTORIAL -->
@@ -149,8 +149,7 @@ alert("Error o cancelado");
 
 function confirmDeposit(){
 let amount=parseFloat(document.getElementById("amount").value);
-if(activePlan==="Ninguno"){alert("Selecciona un plan primero");return;}
-if(!amount||amount<minAmount){alert("Mínimo requerido: "+minAmount+" TON");return;}
+if(!amount||amount<=0){alert("Cantidad inválida");return;}
 
 balance+=amount;
 history.push("Depósito confirmado: +"+amount+" TON");
@@ -187,9 +186,9 @@ localStorage.setItem("dailyRate",dailyRate);
 localStorage.setItem("minAmount",minAmount);
 }
 
-// Simulación ganancia automática cada 30s
+// Ganancia automática cada 30s SOLO si hay plan activo
 setInterval(()=>{
-if(balance>0&&dailyRate>0){
+if(balance>0 && dailyRate>0){
 let profit=balance*dailyRate;
 balance+=profit;
 history.push("Ganancia: +"+profit.toFixed(4)+" TON");
