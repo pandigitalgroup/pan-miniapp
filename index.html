@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mini App Inversión</title>
+<title>Mini App Inversión TON</title>
 
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
 <style>
 body{
     margin:0;
-    font-family: Arial, sans-serif;
-    background:#f4f6f9;
+    font-family:Arial, sans-serif;
+    background:#f2f5f9;
 }
 
 .container{
@@ -24,11 +24,21 @@ h2{
     text-align:center;
 }
 
+.balance-box{
+    background:white;
+    padding:15px;
+    border-radius:15px;
+    text-align:center;
+    margin:15px 0;
+    font-size:18px;
+    font-weight:bold;
+    box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+
 .grid{
     display:grid;
     grid-template-columns:1fr 1fr;
     gap:15px;
-    margin-top:20px;
 }
 
 .card{
@@ -42,26 +52,16 @@ h2{
 }
 
 .card:hover{
-    transform:scale(1.03);
+    transform:scale(1.05);
 }
 
 .icon{
-    font-size:40px;
-    margin-bottom:10px;
+    font-size:35px;
+    margin-bottom:8px;
 }
 
 .full{
     grid-column: span 2;
-}
-
-.balance-box{
-    background:white;
-    padding:15px;
-    border-radius:15px;
-    text-align:center;
-    margin-top:10px;
-    font-size:18px;
-    font-weight:bold;
 }
 
 .hidden{
@@ -92,12 +92,12 @@ button{
 
 <div class="container">
 
-<h2>Panel de Inversión</h2>
+<h2>Panel Inversión TON</h2>
 
 <div id="ton-connect"></div>
 
 <div class="balance-box">
-Saldo: <span id="balance">0</span> TON
+Saldo Disponible: <span id="balance">0</span> TON
 </div>
 
 <div class="grid">
@@ -134,7 +134,7 @@ Soporte
 
 </div>
 
-<!-- SECCIONES DINÁMICAS -->
+<!-- SECCIONES -->
 
 <div id="depositSection" class="hidden">
 <h3>Depositar TON</h3>
@@ -149,10 +149,10 @@ Soporte
 </div>
 
 <div id="plansSection" class="hidden">
-<h3>Planes Disponibles</h3>
-<p>Plan Básico: 5% mensual</p>
-<p>Plan Pro: 8% mensual</p>
-<p>Plan Elite: 12% mensual</p>
+<h3>Planes de Inversión</h3>
+<button onclick="activatePlan(5)">Plan Básico 5% mensual</button>
+<button onclick="activatePlan(8)">Plan Pro 8% mensual</button>
+<button onclick="activatePlan(12)">Plan Elite 12% mensual</button>
 </div>
 
 <div id="historySection" class="hidden">
@@ -173,8 +173,15 @@ const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
     buttonRootId: 'ton-connect'
 });
 
-let balance = 0;
-let history = [];
+let balance = localStorage.getItem("balance") ? parseFloat(localStorage.getItem("balance")) : 0;
+let history = JSON.parse(localStorage.getItem("history")) || [];
+let activePlan = JSON.parse(localStorage.getItem("plan")) || null;
+
+function saveData(){
+    localStorage.setItem("balance", balance);
+    localStorage.setItem("history", JSON.stringify(history));
+    localStorage.setItem("plan", JSON.stringify(activePlan));
+}
 
 function updateBalance(){
     document.getElementById("balance").innerText = balance.toFixed(2);
@@ -182,47 +189,34 @@ function updateBalance(){
 
 function addHistory(text){
     history.push(text);
-    const li = document.createElement("li");
-    li.innerText = text;
-    document.getElementById("historyList").appendChild(li);
+    saveData();
+    renderHistory();
+}
+
+function renderHistory(){
+    const list = document.getElementById("historyList");
+    list.innerHTML = "";
+    history.forEach(item=>{
+        const li = document.createElement("li");
+        li.innerText = item;
+        list.appendChild(li);
+    });
 }
 
 function connectWallet(){
     tonConnectUI.openModal();
 }
 
-function showDeposit(){
-    hideAll();
-    document.getElementById("depositSection").classList.remove("hidden");
-}
-
-function showWithdraw(){
-    hideAll();
-    document.getElementById("withdrawSection").classList.remove("hidden");
-}
-
-function showPlans(){
-    hideAll();
-    document.getElementById("plansSection").classList.remove("hidden");
-}
-
-function showHistory(){
-    hideAll();
-    document.getElementById("historySection").classList.remove("hidden");
-}
-
-function showSupport(){
-    hideAll();
-    document.getElementById("supportSection").classList.remove("hidden");
-}
-
 function hideAll(){
-    document.getElementById("depositSection").classList.add("hidden");
-    document.getElementById("withdrawSection").classList.add("hidden");
-    document.getElementById("plansSection").classList.add("hidden");
-    document.getElementById("historySection").classList.add("hidden");
-    document.getElementById("supportSection").classList.add("hidden");
+    document.querySelectorAll("#depositSection,#withdrawSection,#plansSection,#historySection,#supportSection")
+    .forEach(el=>el.classList.add("hidden"));
 }
+
+function showDeposit(){ hideAll(); document.getElementById("depositSection").classList.remove("hidden"); }
+function showWithdraw(){ hideAll(); document.getElementById("withdrawSection").classList.remove("hidden"); }
+function showPlans(){ hideAll(); document.getElementById("plansSection").classList.remove("hidden"); }
+function showHistory(){ hideAll(); document.getElementById("historySection").classList.remove("hidden"); }
+function showSupport(){ hideAll(); document.getElementById("supportSection").classList.remove("hidden"); }
 
 async function deposit(){
     const amount = parseFloat(document.getElementById("depositAmount").value);
@@ -230,19 +224,18 @@ async function deposit(){
 
     const transaction = {
         validUntil: Math.floor(Date.now() / 1000) + 600,
-        messages: [
-            {
-                address: "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J",
-                amount: (amount * 1000000000).toString()
-            }
-        ]
+        messages: [{
+            address: "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J",
+            amount: (amount * 1000000000).toString()
+        }]
     };
 
     await tonConnectUI.sendTransaction(transaction);
 
     balance += amount;
+    addHistory("Depósito: " + amount + " TON");
     updateBalance();
-    addHistory("Depósito de " + amount + " TON");
+    saveData();
 }
 
 function withdraw(){
@@ -251,12 +244,47 @@ function withdraw(){
     if(amount > balance) return alert("Saldo insuficiente");
 
     balance -= amount;
+    addHistory("Retiro solicitado: " + amount + " TON");
     updateBalance();
-    addHistory("Retiro solicitado de " + amount + " TON");
-    alert("Retiro registrado (modo prueba)");
+    saveData();
 }
 
+function activatePlan(percent){
+    if(balance <= 0) return alert("Necesitas saldo para activar un plan");
+
+    activePlan = {
+        percent: percent,
+        start: Date.now()
+    };
+
+    addHistory("Plan activado: " + percent + "% mensual");
+    saveData();
+}
+
+function calculateProfit(){
+    if(!activePlan) return;
+
+    const now = Date.now();
+    const diffDays = (now - activePlan.start) / (1000 * 60 * 60 * 24);
+
+    const monthlyRate = activePlan.percent / 100;
+    const dailyRate = monthlyRate / 30;
+
+    const profit = balance * dailyRate * diffDays;
+
+    if(profit > 0){
+        balance += profit;
+        activePlan.start = now;
+        addHistory("Ganancia generada: " + profit.toFixed(4) + " TON");
+        updateBalance();
+        saveData();
+    }
+}
+
+setInterval(calculateProfit, 10000);
+
 updateBalance();
+renderHistory();
 </script>
 
 </body>
