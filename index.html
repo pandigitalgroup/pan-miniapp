@@ -3,61 +3,109 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PAN Investment App</title>
+<title>$PAN Ecosystem</title>
 
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
 <style>
 body{
     margin:0;
-    font-family:Arial;
-    background:#f2f5f9;
+    font-family:'Segoe UI', sans-serif;
+    background:linear-gradient(135deg,#0f172a,#1e293b);
+    color:white;
 }
+
 .container{
     max-width:500px;
     margin:auto;
-    padding:15px;
+    padding:20px;
 }
-h2{text-align:center;}
+
+h2{
+    text-align:center;
+    margin-bottom:15px;
+    font-weight:600;
+}
+
 .balance-box{
-    background:white;
+    background:#1e293b;
     padding:15px;
     border-radius:15px;
     margin:10px 0;
     text-align:center;
-    box-shadow:0 4px 10px rgba(0,0,0,0.05);
+    box-shadow:0 4px 15px rgba(0,0,0,0.4);
 }
+
+.balance-box span{
+    font-size:20px;
+    font-weight:bold;
+    color:#38bdf8;
+}
+
 .grid{
     display:grid;
     grid-template-columns:1fr 1fr;
     gap:15px;
+    margin-top:20px;
 }
+
 .card{
-    background:white;
     border-radius:18px;
-    padding:20px;
+    padding:18px;
     text-align:center;
-    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+    font-weight:600;
     cursor:pointer;
+    transition:0.3s;
+    box-shadow:0 4px 15px rgba(0,0,0,0.4);
 }
-.full{grid-column:span 2;}
+
+.card:hover{
+    transform:scale(1.05);
+}
+
+.full{
+    grid-column:span 2;
+}
+
+/* COLORES PROFESIONALES */
+
+.connect{background:#2563eb;}
+.deposit{background:#16a34a;}
+.plan{background:#f59e0b;}
+.claim{background:#9333ea;}
+.history{background:#334155;}
+
 .hidden{display:none;}
+
+.section-box{
+    background:#1e293b;
+    padding:15px;
+    border-radius:15px;
+    margin-top:15px;
+}
+
 input{
     width:100%;
     padding:10px;
     margin-top:10px;
     border-radius:8px;
-    border:1px solid #ccc;
+    border:none;
 }
+
 button{
     width:100%;
-    padding:10px;
+    padding:12px;
     margin-top:10px;
     border:none;
-    border-radius:8px;
-    background:#0088cc;
-    color:white;
+    border-radius:10px;
+    background:#38bdf8;
+    color:black;
     font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#0ea5e9;
 }
 </style>
 </head>
@@ -70,38 +118,40 @@ button{
 <div id="ton-connect"></div>
 
 <div class="balance-box">
-TON Invertido: <span id="tonBalance">0</span> TON
+TON Invertido:<br>
+<span id="tonBalance">0</span> TON
 </div>
 
 <div class="balance-box">
-$PAN Acumulado: <span id="panBalance">0</span> PAN
+$PAN Acumulado:<br>
+<span id="panBalance">0</span> PAN
 </div>
 
 <div class="grid">
-<div class="card" onclick="connectWallet()">🔗 Conectar</div>
-<div class="card" onclick="showDeposit()">💰 Depositar TON</div>
-<div class="card" onclick="showStake()">📈 Activar Plan</div>
-<div class="card" onclick="showClaim()">🪙 Reclamar PAN</div>
-<div class="card full" onclick="showHistory()">📜 Historial</div>
+<div class="card connect" onclick="connectWallet()">🔗 Conectar</div>
+<div class="card deposit" onclick="showDeposit()">💰 Depositar</div>
+<div class="card plan" onclick="showStake()">📈 Activar Plan</div>
+<div class="card claim" onclick="showClaim()">🪙 Reclamar PAN</div>
+<div class="card history full" onclick="showHistory()">📜 Historial</div>
 </div>
 
-<div id="depositSection" class="hidden">
+<div id="depositSection" class="section-box hidden">
 <h3>Depositar TON</h3>
 <input type="number" id="depositAmount" placeholder="Cantidad TON">
-<button onclick="deposit()">Enviar</button>
+<button onclick="deposit()">Enviar Depósito</button>
 </div>
 
-<div id="stakeSection" class="hidden">
-<h3>Activar Plan 6% mensual</h3>
-<button onclick="activatePlan()">Activar</button>
+<div id="stakeSection" class="section-box hidden">
+<h3>Plan Activo 6% mensual</h3>
+<button onclick="activatePlan()">Activar Plan</button>
 </div>
 
-<div id="claimSection" class="hidden">
-<h3>Reclamar PAN acumulado</h3>
-<button onclick="claimPAN()">Reclamar</button>
+<div id="claimSection" class="section-box hidden">
+<h3>Reclamar $PAN acumulado</h3>
+<button onclick="claimPAN()">Reclamar PAN</button>
 </div>
 
-<div id="historySection" class="hidden">
+<div id="historySection" class="section-box hidden">
 <h3>Historial</h3>
 <ul id="historyList"></ul>
 </div>
@@ -198,7 +248,7 @@ function calculateRewards(){
     const now=Date.now();
     const diffDays=(now-lastRewardTime)/(1000*60*60*24);
 
-    const monthlyPAN=0.03; // 3% mensual en PAN
+    const monthlyPAN=0.03;
     const dailyPAN=monthlyPAN/30;
 
     const reward=tonBalance*dailyPAN*diffDays;
@@ -214,11 +264,10 @@ function calculateRewards(){
 function claimPAN(){
     if(panBalance<=0)return alert("No tienes PAN acumulado");
     addHistory("Reclamado PAN interno: "+panBalance.toFixed(2));
-    alert("PAN acreditado internamente (modo seguro)");
+    alert("PAN acreditado internamente");
 }
 
 setInterval(calculateRewards,10000);
-
 updateUI();
 
 </script>
