@@ -7,14 +7,92 @@
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
 <style>
-body{margin:0;font-family:Arial;background:#0B0F1A;color:white;}
-.container{max-width:420px;margin:auto;padding:20px;}
-.card{background:#121826;padding:20px;border-radius:16px;margin-bottom:15px;}
-button{width:100%;padding:14px;border:none;border-radius:10px;margin-bottom:10px;font-weight:bold;cursor:pointer;}
-.btn-blue{background:#3B82F6;color:white;}
-.btn-green{background:#22C55E;color:white;}
-.btn-red{background:#EF4444;color:white;}
-input{width:100%;padding:12px;border-radius:10px;border:none;margin-bottom:10px;background:#1E293B;color:white;}
+body{
+margin:0;
+font-family: 'Segoe UI', sans-serif;
+background:#0E1421;
+color:white;
+}
+
+.container{
+max-width:430px;
+margin:auto;
+padding:15px;
+}
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:15px;
+}
+
+.logo{
+font-weight:bold;
+font-size:20px;
+}
+
+.level{
+background:#1E293B;
+padding:5px 10px;
+border-radius:10px;
+font-size:12px;
+}
+
+.card{
+background:#131C2E;
+padding:15px;
+border-radius:15px;
+margin-bottom:15px;
+}
+
+.section-title{
+font-size:14px;
+color:#94A3B8;
+margin-bottom:10px;
+}
+
+.balance{
+font-size:16px;
+margin-bottom:5px;
+}
+
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:10px;
+margin-bottom:8px;
+font-weight:600;
+cursor:pointer;
+transition:0.2s;
+}
+
+button:hover{opacity:0.85;}
+
+.blue{background:#2563EB;}
+.green{background:#16A34A;}
+.orange{background:#F59E0B;}
+.red{background:#DC2626;}
+.purple{background:#7C3AED;}
+.gray{background:#334155;}
+
+input{
+width:100%;
+padding:10px;
+border-radius:10px;
+border:none;
+margin-bottom:8px;
+background:#1E293B;
+color:white;
+}
+
+.footer{
+text-align:center;
+font-size:11px;
+color:#64748B;
+margin-top:15px;
+}
 </style>
 </head>
 
@@ -22,84 +100,53 @@ input{width:100%;padding:12px;border-radius:10px;border:none;margin-bottom:10px;
 
 <div class="container">
 
+<div class="header">
+<div class="logo">PAN Capital</div>
+<div class="level">Nivel Bronce</div>
+</div>
+
 <div class="card">
 <div id="walletText">Wallet no conectada</div>
-<button class="btn-blue" id="connectWallet">Conectar Wallet</button>
+<button class="blue" id="connectWallet">🔗 Conectar Wallet</button>
 </div>
 
 <div class="card">
-<div>Balance TON: <span id="ton">0</span></div>
-<div>Balance PAN: <span id="pan">0</span></div>
+<div class="section-title">Dashboard</div>
+<div class="balance">TON: <span id="ton">0</span></div>
+<div class="balance">PAN: <span id="pan">0</span></div>
+<div class="balance">Ganancia diaria: 2%</div>
 </div>
 
 <div class="card">
-<input type="number" id="amount" placeholder="Monto TON">
+<div class="section-title">Inversión</div>
+<input type="number" id="amount" placeholder="Monto en TON">
+<button class="blue">💰 Depositar</button>
+<button class="green">🚀 Activar Plan</button>
+<button class="green">🔁 Reinvertir</button>
+</div>
 
-<button class="btn-blue" onclick="deposit()">Depositar</button>
-<button class="btn-green" onclick="activate()">Activar Plan</button>
-<button class="btn-red" onclick="withdraw()">Retirar</button>
+<div class="card">
+<div class="section-title">Finanzas</div>
+<button class="orange">🟠 Reclamar PAN</button>
+<button class="purple">🟣 Staking PAN</button>
+<button class="red">🔴 Retirar</button>
+<button class="gray">📜 Historial</button>
+</div>
+
+<div class="card">
+<div class="section-title">Comunidad</div>
+<button class="blue">👥 Referidos</button>
+<button class="gray">🏆 Ranking</button>
+<a href="https://t.me/MANDON1" target="_blank">
+<button class="blue">🛟 Soporte</button>
+</a>
+</div>
+
+<div class="footer">
+PAN Capital © 2026
 </div>
 
 </div>
-
-<script>
-const API = "http://localhost:3000/api/user";
-let currentWallet = null;
-
-const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-manifestUrl: 'https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json',
-buttonRootId: 'connectWallet'
-});
-
-tonConnectUI.onStatusChange(async wallet => {
-if(wallet){
-currentWallet = wallet.account.address;
-document.getElementById("walletText").innerText = currentWallet;
-await fetch(API+"/connect",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({wallet:currentWallet})
-});
-loadUser();
-}
-});
-
-async function loadUser(){
-const res = await fetch(API+"/"+currentWallet);
-const data = await res.json();
-document.getElementById("ton").innerText = data.tonBalance;
-document.getElementById("pan").innerText = data.panBalance;
-}
-
-async function deposit(){
-const amount = parseFloat(document.getElementById("amount").value);
-await fetch(API+"/deposit",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({wallet:currentWallet,amount})
-});
-loadUser();
-}
-
-async function activate(){
-await fetch(API+"/activate",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({wallet:currentWallet})
-});
-loadUser();
-}
-
-async function withdraw(){
-const amount = parseFloat(prompt("Monto a retirar"));
-await fetch(API+"/withdraw",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({wallet:currentWallet,amount})
-});
-loadUser();
-}
-</script>
 
 </body>
 </html>
