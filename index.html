@@ -3,21 +3,102 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PAN Capital con Precios Reales</title>
+<title>PAN Capital</title>
+
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
 <style>
-body{margin:0;font-family:Arial;background:#0B0F1A;color:white;}
-.container{max-width:440px;margin:auto;padding:15px;}
-.card{background:#121826;padding:18px;border-radius:15px;margin-bottom:15px;}
-.title{font-size:18px;font-weight:600;margin-bottom:8px;}
-.value{font-size:20px;font-weight:700;color:#38bdf8;}
-button{width:100%;padding:14px;border:none;border-radius:10px;margin:8px 0;font-weight:600;cursor:pointer;}
-.blue{background:#3B82F6;color:white;}
-.green{background:#22C55E;color:white;}
-.red{background:#DC2626;color:white;}
-.input{width:100%;padding:12px;border-radius:10px;border:none;background:#1E293B;color:white;}
-.footer{font-size:12px;text-align:center;color:#64748B;margin-top:15px;}
+
+body{
+margin:0;
+font-family: 'Inter', sans-serif;
+background:#0F172A;
+color:#E2E8F0;
+}
+
+.container{
+max-width:460px;
+margin:auto;
+padding:18px;
+}
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:15px;
+}
+
+.logo{
+font-weight:600;
+font-size:20px;
+}
+
+.level{
+background:#1E293B;
+padding:6px 12px;
+border-radius:12px;
+font-size:12px;
+color:#94A3B8;
+}
+
+.card{
+background:#162033;
+padding:16px;
+border-radius:16px;
+margin-bottom:14px;
+box-shadow:0 4px 12px rgba(0,0,0,0.3);
+}
+
+.section-title{
+font-size:13px;
+color:#94A3B8;
+margin-bottom:10px;
+}
+
+.value{
+font-weight:600;
+}
+
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:12px;
+margin-bottom:8px;
+font-weight:600;
+cursor:pointer;
+transition:0.2s;
+}
+
+button:hover{
+opacity:0.85;
+}
+
+.btn-primary{background:#2563EB;color:white;}
+.btn-success{background:#15803D;color:white;}
+.btn-warning{background:#C2410C;color:white;}
+.btn-danger{background:#B91C1C;color:white;}
+.btn-gray{background:#334155;color:white;}
+.btn-soft{background:#1E293B;color:#E2E8F0;}
+
+input{
+width:100%;
+padding:10px;
+border-radius:10px;
+border:none;
+margin-bottom:8px;
+background:#1E293B;
+color:white;
+}
+
+.footer{
+text-align:center;
+font-size:11px;
+color:#64748B;
+margin-top:15px;
+}
+
 </style>
 </head>
 
@@ -25,119 +106,183 @@ button{width:100%;padding:14px;border:none;border-radius:10px;margin:8px 0;font-
 
 <div class="container">
 
-<div class="card">
-<div class="title">🔗 Conexión Wallet</div>
-<div id="walletText">Wallet no conectada</div>
-<button class="blue" id="connectWallet">Conectar Wallet</button>
+<div class="header">
+<div class="logo">PAN Capital</div>
+<div class="level">Nivel Bronce</div>
 </div>
 
+<!-- WALLET -->
 <div class="card">
-<div class="title">📊 Precios en Tiempo Real</div>
-<div>TON → USDT: <span class="value" id="priceTonUsdt">–</span></div>
-<div>TON → USD: <span class="value" id="priceTonUsd">–</span></div>
-<div>TON → COP: <span class="value" id="priceTonCop">–</span></div>
-<div>USDT → COP: <span class="value" id="priceUsdtCop">–</span></div>
+<div class="section-title">Wallet</div>
+<div id="walletText">No conectada</div>
+<button class="btn-primary" id="connectWallet">Conectar Wallet</button>
 </div>
 
+<!-- PRECIOS -->
 <div class="card">
-<div class="title">📈 Balance Actual</div>
-<div>Balance TON: <span id="ton">0</span></div>
-<div>Balance PAN: <span id="pan">0</span></div>
+<div class="section-title">Mercado en Tiempo Real</div>
+<div>TON → USD: <span class="value" id="tonUsd">-</span></div>
+<div>TON → COP: <span class="value" id="tonCop">-</span></div>
+<div>USDT → COP: <span class="value" id="usdtCop">-</span></div>
+<div>PAN (estimado): <span class="value" id="panPrice">0.10 USD</span></div>
 </div>
 
+<!-- CALCULADORA -->
 <div class="card">
-<input type="number" id="amount" class="input" placeholder="Monto en TON">
-<button class="blue" onclick="deposit()">💰 Depositar TON</button>
-<button class="green" onclick="activate()">🚀 Activar Plan</button>
-<button class="green" onclick="reinvest()">🔁 Reinvertir</button>
-<button class="red" onclick="withdraw()">🔴 Retirar</button>
+<div class="section-title">Calculadora</div>
+<input type="number" id="calcInput" placeholder="Cantidad en TON" oninput="convert()">
+<div>En USD: <span id="calcUsd">0</span></div>
+<div>En COP: <span id="calcCop">0</span></div>
+<div>En PAN: <span id="calcPan">0</span></div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="card">
+<div class="section-title">Dashboard</div>
+<div>Balance TON: <span id="tonBalance">0</span></div>
+<div>Balance PAN: <span id="panBalance">0</span></div>
+<div>Rentabilidad diaria: 2%</div>
+</div>
+
+<!-- INVERSION -->
+<div class="card">
+<div class="section-title">Inversión</div>
+<input type="number" id="amount" placeholder="Monto en TON">
+<button class="btn-primary" onclick="deposit()">Depositar</button>
+<button class="btn-success" onclick="activate()">Activar Plan</button>
+<button class="btn-success" onclick="reinvest()">Reinvertir</button>
+</div>
+
+<!-- FINANZAS -->
+<div class="card">
+<div class="section-title">Finanzas</div>
+<button class="btn-warning" onclick="claim()">Reclamar PAN</button>
+<button class="btn-soft" onclick="stake()">Staking PAN</button>
+<button class="btn-danger" onclick="withdraw()">Retirar</button>
+<button class="btn-gray" onclick="historyLog()">Historial</button>
+</div>
+
+<!-- COMUNIDAD -->
+<div class="card">
+<div class="section-title">Comunidad</div>
+<button class="btn-soft">Referidos</button>
+<button class="btn-soft">Ranking</button>
+<a href="https://t.me/MANDON1" target="_blank">
+<button class="btn-primary">Soporte</button>
+</a>
 </div>
 
 <div class="footer">
-PAN Capital © 2026 — Datos de precios por CoinGecko
+PAN Capital © 2026
 </div>
 
 </div>
 
 <script>
 
-// 🌐 API de precios gratis (CoinGecko)
+// PRECIOS EN TIEMPO REAL
+let tonUsdPrice = 0;
+let tonCopPrice = 0;
+let usdtCopPrice = 0;
+let panUsdPrice = 0.10;
+
 async function loadPrices(){
-    try {
-        const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=toncoin,tether&vs_currencies=usd,cop,usdt");
-        const json = await res.json();
+try{
+const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=toncoin,tether&vs_currencies=usd,cop");
+const data = await res.json();
 
-        const tonUsd = json.toncoin.usd;
-        const tonCop = json.toncoin.cop;
-        const tonUsdt = json.toncoin.usdt;
-        const usdtCop = json.tether.cop;
+tonUsdPrice = data.toncoin.usd;
+tonCopPrice = data.toncoin.cop;
+usdtCopPrice = data.tether.cop;
 
-        document.getElementById("priceTonUsd").innerText = tonUsd.toFixed(4) + " $";
-        document.getElementById("priceTonCop").innerText = tonCop.toFixed(0) + " COP";
-        document.getElementById("priceTonUsdt").innerText = tonUsdt.toFixed(4) + " USDT";
-        document.getElementById("priceUsdtCop").innerText = usdtCop.toFixed(0) + " COP";
-    } catch (err){
-        console.error("Error al cargar precios", err);
-    }
+document.getElementById("tonUsd").innerText = tonUsdPrice.toFixed(3)+" USD";
+document.getElementById("tonCop").innerText = tonCopPrice.toFixed(0)+" COP";
+document.getElementById("usdtCop").innerText = usdtCopPrice.toFixed(0)+" COP";
+
+}catch(e){console.log("Error precios");}
 }
 
-// Llamar al cargar
 loadPrices();
-// Actualizar cada 30 segundos
-setInterval(loadPrices, 30000);
+setInterval(loadPrices,30000);
 
+// CALCULADORA
+function convert(){
+let amount = parseFloat(document.getElementById("calcInput").value) || 0;
+
+document.getElementById("calcUsd").innerText = (amount * tonUsdPrice).toFixed(2);
+document.getElementById("calcCop").innerText = (amount * tonCopPrice).toFixed(0);
+document.getElementById("calcPan").innerText = ((amount * tonUsdPrice)/panUsdPrice).toFixed(2);
+}
+
+// WALLET
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
 manifestUrl:'https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json',
 buttonRootId:'connectWallet'
 });
 
 tonConnectUI.onStatusChange(wallet=>{
-    if(wallet){
-        document.getElementById("walletText").innerText = wallet.account.address;
-    }
+if(wallet){
+document.getElementById("walletText").innerText =
+wallet.account.address.slice(0,6)+"...";
+}
 });
 
+// SIMULACION INTERNA
 let tonBalance = 0;
 let panBalance = 0;
 
 function updateUI(){
-    document.getElementById("ton").innerText = tonBalance.toFixed(2);
-    document.getElementById("pan").innerText = panBalance.toFixed(2);
+document.getElementById("tonBalance").innerText = tonBalance.toFixed(2);
+document.getElementById("panBalance").innerText = panBalance.toFixed(2);
 }
 
 function deposit(){
-    const amount = parseFloat(document.getElementById("amount").value);
-    if(amount > 0){
-        tonBalance += amount;
-        updateUI();
-        alert("Depósito simulado TON: " + amount);
-    }
+let amount = parseFloat(document.getElementById("amount").value);
+if(amount>0){
+tonBalance += amount;
+updateUI();
+alert("Depósito agregado");
+}
 }
 
 function activate(){
-    if(tonBalance > 0){
-        panBalance += tonBalance * 0.02;
-        updateUI();
-        alert("Plan activado - Ganancia simulada en PAN");
-    }
+if(tonBalance>0){
+panBalance += tonBalance * 0.02;
+updateUI();
+alert("Plan activado");
+}
 }
 
 function reinvest(){
-    if(panBalance > 0){
-        tonBalance += panBalance;
-        panBalance = 0;
-        updateUI();
-        alert("Reinversión completada");
-    }
+if(panBalance>0){
+tonBalance += panBalance;
+panBalance = 0;
+updateUI();
+alert("Reinvertido correctamente");
+}
+}
+
+function claim(){
+alert("PAN reclamado (simulado)");
+}
+
+function stake(){
+panBalance += panBalance * 0.05;
+updateUI();
+alert("Staking aplicado +5%");
 }
 
 function withdraw(){
-    const amount = parseFloat(prompt("Monto a retirar en TON"));
-    if(amount > 0 && amount <= tonBalance){
-        tonBalance -= amount;
-        updateUI();
-        alert("Retiro solicitado (simulado)");
-    }
+let amount = parseFloat(prompt("Monto a retirar"));
+if(amount>0 && amount<=tonBalance){
+tonBalance -= amount;
+updateUI();
+alert("Retiro solicitado");
+}
+}
+
+function historyLog(){
+alert("Historial en desarrollo");
 }
 
 </script>
