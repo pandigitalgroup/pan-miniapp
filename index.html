@@ -43,7 +43,8 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div class="card">
 <div class="section-title">Wallet</div>
 <div id="walletText">No conectada</div>
-<div id="connectWalletContainer"></div>
+<!-- TON Connect inyecta el botón aquí automáticamente -->
+<div id="connectWallet"></div>
 </div>
 
 <!-- DASHBOARD -->
@@ -115,12 +116,8 @@ const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
 
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
     manifestUrl:'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json',
-    buttonRootId:'connectWalletContainer'
+    buttonRootId:'connectWallet' // TON Connect inyecta automáticamente aquí el botón
 });
-
-// Este paso es clave: asignamos el botón para abrir el popup
-const button = tonConnectUI.renderButton();
-document.getElementById('connectWalletContainer').appendChild(button);
 
 tonConnectUI.onStatusChange(wallet=>{
     if(wallet && wallet.account){
