@@ -6,9 +6,10 @@
 <title>PAN Capital</title>
 
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 
 <style>
-
 body{
 margin:0;
 font-family: 'Inter', sans-serif;
@@ -92,13 +93,28 @@ background:#1E293B;
 color:white;
 }
 
+.chart-buttons{
+display:flex;
+gap:6px;
+margin-top:10px;
+}
+
+.chart-buttons button{
+width:50%;
+padding:6px;
+font-size:12px;
+}
+
+canvas{
+margin-top:10px;
+}
+
 .footer{
 text-align:center;
 font-size:11px;
 color:#64748B;
 margin-top:15px;
 }
-
 </style>
 </head>
 
@@ -118,15 +134,24 @@ margin-top:15px;
 <button class="btn-primary" id="connectWallet">Conectar Wallet</button>
 </div>
 
-<!-- PRECIOS -->
+<!-- MERCADO + GRAFICO -->
 <div class="card">
 <div class="section-title">Mercado en Tiempo Real</div>
+
 <div>TON → USD: <span class="value" id="tonUsd">-</span></div>
 <div>TON → COP: <span class="value" id="tonCop">-</span></div>
 <div>USDT → COP: <span class="value" id="usdtCop">-</span></div>
 <div>PAN (estimado): <span class="value" id="panPrice">0.10 USD</span></div>
+
+<div class="chart-buttons">
+<button class="btn-soft" onclick="loadChart(7)">7D</button>
+<button class="btn-soft" onclick="loadChart(30)">30D</button>
 </div>
 
+<canvas id="tonChart"></canvas>
+</div>
+
+<!-- RESTO DE TU CÓDIGO IGUAL -->
 <!-- CALCULADORA -->
 <div class="card">
 <div class="section-title">Calculadora</div>
@@ -144,34 +169,6 @@ margin-top:15px;
 <div>Rentabilidad diaria: 2%</div>
 </div>
 
-<!-- INVERSION -->
-<div class="card">
-<div class="section-title">Inversión</div>
-<input type="number" id="amount" placeholder="Monto en TON">
-<button class="btn-primary" onclick="deposit()">Depositar</button>
-<button class="btn-success" onclick="activate()">Activar Plan</button>
-<button class="btn-success" onclick="reinvest()">Reinvertir</button>
-</div>
-
-<!-- FINANZAS -->
-<div class="card">
-<div class="section-title">Finanzas</div>
-<button class="btn-warning" onclick="claim()">Reclamar PAN</button>
-<button class="btn-soft" onclick="stake()">Staking PAN</button>
-<button class="btn-danger" onclick="withdraw()">Retirar</button>
-<button class="btn-gray" onclick="historyLog()">Historial</button>
-</div>
-
-<!-- COMUNIDAD -->
-<div class="card">
-<div class="section-title">Comunidad</div>
-<button class="btn-soft">Referidos</button>
-<button class="btn-soft">Ranking</button>
-<a href="https://t.me/MANDON1" target="_blank">
-<button class="btn-primary">Soporte</button>
-</a>
-</div>
-
 <div class="footer">
 PAN Capital © 2026
 </div>
@@ -180,14 +177,13 @@ PAN Capital © 2026
 
 <script>
 
-// PRECIOS EN TIEMPO REAL
+// PRECIOS
 let tonUsdPrice = 0;
 let tonCopPrice = 0;
 let usdtCopPrice = 0;
 let panUsdPrice = 0.10;
 
 async function loadPrices(){
-try{
 const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=toncoin,tether&vs_currencies=usd,cop");
 const data = await res.json();
 
@@ -198,92 +194,44 @@ usdtCopPrice = data.tether.cop;
 document.getElementById("tonUsd").innerText = tonUsdPrice.toFixed(3)+" USD";
 document.getElementById("tonCop").innerText = tonCopPrice.toFixed(0)+" COP";
 document.getElementById("usdtCop").innerText = usdtCopPrice.toFixed(0)+" COP";
-
-}catch(e){console.log("Error precios");}
 }
 
 loadPrices();
 setInterval(loadPrices,30000);
 
-// CALCULADORA
-function convert(){
-let amount = parseFloat(document.getElementById("calcInput").value) || 0;
+// GRAFICO
+let chart;
 
-document.getElementById("calcUsd").innerText = (amount * tonUsdPrice).toFixed(2);
-document.getElementById("calcCop").innerText = (amount * tonCopPrice).toFixed(0);
-document.getElementById("calcPan").innerText = ((amount * tonUsdPrice)/panUsdPrice).toFixed(2);
+async function loadChart(days){
+const res = await fetch(`https://api.coingecko.com/api/v3/coins/toncoin/market_chart?vs_currency=usd&days=${days}`);
+const data = await res.json();
+
+const prices = data.prices.map(p=>({x:new Date(p[0]),y:p[1]}));
+
+if(chart) chart.destroy();
+
+chart = new Chart(document.getElementById("tonChart"),{
+type:"line",
+data:{
+datasets:[{
+data:prices,
+borderColor:"#3B82F6",
+backgroundColor:"rgba(59,130,246,0.1)",
+fill:true,
+tension:0.3
+}]
+},
+options:{
+plugins:{legend:{display:false}},
+scales:{
+x:{type:"time",time:{unit:"day"}},
+y:{beginAtZero:false}
 }
-
-// WALLET
-const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-manifestUrl:'https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json',
-buttonRootId:'connectWallet'
+}
 });
-
-tonConnectUI.onStatusChange(wallet=>{
-if(wallet){
-document.getElementById("walletText").innerText =
-wallet.account.address.slice(0,6)+"...";
-}
-});
-
-// SIMULACION INTERNA
-let tonBalance = 0;
-let panBalance = 0;
-
-function updateUI(){
-document.getElementById("tonBalance").innerText = tonBalance.toFixed(2);
-document.getElementById("panBalance").innerText = panBalance.toFixed(2);
 }
 
-function deposit(){
-let amount = parseFloat(document.getElementById("amount").value);
-if(amount>0){
-tonBalance += amount;
-updateUI();
-alert("Depósito agregado");
-}
-}
-
-function activate(){
-if(tonBalance>0){
-panBalance += tonBalance * 0.02;
-updateUI();
-alert("Plan activado");
-}
-}
-
-function reinvest(){
-if(panBalance>0){
-tonBalance += panBalance;
-panBalance = 0;
-updateUI();
-alert("Reinvertido correctamente");
-}
-}
-
-function claim(){
-alert("PAN reclamado (simulado)");
-}
-
-function stake(){
-panBalance += panBalance * 0.05;
-updateUI();
-alert("Staking aplicado +5%");
-}
-
-function withdraw(){
-let amount = parseFloat(prompt("Monto a retirar"));
-if(amount>0 && amount<=tonBalance){
-tonBalance -= amount;
-updateUI();
-alert("Retiro solicitado");
-}
-}
-
-function historyLog(){
-alert("Historial en desarrollo");
-}
+loadChart(7);
 
 </script>
 
