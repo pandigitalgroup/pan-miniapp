@@ -2,84 +2,22 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Yesman Bakery - Inversiones</title>
+<title>Yesman Bakery - Planes</title>
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
 <style>
-body{
-    margin:0;
-    font-family: Arial, sans-serif;
-    background:#f4f1ea;
-}
-
-header{
-    background:#8B4513;
-    color:white;
-    padding:18px;
-    text-align:center;
-    font-size:22px;
-    font-weight:bold;
-}
-
-.container{
-    padding:20px;
-    max-width:500px;
-    margin:auto;
-}
-
-.card{
-    background:white;
-    padding:20px;
-    margin-bottom:20px;
-    border-radius:15px;
-    box-shadow:0 6px 15px rgba(0,0,0,0.08);
-}
-
-h3{ margin-top:0; }
-
-input{
-    width:100%;
-    padding:12px;
-    border-radius:10px;
-    border:1px solid #ccc;
-    margin-top:10px;
-    font-size:15px;
-}
-
-button{
-    width:100%;
-    padding:13px;
-    border:none;
-    border-radius:10px;
-    font-size:16px;
-    margin-top:15px;
-    cursor:pointer;
-    font-weight:bold;
-}
-
-.deposit-btn{ background:#27ae60; color:white; }
-.withdraw-btn{ background:#c0392b; color:white; }
-
-.status-box{
-    background:#f8f8f8;
-    padding:15px;
-    border-radius:10px;
-    font-size:14px;
-}
-
-.balance{
-    font-size:22px;
-    font-weight:bold;
-    color:#27ae60;
-}
-.history{
-    font-size:13px;
-    max-height:120px;
-    overflow:auto;
-    background:#fafafa;
-    padding:10px;
-    border-radius:8px;
-}
+body{margin:0;font-family:Arial;background:#f4f1ea;}
+header{background:#8B4513;color:white;padding:18px;text-align:center;font-size:22px;font-weight:bold;}
+.container{padding:20px;max-width:500px;margin:auto;}
+.card{background:white;padding:20px;margin-bottom:20px;border-radius:15px;box-shadow:0 6px 15px rgba(0,0,0,0.08);}
+.plan{border:2px solid #eee;padding:15px;border-radius:12px;margin-bottom:15px;}
+.plan h4{margin:0;}
+button{width:100%;padding:12px;border:none;border-radius:10px;font-size:15px;margin-top:10px;cursor:pointer;font-weight:bold;}
+.select-btn{background:#27ae60;color:white;}
+.deposit-btn{background:#2980b9;color:white;}
+.withdraw-btn{background:#c0392b;color:white;}
+.balance{font-size:22px;font-weight:bold;color:#27ae60;}
+.history{font-size:13px;max-height:120px;overflow:auto;background:#fafafa;padding:10px;border-radius:8px;}
 </style>
 </head>
 
@@ -94,25 +32,45 @@ button{
 <div class="card">
 <h3>Saldo Interno</h3>
 <div class="balance" id="balance">0 TON</div>
-<p>Ganancia diaria simulada: 2%</p>
+<p>Plan activo: <span id="activePlan">Ninguno</span></p>
 </div>
 
 <div class="card">
-<h3>Depositar TON</h3>
-<p>Envía TON a la wallet del proyecto:</p>
-<p style="font-size:12px; word-break:break-all;">
-UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J
-</p>
+<h3>Planes de Inversión</h3>
 
-<input type="number" id="amount" placeholder="Cantidad en TON" min="0.01" step="0.01">
-<button class="deposit-btn" onclick="deposit()">Enviar a Blockchain</button>
-<button onclick="confirmDeposit()">Confirmar depósito (simulado)</button>
+<div class="plan">
+<h4>🥉 Plan Panadero</h4>
+<p>Mínimo 0.1 TON</p>
+<p>2% diario</p>
+<button class="select-btn" onclick="selectPlan('Panadero',0.02,0.1)">Seleccionar</button>
+</div>
+
+<div class="plan">
+<h4>🥈 Plan Maestro</h4>
+<p>Mínimo 1 TON</p>
+<p>3% diario</p>
+<button class="select-btn" onclick="selectPlan('Maestro',0.03,1)">Seleccionar</button>
+</div>
+
+<div class="plan">
+<h4>🥇 Plan Imperio</h4>
+<p>Mínimo 5 TON</p>
+<p>4% diario</p>
+<button class="select-btn" onclick="selectPlan('Imperio',0.04,5)">Seleccionar</button>
+</div>
+
 </div>
 
 <div class="card">
-<h3>Solicitar Retiro</h3>
+<h3>Depositar</h3>
+<input type="number" id="amount" placeholder="Cantidad en TON">
+<button class="deposit-btn" onclick="confirmDeposit()">Confirmar depósito (simulado)</button>
+</div>
+
+<div class="card">
+<h3>Retiro</h3>
 <input type="number" id="withdrawAmount" placeholder="Cantidad a retirar">
-<button class="withdraw-btn" onclick="requestWithdraw()">Solicitar Retiro</button>
+<button class="withdraw-btn" onclick="requestWithdraw()">Solicitar retiro</button>
 </div>
 
 <div class="card">
@@ -120,64 +78,32 @@ UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J
 <div class="history" id="history"></div>
 </div>
 
-<div class="card">
-<h3>Estado</h3>
-<div class="status-box" id="status">
-Wallet no conectada
-</div>
-</div>
-
 </div>
 
 <script>
-const receiverAddress = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
-
 let balance = parseFloat(localStorage.getItem("balance")) || 0;
 let history = JSON.parse(localStorage.getItem("history")) || [];
+let activePlan = localStorage.getItem("activePlan") || "Ninguno";
+let dailyRate = parseFloat(localStorage.getItem("dailyRate")) || 0;
+let minAmount = parseFloat(localStorage.getItem("minAmount")) || 0;
 
 updateUI();
 
-const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-    manifestUrl: 'https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json',
-    buttonRootId: 'ton-connect'
-});
-
-tonConnectUI.onStatusChange(wallet => {
-    if(wallet){
-        document.getElementById("status").innerHTML =
-        "✅ Wallet conectada:<br><br>" + wallet.account.address;
-    }else{
-        document.getElementById("status").innerHTML = "Wallet no conectada";
-    }
-});
-
-async function deposit(){
-    const amount = document.getElementById("amount").value;
-    if(!amount || amount <= 0){
-        alert("Ingresa cantidad válida");
-        return;
-    }
-
-    const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 600,
-        messages: [{
-            address: receiverAddress,
-            amount: (amount * 1000000000).toString()
-        }]
-    };
-
-    try{
-        await tonConnectUI.sendTransaction(transaction);
-        alert("Transacción enviada. Ahora confirma el depósito.");
-    }catch(e){
-        alert("Error o cancelado");
-    }
+function selectPlan(name, rate, minimum){
+    activePlan = name;
+    dailyRate = rate;
+    minAmount = minimum;
+    history.push("Plan seleccionado: " + name);
+    saveData();
+    updateUI();
 }
 
 function confirmDeposit(){
-    const amount = parseFloat(document.getElementById("amount").value);
-    if(!amount) return;
-
+    let amount = parseFloat(document.getElementById("amount").value);
+    if(!amount || amount < minAmount){
+        alert("Debes invertir mínimo " + minAmount + " TON en este plan.");
+        return;
+    }
     balance += amount;
     history.push("Depósito: +" + amount + " TON");
     saveData();
@@ -185,44 +111,42 @@ function confirmDeposit(){
 }
 
 function requestWithdraw(){
-    const amount = parseFloat(document.getElementById("withdrawAmount").value);
-    if(!amount || amount <= 0){
-        alert("Cantidad inválida");
-        return;
-    }
-
-    if(amount > balance){
+    let amount = parseFloat(document.getElementById("withdrawAmount").value);
+    if(!amount || amount > balance){
         alert("Saldo insuficiente");
         return;
     }
-
     balance -= amount;
-    history.push("Solicitud retiro: -" + amount + " TON (pendiente manual)");
+    history.push("Retiro solicitado: -" + amount + " TON");
     saveData();
     updateUI();
-    alert("Solicitud enviada. Procesar manualmente.");
 }
 
 function updateUI(){
     document.getElementById("balance").innerText = balance.toFixed(2) + " TON";
     document.getElementById("history").innerHTML = history.join("<br>");
+    document.getElementById("activePlan").innerText = activePlan;
 }
 
 function saveData(){
     localStorage.setItem("balance", balance);
     localStorage.setItem("history", JSON.stringify(history));
+    localStorage.setItem("activePlan", activePlan);
+    localStorage.setItem("dailyRate", dailyRate);
+    localStorage.setItem("minAmount", minAmount);
 }
 
-// Simulación de ganancia diaria automática cada 30 segundos
+// Simulación de ganancia automática cada 30 segundos
 setInterval(()=>{
-    if(balance > 0){
-        let profit = balance * 0.02;
+    if(balance > 0 && dailyRate > 0){
+        let profit = balance * dailyRate;
         balance += profit;
-        history.push("Ganancia diaria: +" + profit.toFixed(4) + " TON");
+        history.push("Ganancia: +" + profit.toFixed(4) + " TON");
         saveData();
         updateUI();
     }
-}, 30000);
+},30000);
+
 </script>
 
 </body>
