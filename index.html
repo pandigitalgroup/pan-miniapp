@@ -3,134 +3,164 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard TON</title>
+<title>Dashboard Inversión</title>
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 
 <style>
-body {
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #f1f5f9;
-  color: #1e293b;
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background:#f4f6f9;
+  color:#1e293b;
 }
 
-.container {
-  max-width: 950px;
-  margin: auto;
-  padding: 20px;
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
 }
 
-.card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+.card{
+  background:white;
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:20px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.05);
 }
 
-h1 {
-  text-align: center;
-  font-weight: 600;
+h1{
+  text-align:center;
+  font-weight:600;
 }
 
-.price-box {
-  text-align: center;
-  margin-top: 10px;
+.prices{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:15px;
+  text-align:center;
 }
 
-.price {
-  font-size: 28px;
-  font-weight: bold;
-  color: #2563eb;
+.price-box{
+  background:#f1f5f9;
+  padding:15px;
+  border-radius:12px;
 }
 
-.buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 15px;
+.price{
+  font-size:20px;
+  font-weight:bold;
+  margin-top:5px;
+  color:#2563eb;
 }
 
-button {
-  padding: 10px 16px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.2s;
+.buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:center;
+  margin-top:15px;
 }
 
-.primary {
-  background: #2563eb;
-  color: white;
+button{
+  padding:10px 16px;
+  border-radius:8px;
+  border:none;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.2s;
 }
 
-.secondary {
-  background: #e2e8f0;
-  color: #1e293b;
+.primary{
+  background:#2563eb;
+  color:white;
 }
 
-button:hover {
-  opacity: 0.85;
+.secondary{
+  background:#e2e8f0;
+  color:#1e293b;
 }
 
-.input-box {
-  text-align: center;
-  margin-top: 15px;
+button:hover{
+  opacity:0.85;
 }
 
-input {
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #cbd5e1;
-  width: 150px;
+input{
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #cbd5e1;
+  width:150px;
 }
 
-.footer {
-  text-align: center;
-  font-size: 13px;
-  color: #64748b;
-  margin-top: 15px;
+.calc-result{
+  margin-top:10px;
+  font-weight:600;
+  color:#16a34a;
+}
+
+canvas{
+  margin-top:20px;
+}
+
+.footer{
+  text-align:center;
+  font-size:13px;
+  color:#64748b;
+  margin-top:20px;
 }
 </style>
 </head>
-
 <body>
 
 <div class="container">
 
-<h1>Panel TON</h1>
+<h1>Panel de Inversión</h1>
 
 <div class="card">
+<div class="prices">
   <div class="price-box">
-    Precio actual TON (USD)
-    <div class="price" id="currentPrice">Cargando...</div>
+    TON
+    <div class="price" id="tonPrice">Cargando...</div>
   </div>
+  <div class="price-box">
+    USDT
+    <div class="price" id="usdtPrice">Cargando...</div>
+  </div>
+  <div class="price-box">
+    COP (USD)
+    <div class="price" id="copPrice">Cargando...</div>
+  </div>
+  <div class="price-box">
+    PAN
+    <div class="price">Próximamente</div>
+  </div>
+</div>
 </div>
 
 <div class="card">
-  <div class="buttons">
-    <button id="btn7" class="primary">7 Días</button>
-    <button id="btn30" class="secondary">30 Días</button>
-  </div>
-  <canvas id="tonChart"></canvas>
+<div class="buttons">
+  <button class="primary">Conectar Wallet</button>
+  <button class="secondary">Depositar</button>
+  <button class="secondary">Retirar</button>
+  <button class="secondary">Reinvertir</button>
+  <button class="primary" onclick="window.open('https://t.me/MANDON1')">Soporte</button>
+</div>
 </div>
 
 <div class="card">
-  <div class="buttons">
-    <button class="secondary">Depositar</button>
-    <button class="secondary">Retirar</button>
-    <button class="secondary">Reinvertir</button>
-    <button class="primary" onclick="window.open('https://t.me/MANDON1')">Soporte</button>
-  </div>
+<h3>Calculadora</h3>
+<input type="number" id="amount" placeholder="Monto USD">
+<button class="primary" onclick="calculate()">Calcular 6% mensual</button>
+<div class="calc-result" id="result"></div>
+</div>
 
-  <div class="input-box">
-    <input type="number" placeholder="Monto a invertir">
-  </div>
+<div class="card">
+<div class="buttons">
+  <button id="btn7" class="primary">7 Días</button>
+  <button id="btn30" class="secondary">30 Días</button>
+</div>
+<canvas id="tonChart"></canvas>
 </div>
 
 <div class="footer">
@@ -143,72 +173,72 @@ Datos en tiempo real vía CoinGecko API
 
 let chart;
 
-async function fetchPrice() {
-  try {
-    const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=toncoin&vs_currencies=usd");
+async function fetchPrices(){
+  try{
+    const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=toncoin,tether&vs_currencies=usd,cop");
     const data = await res.json();
-    document.getElementById("currentPrice").innerText = "$" + data.toncoin.usd;
-  } catch {
-    document.getElementById("currentPrice").innerText = "Error cargando";
+
+    document.getElementById("tonPrice").innerText="$"+data.toncoin.usd;
+    document.getElementById("usdtPrice").innerText="$"+data.tether.usd;
+    document.getElementById("copPrice").innerText=data.toncoin.cop+" COP";
+  }catch{
+    document.getElementById("tonPrice").innerText="Error";
   }
 }
 
-async function loadChart(days) {
-  try {
-    const res = await fetch(`https://api.coingecko.com/api/v3/coins/toncoin/market_chart?vs_currency=usd&days=${days}`);
-    const data = await res.json();
+async function loadChart(days){
+  const res = await fetch(`https://api.coingecko.com/api/v3/coins/toncoin/market_chart?vs_currency=usd&days=${days}`);
+  const data = await res.json();
 
-    const prices = data.prices.map(p => ({
-      x: new Date(p[0]),
-      y: p[1]
-    }));
+  const prices=data.prices.map(p=>({x:new Date(p[0]),y:p[1]}));
 
-    if (chart) chart.destroy();
+  if(chart) chart.destroy();
 
-    chart = new Chart(document.getElementById("tonChart"), {
-      type: "line",
-      data: {
-        datasets: [{
-          label: "TON USD",
-          data: prices,
-          borderColor: "#2563eb",
-          backgroundColor: "rgba(37,99,235,0.1)",
-          fill: true,
-          tension: 0.3
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: {
-            type: "time",
-            time: { unit: "day" }
-          }
-        }
+  chart=new Chart(document.getElementById("tonChart"),{
+    type:"line",
+    data:{
+      datasets:[{
+        data:prices,
+        borderColor:"#2563eb",
+        backgroundColor:"rgba(37,99,235,0.1)",
+        fill:true,
+        tension:0.3
+      }]
+    },
+    options:{
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{type:"time",time:{unit:"day"}}
       }
-    });
+    }
+  });
+}
 
-  } catch (err) {
-    console.log(err);
+function calculate(){
+  let amount=document.getElementById("amount").value;
+  if(amount){
+    let profit=amount*0.06;
+    let total=parseFloat(amount)+profit;
+    document.getElementById("result").innerText=
+      "Ganancia: $"+profit.toFixed(2)+" | Total estimado: $"+total.toFixed(2);
   }
 }
 
-document.getElementById("btn7").onclick = () => {
+document.getElementById("btn7").onclick=()=>{
   loadChart(7);
-  document.getElementById("btn7").className = "primary";
-  document.getElementById("btn30").className = "secondary";
+  btn7.className="primary";
+  btn30.className="secondary";
 };
 
-document.getElementById("btn30").onclick = () => {
+document.getElementById("btn30").onclick=()=>{
   loadChart(30);
-  document.getElementById("btn30").className = "primary";
-  document.getElementById("btn7").className = "secondary";
+  btn30.className="primary";
+  btn7.className="secondary";
 };
 
-fetchPrice();
+fetchPrices();
 loadChart(7);
-setInterval(fetchPrice, 60000);
+setInterval(fetchPrices,60000);
 
 </script>
 
