@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PAN Digital Group</title>
 
-<!-- TON Connect UI versión estable conocida por funcionar -->
+<!-- TON Connect UI versión estable que funcionaba -->
 <script src="https://unpkg.com/@tonconnect/ui@0.2.6/dist/tonconnect-ui.min.js"></script>
 
 <style>
@@ -43,7 +43,7 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div class="card">
 <div class="section-title">Wallet</div>
 <div id="walletText">No conectada</div>
-<div id="connectWallet"></div>
+<div id="connectWalletContainer"></div>
 </div>
 
 <!-- DASHBOARD -->
@@ -104,7 +104,6 @@ PAN Digital Group © 2026
 // ===== ESTADO =====
 let tonBalance = 0;
 let panBalance = 0;
-let pendingProfit = 0;
 let planActive = false;
 let currentPlan = 0;
 let planDaysLeft = 0;
@@ -116,8 +115,12 @@ const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
 
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
     manifestUrl:'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json',
-    buttonRootId:'connectWallet'
+    buttonRootId:'connectWalletContainer'
 });
+
+// Este paso es clave: asignamos el botón para abrir el popup
+const button = tonConnectUI.renderButton();
+document.getElementById('connectWalletContainer').appendChild(button);
 
 tonConnectUI.onStatusChange(wallet=>{
     if(wallet && wallet.account){
