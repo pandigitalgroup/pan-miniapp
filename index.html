@@ -3,167 +3,183 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>$PAN Dashboard</title>
+<title>PAN Capital</title>
+<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
 
+<style>
 body{
-    margin:0;
-    font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg,#0f172a,#111827);
-    color:white;
+margin:0;
+font-family:'Inter',sans-serif;
+background:#0B0F1A;
+color:white;
 }
 
 .container{
-    max-width:420px;
-    margin:auto;
-    padding:20px;
+max-width:420px;
+margin:auto;
+padding:20px;
 }
 
 .card{
-    background:#1f2937;
-    padding:20px;
-    border-radius:20px;
-    margin-bottom:15px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.4);
+background:#121826;
+padding:20px;
+border-radius:18px;
+margin-bottom:15px;
 }
 
 h1{
-    text-align:center;
-    font-size:24px;
-    margin-bottom:20px;
+text-align:center;
+margin-bottom:20px;
+font-weight:700;
 }
 
 .balance{
-    font-size:22px;
-    font-weight:700;
-}
-
-.sub{
-    font-size:14px;
-    color:#9ca3af;
-}
-
-.progress{
-    background:#374151;
-    border-radius:20px;
-    overflow:hidden;
-    margin-top:10px;
-}
-
-.progress-bar{
-    height:10px;
-    background:#22c55e;
-    width:0%;
-    transition:0.5s;
+font-size:18px;
+margin-bottom:5px;
 }
 
 button{
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:14px;
-    margin-bottom:10px;
-    font-weight:600;
-    cursor:pointer;
-    font-size:15px;
-    transition:0.2s;
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+margin-bottom:10px;
+font-weight:600;
+cursor:pointer;
+transition:0.2s;
 }
 
 button:hover{
-    transform:scale(1.03);
+opacity:0.9;
 }
 
-.btn-blue{ background:#2563eb; color:white; }
-.btn-green{ background:#16a34a; color:white; }
-.btn-orange{ background:#f59e0b; color:white; }
-.btn-red{ background:#dc2626; color:white; }
-.btn-purple{ background:#7c3aed; color:white; }
-.btn-gray{ background:#374151; color:white; }
+.btn-blue{background:#3B82F6;color:white;}
+.btn-green{background:#22C55E;color:white;}
+.btn-orange{background:#F59E0B;color:white;}
+.btn-red{background:#EF4444;color:white;}
+.btn-gray{background:#334155;color:white;}
 
 input{
-    width:100%;
-    padding:12px;
-    border-radius:12px;
-    border:none;
-    margin-bottom:10px;
-}
-
-a{
-    text-decoration:none;
+width:100%;
+padding:12px;
+border-radius:10px;
+border:none;
+margin-bottom:10px;
+background:#1E293B;
+color:white;
 }
 
 .footer{
-    text-align:center;
-    font-size:12px;
-    color:#6b7280;
-    margin-top:20px;
+text-align:center;
+font-size:12px;
+color:#64748B;
+margin-top:20px;
 }
-
 </style>
 </head>
 
 <body>
-
 <div class="container">
 
-<h1>$PAN Capital</h1>
+<h1>PAN Capital</h1>
 
 <div class="card">
-    <div class="balance">Balance TON: <span id="ton">0</span></div>
-    <div class="balance">Balance PAN: <span id="pan">0</span></div>
-    <div class="sub">Plan Activo: <span id="planStatus">No activo</span></div>
-
-    <div class="progress">
-        <div class="progress-bar" id="progressBar"></div>
-    </div>
+<div id="walletAddress">Wallet: No conectada</div>
+<button class="btn-blue" id="connectWallet">🔗 Conectar Wallet</button>
 </div>
 
 <div class="card">
-    <input type="number" id="amount" placeholder="Ingrese monto TON">
+<div class="balance">Balance TON: <span id="ton">0</span></div>
+<div class="balance">Balance PAN: <span id="pan">0</span></div>
+</div>
 
-    <button class="btn-blue" onclick="deposit()">💰 Depositar</button>
-    <button class="btn-green" onclick="activate()">🚀 Activar Plan</button>
-    <button class="btn-green" onclick="reinvest()">🔁 Reinvertir</button>
-    <button class="btn-purple" onclick="stake()">🟣 Staking PAN</button>
-    <button class="btn-orange" onclick="claim()">🟠 Reclamar PAN</button>
-    <button class="btn-red" onclick="withdraw()">🔴 Retirar</button>
-    <button class="btn-gray" onclick="historyLog()">📜 Historial</button>
-    <a href="https://t.me/MANDON1" target="_blank">
-        <button class="btn-blue">🛟 Soporte</button>
-    </a>
+<div class="card">
+<input type="number" id="amount" placeholder="Monto en TON">
+
+<button class="btn-blue" onclick="deposit()">💰 Depositar</button>
+<button class="btn-green" onclick="activate()">🚀 Activar Plan</button>
+<button class="btn-green" onclick="reinvest()">🔁 Reinvertir</button>
+<button class="btn-orange" onclick="claim()">🟠 Reclamar PAN</button>
+<button class="btn-red" onclick="withdraw()">🔴 Retirar</button>
+<button class="btn-gray" onclick="historyLog()">📜 Historial</button>
+
+<a href="https://t.me/MANDON1" target="_blank">
+<button class="btn-blue">🛟 Soporte</button>
+</a>
+
 </div>
 
 <div class="footer">
-Sistema interno demostrativo
+Sistema en desarrollo profesional
 </div>
 
 </div>
 
 <script>
+const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+manifestUrl: 'https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json',
+buttonRootId: 'connectWallet'
+});
+
+tonConnectUI.onStatusChange(wallet => {
+if(wallet){
+document.getElementById("walletAddress").innerText =
+"Wallet: " + wallet.account.address.slice(0,6) + "...";
+}
+});
 
 let tonBalance = 0;
 let panBalance = 0;
-let activePlan = false;
-let progress = 0;
 
 function updateUI(){
-    document.getElementById("ton").innerText = tonBalance.toFixed(2);
-    document.getElementById("pan").innerText = panBalance.toFixed(2);
-    document.getElementById("planStatus").innerText = activePlan ? "Activo" : "No activo";
-    document.getElementById("progressBar").style.width = progress + "%";
+document.getElementById("ton").innerText = tonBalance.toFixed(2);
+document.getElementById("pan").innerText = panBalance.toFixed(2);
 }
 
 function deposit(){
-    let amount = parseFloat(document.getElementById("amount").value);
-    if(amount > 0){
-        tonBalance += amount;
-        alert("Depósito exitoso");
-        updateUI();
-    }
+let amount = parseFloat(document.getElementById("amount").value);
+if(amount>0){
+tonBalance+=amount;
+updateUI();
+alert("Depósito simulado");
+}
 }
 
 function activate(){
-    if(tonBalance > 0 && !activePlan){
-        activePlan = true;
-        alert("Plan activado");
+if(tonBalance>0){
+panBalance+=tonBalance*0.02;
+updateUI();
+alert("Plan activado");
+}
+}
+
+function reinvest(){
+if(panBalance>0){
+tonBalance+=panBalance;
+panBalance=0;
+updateUI();
+alert("Reinversión completada");
+}
+}
+
+function claim(){
+alert("PAN reclamado (simulado)");
+}
+
+function withdraw(){
+let amount=parseFloat(prompt("Monto a retirar"));
+if(amount>0 && amount<=tonBalance){
+tonBalance-=amount;
+updateUI();
+alert("Retiro solicitado");
+}
+}
+
+function historyLog(){
+alert("Historial próximamente conectado a backend");
+}
+</script>
+
+</body>
+</html>
