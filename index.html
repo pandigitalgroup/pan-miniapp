@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PAN Digital Group</title>
 
-<script src="https://unpkg.com/@tonconnect/ui@0.3.1/dist/tonconnect-ui.min.js"></script>
+<!-- TON Connect UI versión que funcionaba antes -->
+<script src="https://unpkg.com/@tonconnect/ui@0.2.6/dist/tonconnect-ui.min.js"></script>
 
 <style>
 body{margin:0;font-family:Inter,sans-serif;background:#0F172A;color:#E2E8F0;}
@@ -112,6 +113,7 @@ let history = [];
 
 // ===== WALLET FUNCIONANDO =====
 const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
+
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
     manifestUrl:'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json',
     buttonRootId:'connectWallet'
