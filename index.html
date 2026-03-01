@@ -1,202 +1,262 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Yesman Bakery - Plataforma</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini App Inversión</title>
+
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
 <style>
-body{margin:0;font-family:Arial;background:#f4f1ea;}
-header{background:#8B4513;color:white;padding:18px;text-align:center;font-size:22px;font-weight:bold;}
-.container{padding:20px;max-width:520px;margin:auto;}
-.card{background:white;padding:20px;margin-bottom:20px;border-radius:15px;box-shadow:0 6px 15px rgba(0,0,0,0.08);}
-h3{margin-top:0;}
-button{width:100%;padding:12px;border:none;border-radius:10px;font-size:15px;margin-top:10px;cursor:pointer;font-weight:bold;}
-.green{background:#27ae60;color:white;}
-.blue{background:#2980b9;color:white;}
-.red{background:#c0392b;color:white;}
-.plan{border:2px solid #eee;padding:12px;border-radius:12px;margin-bottom:12px;}
-.plan.active{border:2px solid #27ae60;background:#f0fff4;}
-.balance{font-size:26px;font-weight:bold;color:#27ae60;}
-.history{font-size:13px;max-height:140px;overflow:auto;background:#fafafa;padding:10px;border-radius:8px;}
-input{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-top:8px;}
-.small{font-size:12px;color:#555;word-break:break-all;}
+body{
+    margin:0;
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+}
+
+.container{
+    max-width:500px;
+    margin:auto;
+    padding:15px;
+}
+
+h2{
+    text-align:center;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+    margin-top:20px;
+}
+
+.card{
+    background:white;
+    border-radius:18px;
+    padding:20px;
+    text-align:center;
+    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.card:hover{
+    transform:scale(1.03);
+}
+
+.icon{
+    font-size:40px;
+    margin-bottom:10px;
+}
+
+.full{
+    grid-column: span 2;
+}
+
+.balance-box{
+    background:white;
+    padding:15px;
+    border-radius:15px;
+    text-align:center;
+    margin-top:10px;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.hidden{
+    display:none;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+button{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    border:none;
+    border-radius:8px;
+    background:#0088cc;
+    color:white;
+    font-weight:bold;
+}
 </style>
 </head>
-
 <body>
-
-<header>Yesman Bakery 🍞</header>
 
 <div class="container">
 
-<!-- 1 CONECTAR WALLET -->
-<div class="card">
-<h3>1️⃣ Conectar Wallet</h3>
+<h2>Panel de Inversión</h2>
+
 <div id="ton-connect"></div>
-<p id="walletStatus">Wallet no conectada</p>
+
+<div class="balance-box">
+Saldo: <span id="balance">0</span> TON
 </div>
 
-<!-- 2 DEPOSITO -->
-<div class="card">
-<h3>2️⃣ Depósito</h3>
-<p class="small">Enviar a wallet del proyecto:</p>
-<p class="small">UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J</p>
+<div class="grid">
 
-<input type="number" id="amount" placeholder="Cantidad en TON">
-<button class="blue" onclick="sendToBlockchain()">Enviar a Blockchain</button>
-<button onclick="confirmDeposit()">Confirmar depósito</button>
+<div class="card" onclick="connectWallet()">
+<div class="icon">🔗</div>
+Conectar Wallet
 </div>
 
-<!-- 3 RETIRO -->
-<div class="card">
-<h3>3️⃣ Retiro</h3>
+<div class="card" onclick="showDeposit()">
+<div class="icon">💰</div>
+Depositar
+</div>
+
+<div class="card" onclick="showPlans()">
+<div class="icon">📈</div>
+Planes
+</div>
+
+<div class="card" onclick="showWithdraw()">
+<div class="icon">🏧</div>
+Retirar
+</div>
+
+<div class="card" onclick="showHistory()">
+<div class="icon">📜</div>
+Historial
+</div>
+
+<div class="card full" onclick="showSupport()">
+<div class="icon">🛠</div>
+Soporte
+</div>
+
+</div>
+
+<!-- SECCIONES DINÁMICAS -->
+
+<div id="depositSection" class="hidden">
+<h3>Depositar TON</h3>
+<input type="number" id="depositAmount" placeholder="Cantidad en TON">
+<button onclick="deposit()">Enviar Depósito</button>
+</div>
+
+<div id="withdrawSection" class="hidden">
+<h3>Retirar TON</h3>
 <input type="number" id="withdrawAmount" placeholder="Cantidad a retirar">
-<button class="red" onclick="requestWithdraw()">Solicitar retiro</button>
+<button onclick="withdraw()">Solicitar Retiro</button>
 </div>
 
-<!-- 4 PLANES -->
-<div class="card">
-<h3>4️⃣ Planes</h3>
-
-<div class="plan" id="planPanadero">
-<b>🥉 Panadero</b><br>
-Mínimo: 0.1 TON<br>
-Rentabilidad: 2%
-<button class="green" onclick="selectPlan('Panadero',0.02,0.1)">Seleccionar</button>
+<div id="plansSection" class="hidden">
+<h3>Planes Disponibles</h3>
+<p>Plan Básico: 5% mensual</p>
+<p>Plan Pro: 8% mensual</p>
+<p>Plan Elite: 12% mensual</p>
 </div>
 
-<div class="plan" id="planMaestro">
-<b>🥈 Maestro</b><br>
-Mínimo: 1 TON<br>
-Rentabilidad: 3%
-<button class="green" onclick="selectPlan('Maestro',0.03,1)">Seleccionar</button>
+<div id="historySection" class="hidden">
+<h3>Historial</h3>
+<ul id="historyList"></ul>
 </div>
 
-<div class="plan" id="planImperio">
-<b>🥇 Imperio</b><br>
-Mínimo: 5 TON<br>
-Rentabilidad: 4%
-<button class="green" onclick="selectPlan('Imperio',0.04,5)">Seleccionar</button>
-</div>
-
-</div>
-
-<!-- 5 SALDO -->
-<div class="card">
-<h3>5️⃣ Saldo</h3>
-<div class="balance" id="balance">0 TON</div>
-<p>Plan activo: <b id="activePlan">Ninguno</b></p>
-</div>
-
-<!-- 6 HISTORIAL -->
-<div class="card">
-<h3>6️⃣ Historial</h3>
-<div class="history" id="history"></div>
+<div id="supportSection" class="hidden">
+<h3>Soporte</h3>
+<p>Contacto Telegram: @MANDON1</p>
 </div>
 
 </div>
 
 <script>
-const receiverAddress="UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
-
-let balance=parseFloat(localStorage.getItem("balance"))||0;
-let history=JSON.parse(localStorage.getItem("history"))||[];
-let activePlan=localStorage.getItem("activePlan")||"Ninguno";
-let dailyRate=parseFloat(localStorage.getItem("dailyRate"))||0;
-let minAmount=parseFloat(localStorage.getItem("minAmount"))||0;
-
-updateUI();
-
-const tonConnectUI=new TON_CONNECT_UI.TonConnectUI({
-manifestUrl:'https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json',
-buttonRootId:'ton-connect'
+const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+    manifestUrl: 'https://your-domain.com/tonconnect-manifest.json',
+    buttonRootId: 'ton-connect'
 });
 
-tonConnectUI.onStatusChange(wallet=>{
-if(wallet){
-document.getElementById("walletStatus").innerText="Wallet conectada: "+wallet.account.address;
-}else{
-document.getElementById("walletStatus").innerText="Wallet no conectada";
-}
-});
+let balance = 0;
+let history = [];
 
-function selectPlan(name,rate,minimum){
-activePlan=name;
-dailyRate=rate;
-minAmount=minimum;
-history.push("Plan seleccionado: "+name);
-saveData();
-updateUI();
+function updateBalance(){
+    document.getElementById("balance").innerText = balance.toFixed(2);
 }
 
-async function sendToBlockchain(){
-let amount=document.getElementById("amount").value;
-if(!amount||amount<=0){alert("Cantidad inválida");return;}
-
-const transaction={
-validUntil:Math.floor(Date.now()/1000)+600,
-messages:[{address:receiverAddress,amount:(amount*1000000000).toString()}]
-};
-
-try{
-await tonConnectUI.sendTransaction(transaction);
-alert("Transacción enviada a blockchain");
-}catch(e){
-alert("Error o cancelado");
-}
+function addHistory(text){
+    history.push(text);
+    const li = document.createElement("li");
+    li.innerText = text;
+    document.getElementById("historyList").appendChild(li);
 }
 
-function confirmDeposit(){
-let amount=parseFloat(document.getElementById("amount").value);
-if(!amount||amount<=0){alert("Cantidad inválida");return;}
-
-balance+=amount;
-history.push("Depósito confirmado: +"+amount+" TON");
-saveData();
-updateUI();
+function connectWallet(){
+    tonConnectUI.openModal();
 }
 
-function requestWithdraw(){
-let amount=parseFloat(document.getElementById("withdrawAmount").value);
-if(!amount||amount>balance){alert("Saldo insuficiente");return;}
-
-balance-=amount;
-history.push("Retiro solicitado: -"+amount+" TON (manual)");
-saveData();
-updateUI();
+function showDeposit(){
+    hideAll();
+    document.getElementById("depositSection").classList.remove("hidden");
 }
 
-function updateUI(){
-document.getElementById("balance").innerText=balance.toFixed(2)+" TON";
-document.getElementById("history").innerHTML=history.join("<br>");
-document.getElementById("activePlan").innerText=activePlan;
-
-document.querySelectorAll(".plan").forEach(p=>p.classList.remove("active"));
-if(activePlan==="Panadero")document.getElementById("planPanadero").classList.add("active");
-if(activePlan==="Maestro")document.getElementById("planMaestro").classList.add("active");
-if(activePlan==="Imperio")document.getElementById("planImperio").classList.add("active");
+function showWithdraw(){
+    hideAll();
+    document.getElementById("withdrawSection").classList.remove("hidden");
 }
 
-function saveData(){
-localStorage.setItem("balance",balance);
-localStorage.setItem("history",JSON.stringify(history));
-localStorage.setItem("activePlan",activePlan);
-localStorage.setItem("dailyRate",dailyRate);
-localStorage.setItem("minAmount",minAmount);
+function showPlans(){
+    hideAll();
+    document.getElementById("plansSection").classList.remove("hidden");
 }
 
-// Ganancia automática cada 30s SOLO si hay plan activo
-setInterval(()=>{
-if(balance>0 && dailyRate>0){
-let profit=balance*dailyRate;
-balance+=profit;
-history.push("Ganancia: +"+profit.toFixed(4)+" TON");
-saveData();
-updateUI();
+function showHistory(){
+    hideAll();
+    document.getElementById("historySection").classList.remove("hidden");
 }
-},30000);
 
+function showSupport(){
+    hideAll();
+    document.getElementById("supportSection").classList.remove("hidden");
+}
+
+function hideAll(){
+    document.getElementById("depositSection").classList.add("hidden");
+    document.getElementById("withdrawSection").classList.add("hidden");
+    document.getElementById("plansSection").classList.add("hidden");
+    document.getElementById("historySection").classList.add("hidden");
+    document.getElementById("supportSection").classList.add("hidden");
+}
+
+async function deposit(){
+    const amount = parseFloat(document.getElementById("depositAmount").value);
+    if(!amount || amount <= 0) return alert("Cantidad inválida");
+
+    const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 600,
+        messages: [
+            {
+                address: "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J",
+                amount: (amount * 1000000000).toString()
+            }
+        ]
+    };
+
+    await tonConnectUI.sendTransaction(transaction);
+
+    balance += amount;
+    updateBalance();
+    addHistory("Depósito de " + amount + " TON");
+}
+
+function withdraw(){
+    const amount = parseFloat(document.getElementById("withdrawAmount").value);
+    if(!amount || amount <= 0) return alert("Cantidad inválida");
+    if(amount > balance) return alert("Saldo insuficiente");
+
+    balance -= amount;
+    updateBalance();
+    addHistory("Retiro solicitado de " + amount + " TON");
+    alert("Retiro registrado (modo prueba)");
+}
+
+updateBalance();
 </script>
 
 </body>
