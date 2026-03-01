@@ -35,9 +35,7 @@ header{
     box-shadow:0 6px 15px rgba(0,0,0,0.08);
 }
 
-h3{
-    margin-top:0;
-}
+h3{ margin-top:0; }
 
 input{
     width:100%;
@@ -59,15 +57,8 @@ button{
     font-weight:bold;
 }
 
-.deposit-btn{
-    background:#27ae60;
-    color:white;
-}
-
-.withdraw-btn{
-    background:#c0392b;
-    color:white;
-}
+.deposit-btn{ background:#27ae60; color:white; }
+.withdraw-btn{ background:#c0392b; color:white; }
 
 .status-box{
     background:#f8f8f8;
@@ -76,11 +67,18 @@ button{
     font-size:14px;
 }
 
-.receiver{
-    font-size:12px;
-    word-break: break-all;
-    margin-top:8px;
-    color:#555;
+.balance{
+    font-size:22px;
+    font-weight:bold;
+    color:#27ae60;
+}
+.history{
+    font-size:13px;
+    max-height:120px;
+    overflow:auto;
+    background:#fafafa;
+    padding:10px;
+    border-radius:8px;
 }
 </style>
 </head>
@@ -94,21 +92,32 @@ button{
 <div id="ton-connect"></div>
 
 <div class="card">
-<h3>Depositar TON</h3>
-<p>Envía TON a la wallet del proyecto:</p>
-<div class="receiver">
-UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J
-</div>
-
-<input type="number" id="amount" placeholder="Cantidad en TON" min="0.01" step="0.01">
-
-<button class="deposit-btn" onclick="deposit()">Depositar</button>
+<h3>Saldo Interno</h3>
+<div class="balance" id="balance">0 TON</div>
+<p>Ganancia diaria simulada: 2%</p>
 </div>
 
 <div class="card">
-<h3>Retiro</h3>
-<p>Los retiros se procesan manualmente.</p>
+<h3>Depositar TON</h3>
+<p>Envía TON a la wallet del proyecto:</p>
+<p style="font-size:12px; word-break:break-all;">
+UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J
+</p>
+
+<input type="number" id="amount" placeholder="Cantidad en TON" min="0.01" step="0.01">
+<button class="deposit-btn" onclick="deposit()">Enviar a Blockchain</button>
+<button onclick="confirmDeposit()">Confirmar depósito (simulado)</button>
+</div>
+
+<div class="card">
+<h3>Solicitar Retiro</h3>
+<input type="number" id="withdrawAmount" placeholder="Cantidad a retirar">
 <button class="withdraw-btn" onclick="requestWithdraw()">Solicitar Retiro</button>
+</div>
+
+<div class="card">
+<h3>Historial</h3>
+<div class="history" id="history"></div>
 </div>
 
 <div class="card">
@@ -122,6 +131,11 @@ Wallet no conectada
 
 <script>
 const receiverAddress = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
+
+let balance = parseFloat(localStorage.getItem("balance")) || 0;
+let history = JSON.parse(localStorage.getItem("history")) || [];
+
+updateUI();
 
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
     manifestUrl: 'https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json',
@@ -139,33 +153,76 @@ tonConnectUI.onStatusChange(wallet => {
 
 async function deposit(){
     const amount = document.getElementById("amount").value;
-
     if(!amount || amount <= 0){
-        alert("Ingresa una cantidad válida");
+        alert("Ingresa cantidad válida");
         return;
     }
 
     const transaction = {
         validUntil: Math.floor(Date.now() / 1000) + 600,
-        messages: [
-            {
-                address: receiverAddress,
-                amount: (amount * 1000000000).toString()
-            }
-        ]
+        messages: [{
+            address: receiverAddress,
+            amount: (amount * 1000000000).toString()
+        }]
     };
 
     try{
         await tonConnectUI.sendTransaction(transaction);
-        alert("✅ Transacción enviada correctamente a la wallet del proyecto");
+        alert("Transacción enviada. Ahora confirma el depósito.");
     }catch(e){
-        alert("❌ Transacción cancelada o error");
+        alert("Error o cancelado");
     }
 }
 
-function requestWithdraw(){
-    alert("Solicitud enviada. El retiro será revisado manualmente.");
+function confirmDeposit(){
+    const amount = parseFloat(document.getElementById("amount").value);
+    if(!amount) return;
+
+    balance += amount;
+    history.push("Depósito: +" + amount + " TON");
+    saveData();
+    updateUI();
 }
+
+function requestWithdraw(){
+    const amount = parseFloat(document.getElementById("withdrawAmount").value);
+    if(!amount || amount <= 0){
+        alert("Cantidad inválida");
+        return;
+    }
+
+    if(amount > balance){
+        alert("Saldo insuficiente");
+        return;
+    }
+
+    balance -= amount;
+    history.push("Solicitud retiro: -" + amount + " TON (pendiente manual)");
+    saveData();
+    updateUI();
+    alert("Solicitud enviada. Procesar manualmente.");
+}
+
+function updateUI(){
+    document.getElementById("balance").innerText = balance.toFixed(2) + " TON";
+    document.getElementById("history").innerHTML = history.join("<br>");
+}
+
+function saveData(){
+    localStorage.setItem("balance", balance);
+    localStorage.setItem("history", JSON.stringify(history));
+}
+
+// Simulación de ganancia diaria automática cada 30 segundos
+setInterval(()=>{
+    if(balance > 0){
+        let profit = balance * 0.02;
+        balance += profit;
+        history.push("Ganancia diaria: +" + profit.toFixed(4) + " TON");
+        saveData();
+        updateUI();
+    }
+}, 30000);
 </script>
 
 </body>
