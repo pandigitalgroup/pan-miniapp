@@ -93,6 +93,7 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <a href="https://www.tiktok.com/" target="_blank"><button class="btn-soft">Canal de TikTok</button></a>
 <a href="https://www.instagram.com/" target="_blank"><button class="btn-soft">Canal de Instagram</button></a>
 <a href="mailto:contacto@pandigitalgroup.com"><button class="btn-soft">Correo corporativo</button></a>
+<a href="https://t.me/MANDON1" target="_blank"><button class="btn-soft">Referidos</button></a>
 </div>
 
 <div class="footer">
@@ -121,12 +122,12 @@ const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
 document.getElementById("connectWalletBtn").addEventListener("click", async ()=>{
   try{
     const wallet = await tonConnectUI.connect();
-    if(wallet){
+    if(wallet && wallet.account){
       walletAddress = wallet.account.address;
       document.getElementById("walletText").innerText = walletAddress.slice(0,6)+"...";
       alert("Wallet conectada: "+walletAddress);
     }
-  }catch(e){ alert("No se pudo conectar la wallet"); }
+  }catch(e){ alert("No se pudo conectar la wallet: "+e); }
 });
 
 // ===== UI =====
