@@ -5,179 +5,99 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PAN Capital</title>
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-body{
-margin:0;
-font-family:'Inter',sans-serif;
-background:#0B0F1A;
-color:white;
-}
-
-.container{
-max-width:420px;
-margin:auto;
-padding:20px;
-}
-
-.card{
-background:#121826;
-padding:20px;
-border-radius:18px;
-margin-bottom:15px;
-}
-
-h1{
-text-align:center;
-margin-bottom:20px;
-font-weight:700;
-}
-
-.balance{
-font-size:18px;
-margin-bottom:5px;
-}
-
-button{
-width:100%;
-padding:14px;
-border:none;
-border-radius:12px;
-margin-bottom:10px;
-font-weight:600;
-cursor:pointer;
-transition:0.2s;
-}
-
-button:hover{
-opacity:0.9;
-}
-
+body{margin:0;font-family:Arial;background:#0B0F1A;color:white;}
+.container{max-width:420px;margin:auto;padding:20px;}
+.card{background:#121826;padding:20px;border-radius:16px;margin-bottom:15px;}
+button{width:100%;padding:14px;border:none;border-radius:10px;margin-bottom:10px;font-weight:bold;cursor:pointer;}
 .btn-blue{background:#3B82F6;color:white;}
 .btn-green{background:#22C55E;color:white;}
-.btn-orange{background:#F59E0B;color:white;}
 .btn-red{background:#EF4444;color:white;}
-.btn-gray{background:#334155;color:white;}
-
-input{
-width:100%;
-padding:12px;
-border-radius:10px;
-border:none;
-margin-bottom:10px;
-background:#1E293B;
-color:white;
-}
-
-.footer{
-text-align:center;
-font-size:12px;
-color:#64748B;
-margin-top:20px;
-}
+input{width:100%;padding:12px;border-radius:10px;border:none;margin-bottom:10px;background:#1E293B;color:white;}
 </style>
 </head>
 
 <body>
+
 <div class="container">
 
-<h1>PAN Capital</h1>
-
 <div class="card">
-<div id="walletAddress">Wallet: No conectada</div>
-<button class="btn-blue" id="connectWallet">🔗 Conectar Wallet</button>
+<div id="walletText">Wallet no conectada</div>
+<button class="btn-blue" id="connectWallet">Conectar Wallet</button>
 </div>
 
 <div class="card">
-<div class="balance">Balance TON: <span id="ton">0</span></div>
-<div class="balance">Balance PAN: <span id="pan">0</span></div>
+<div>Balance TON: <span id="ton">0</span></div>
+<div>Balance PAN: <span id="pan">0</span></div>
 </div>
 
 <div class="card">
-<input type="number" id="amount" placeholder="Monto en TON">
+<input type="number" id="amount" placeholder="Monto TON">
 
-<button class="btn-blue" onclick="deposit()">💰 Depositar</button>
-<button class="btn-green" onclick="activate()">🚀 Activar Plan</button>
-<button class="btn-green" onclick="reinvest()">🔁 Reinvertir</button>
-<button class="btn-orange" onclick="claim()">🟠 Reclamar PAN</button>
-<button class="btn-red" onclick="withdraw()">🔴 Retirar</button>
-<button class="btn-gray" onclick="historyLog()">📜 Historial</button>
-
-<a href="https://t.me/MANDON1" target="_blank">
-<button class="btn-blue">🛟 Soporte</button>
-</a>
-
-</div>
-
-<div class="footer">
-Sistema en desarrollo profesional
+<button class="btn-blue" onclick="deposit()">Depositar</button>
+<button class="btn-green" onclick="activate()">Activar Plan</button>
+<button class="btn-red" onclick="withdraw()">Retirar</button>
 </div>
 
 </div>
 
 <script>
+const API = "http://localhost:3000/api/user";
+let currentWallet = null;
+
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
 manifestUrl: 'https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json',
 buttonRootId: 'connectWallet'
 });
 
-tonConnectUI.onStatusChange(wallet => {
+tonConnectUI.onStatusChange(async wallet => {
 if(wallet){
-document.getElementById("walletAddress").innerText =
-"Wallet: " + wallet.account.address.slice(0,6) + "...";
+currentWallet = wallet.account.address;
+document.getElementById("walletText").innerText = currentWallet;
+await fetch(API+"/connect",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({wallet:currentWallet})
+});
+loadUser();
 }
 });
 
-let tonBalance = 0;
-let panBalance = 0;
-
-function updateUI(){
-document.getElementById("ton").innerText = tonBalance.toFixed(2);
-document.getElementById("pan").innerText = panBalance.toFixed(2);
+async function loadUser(){
+const res = await fetch(API+"/"+currentWallet);
+const data = await res.json();
+document.getElementById("ton").innerText = data.tonBalance;
+document.getElementById("pan").innerText = data.panBalance;
 }
 
-function deposit(){
-let amount = parseFloat(document.getElementById("amount").value);
-if(amount>0){
-tonBalance+=amount;
-updateUI();
-alert("Depósito simulado");
-}
-}
-
-function activate(){
-if(tonBalance>0){
-panBalance+=tonBalance*0.02;
-updateUI();
-alert("Plan activado");
-}
+async function deposit(){
+const amount = parseFloat(document.getElementById("amount").value);
+await fetch(API+"/deposit",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({wallet:currentWallet,amount})
+});
+loadUser();
 }
 
-function reinvest(){
-if(panBalance>0){
-tonBalance+=panBalance;
-panBalance=0;
-updateUI();
-alert("Reinversión completada");
-}
-}
-
-function claim(){
-alert("PAN reclamado (simulado)");
+async function activate(){
+await fetch(API+"/activate",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({wallet:currentWallet})
+});
+loadUser();
 }
 
-function withdraw(){
-let amount=parseFloat(prompt("Monto a retirar"));
-if(amount>0 && amount<=tonBalance){
-tonBalance-=amount;
-updateUI();
-alert("Retiro solicitado");
-}
-}
-
-function historyLog(){
-alert("Historial próximamente conectado a backend");
+async function withdraw(){
+const amount = parseFloat(prompt("Monto a retirar"));
+await fetch(API+"/withdraw",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({wallet:currentWallet,amount})
+});
+loadUser();
 }
 </script>
 
