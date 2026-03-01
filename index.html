@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PAN Digital Group</title>
 
-<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+<!-- TON Connect UI versión fija para mayor compatibilidad -->
+<script src="https://unpkg.com/@tonconnect/ui@0.4.0/dist/tonconnect-ui.min.js"></script>
 
 <style>
 body{margin:0;font-family:Inter,sans-serif;background:#0F172A;color:#E2E8F0;}
@@ -113,6 +114,25 @@ let planDaysLeft = 0;
 let walletAddress = null;
 let history = [];
 
+// ===== Sistema de Referidos 3 niveles (simulado) =====
+let referrals = {};
+function registerReferral(userWallet, referrerWallet){
+  if(!referrals[userWallet]){
+    referrals[userWallet] = {referrer: referrerWallet, level1: [], level2: [], level3: []};
+    if(referrerWallet && referrals[referrerWallet]){
+      referrals[referrerWallet].level1.push(userWallet);
+      let parent = referrals[referrerWallet].referrer;
+      if(parent && referrals[parent]){
+        referrals[parent].level2.push(userWallet);
+        let grandparent = referrals[parent].referrer;
+        if(grandparent && referrals[grandparent]){
+          referrals[grandparent].level3.push(userWallet);
+        }
+      }
+    }
+  }
+}
+
 // ===== Wallet REAL =====
 const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
@@ -152,7 +172,7 @@ async function deposit(){
       alert("Depósito enviado");
     }catch(e){ alert("Error transacción: "+e); }
   } else {
-    tonBalance += amount; // simulación
+    tonBalance += amount;
     history.push(`Depósito: ${amount} TON (simulado)`);
     updateUI();
     alert("Depósito simulado");
@@ -224,11 +244,8 @@ async function withdraw(){
 }
 
 function historyLog(){ alert(history.join("\n")); }
-function referidos(){ alert(`Tienes ${Math.floor(Math.random()*20)} referidos activos (simulado)`); }
-function ranking(){ alert(`Estás en posición #${Math.floor(Math.random()*100)+1} del ranking global (simulado)`); }
 
 updateUI();
-
 </script>
 </body>
 </html>
