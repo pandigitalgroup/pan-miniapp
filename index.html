@@ -3,15 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PAN Capital</title>
+<title>PAN Digital Group</title>
 
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
 <style>
-
 body{
 margin:0;
-font-family: 'Inter', sans-serif;
+font-family:'Inter',sans-serif;
 background:#0F172A;
 color:#E2E8F0;
 }
@@ -71,14 +70,12 @@ cursor:pointer;
 transition:0.2s;
 }
 
-button:hover{
-opacity:0.85;
-}
+button:hover{opacity:0.85;}
 
 .btn-primary{background:#2563EB;color:white;}
-.btn-success{background:#15803D;color:white;}
-.btn-warning{background:#C2410C;color:white;}
-.btn-danger{background:#B91C1C;color:white;}
+.btn-success{background:#16A34A;color:white;}
+.btn-warning{background:#F97316;color:white;}
+.btn-danger{background:#DC2626;color:white;}
 .btn-gray{background:#334155;color:white;}
 .btn-soft{background:#1E293B;color:#E2E8F0;}
 
@@ -98,7 +95,6 @@ font-size:11px;
 color:#64748B;
 margin-top:15px;
 }
-
 </style>
 </head>
 
@@ -107,7 +103,7 @@ margin-top:15px;
 <div class="container">
 
 <div class="header">
-<div class="logo">PAN Capital</div>
+<div class="logo">PAN Digital Group</div>
 <div class="level">Nivel Bronce</div>
 </div>
 
@@ -115,16 +111,16 @@ margin-top:15px;
 <div class="card">
 <div class="section-title">Wallet</div>
 <div id="walletText">No conectada</div>
-<button class="btn-primary" id="connectWallet">Conectar Wallet</button>
+<div id="connectWallet"></div>
 </div>
 
-<!-- PRECIOS -->
+<!-- MERCADO -->
 <div class="card">
 <div class="section-title">Mercado en Tiempo Real</div>
 <div>TON → USD: <span class="value" id="tonUsd">-</span></div>
 <div>TON → COP: <span class="value" id="tonCop">-</span></div>
 <div>USDT → COP: <span class="value" id="usdtCop">-</span></div>
-<div>PAN (estimado): <span class="value" id="panPrice">0.10 USD</span></div>
+<div>PAN (estimado): <span class="value">0.10 USD</span></div>
 </div>
 
 <!-- CALCULADORA -->
@@ -141,6 +137,9 @@ margin-top:15px;
 <div class="section-title">Dashboard</div>
 <div>Balance TON: <span id="tonBalance">0</span></div>
 <div>Balance PAN: <span id="panBalance">0</span></div>
+<div>Ganancia Pendiente: 0</div>
+<div>Plan activo: Ninguno</div>
+<div>Días restantes: 0</div>
 <div>Rentabilidad diaria: 2%</div>
 </div>
 
@@ -173,14 +172,14 @@ margin-top:15px;
 </div>
 
 <div class="footer">
-PAN Capital © 2026
+PAN Digital Group © 2026
 </div>
 
 </div>
 
 <script>
 
-// PRECIOS EN TIEMPO REAL
+// ===== PRECIOS =====
 let tonUsdPrice = 0;
 let tonCopPrice = 0;
 let usdtCopPrice = 0;
@@ -201,22 +200,20 @@ document.getElementById("usdtCop").innerText = usdtCopPrice.toFixed(0)+" COP";
 
 }catch(e){console.log("Error precios");}
 }
-
 loadPrices();
 setInterval(loadPrices,30000);
 
-// CALCULADORA
+// ===== CALCULADORA =====
 function convert(){
 let amount = parseFloat(document.getElementById("calcInput").value) || 0;
-
 document.getElementById("calcUsd").innerText = (amount * tonUsdPrice).toFixed(2);
 document.getElementById("calcCop").innerText = (amount * tonCopPrice).toFixed(0);
 document.getElementById("calcPan").innerText = ((amount * tonUsdPrice)/panUsdPrice).toFixed(2);
 }
 
-// WALLET
+// ===== WALLET (FUNCIONANDO) =====
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-manifestUrl:'https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json',
+manifestUrl:'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json',
 buttonRootId:'connectWallet'
 });
 
@@ -224,10 +221,12 @@ tonConnectUI.onStatusChange(wallet=>{
 if(wallet){
 document.getElementById("walletText").innerText =
 wallet.account.address.slice(0,6)+"...";
+}else{
+document.getElementById("walletText").innerText="No conectada";
 }
 });
 
-// SIMULACION INTERNA
+// ===== SIMULADOR =====
 let tonBalance = 0;
 let panBalance = 0;
 
@@ -241,7 +240,7 @@ let amount = parseFloat(document.getElementById("amount").value);
 if(amount>0){
 tonBalance += amount;
 updateUI();
-alert("Depósito agregado");
+alert("Depósito agregado (simulado)");
 }
 }
 
@@ -262,28 +261,10 @@ alert("Reinvertido correctamente");
 }
 }
 
-function claim(){
-alert("PAN reclamado (simulado)");
-}
-
-function stake(){
-panBalance += panBalance * 0.05;
-updateUI();
-alert("Staking aplicado +5%");
-}
-
-function withdraw(){
-let amount = parseFloat(prompt("Monto a retirar"));
-if(amount>0 && amount<=tonBalance){
-tonBalance -= amount;
-updateUI();
-alert("Retiro solicitado");
-}
-}
-
-function historyLog(){
-alert("Historial en desarrollo");
-}
+function claim(){alert("PAN reclamado (simulado)");}
+function stake(){panBalance += panBalance * 0.05;updateUI();alert("Staking aplicado +5%");}
+function withdraw(){alert("Retiro simulado");}
+function historyLog(){alert("Historial en desarrollo");}
 
 </script>
 
