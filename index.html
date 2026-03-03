@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PAN Digital Group</title>
 
-<!-- TON Connect UI versión estable que funcionaba -->
-<script src="https://unpkg.com/@tonconnect/ui@0.2.6/dist/tonconnect-ui.min.js"></script>
+<!-- TON Connect versión que SÍ conecta -->
+<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
 <style>
 body{margin:0;font-family:Inter,sans-serif;background:#0F172A;color:#E2E8F0;}
@@ -43,7 +43,6 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div class="card">
 <div class="section-title">Wallet</div>
 <div id="walletText">No conectada</div>
-<!-- TON Connect inyecta el botón aquí automáticamente -->
 <div id="connectWallet"></div>
 </div>
 
@@ -111,18 +110,17 @@ let planDaysLeft = 0;
 let walletAddress = null;
 let history = [];
 
-// ===== WALLET FUNCIONANDO =====
-const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
-
+// ===== WALLET (VERSIÓN QUE CONECTA) =====
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
     manifestUrl:'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json',
-    buttonRootId:'connectWallet' // TON Connect inyecta automáticamente aquí el botón
+    buttonRootId:'connectWallet'
 });
 
 tonConnectUI.onStatusChange(wallet=>{
     if(wallet && wallet.account){
         walletAddress = wallet.account.address;
-        document.getElementById("walletText").innerText = walletAddress.slice(0,6)+"...";
+        document.getElementById("walletText").innerText =
+            walletAddress.slice(0,6)+"...";
         console.log("Wallet conectada:", walletAddress);
     } else {
         walletAddress = null;
