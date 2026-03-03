@@ -34,17 +34,15 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 
 <div class="header">
 <div class="logo">PAN Digital Group</div>
-<div class="level" id="level">Nivel Bronce</div>
+<div class="level">Nivel Bronce</div>
 </div>
 
-<!-- WALLET -->
 <div class="card">
 <div class="section-title">Wallet</div>
 <div id="walletText">No conectada</div>
 <div id="connectWallet"></div>
 </div>
 
-<!-- DASHBOARD -->
 <div class="card">
 <div class="section-title">Dashboard</div>
 <div>Balance en la App (TON): <span id="appBalance">0</span></div>
@@ -52,44 +50,28 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div>Rentabilidad diaria: 2%</div>
 </div>
 
-<!-- DEPOSITO -->
 <div class="card">
 <div class="section-title">Depósito</div>
 <input type="number" id="depositAmount" placeholder="Monto en TON">
 <button class="btn-primary" onclick="deposit()">Depositar</button>
 </div>
 
-<!-- ACTIVAR PLANES -->
 <div class="card">
 <div class="section-title">Activar Plan</div>
 <input type="number" id="planAmount" placeholder="Monto para el plan en TON/USD">
 <button class="btn-success plan-button" onclick="activatePlan(1)">Plan 1 - Prueba (Simulación)</button>
-<button class="btn-success plan-button" onclick="activatePlan(2)">Plan 2 - 30 días (20-100 USD TON)</button>
-<button class="btn-success plan-button" onclick="activatePlan(3)">Plan 3 - 60 días (101-200 USD TON)</button>
-<button class="btn-success plan-button" onclick="activatePlan(4)">Plan 4 - 90 días (201-10000 USD TON)</button>
-<button class="btn-success" onclick="reinvestPlan()">Reinvertir (+20 PAN min)</button>
+<button class="btn-success plan-button" onclick="activatePlan(2)">Plan 2 - 30 días</button>
+<button class="btn-success plan-button" onclick="activatePlan(3)">Plan 3 - 60 días</button>
+<button class="btn-success plan-button" onclick="activatePlan(4)">Plan 4 - 90 días</button>
+<button class="btn-success" onclick="reinvestPlan()">Reinvertir</button>
 </div>
 
-<!-- FINANZAS -->
 <div class="card">
 <div class="section-title">Finanzas</div>
 <button class="btn-warning" onclick="claim()">Reclamar PAN</button>
 <button class="btn-soft" onclick="stake()">Staking PAN</button>
 <button class="btn-danger" onclick="withdraw()">Retirar</button>
 <button class="btn-gray" onclick="historyLog()">Historial</button>
-</div>
-
-<!-- COMUNIDAD -->
-<div class="card">
-<div class="section-title">Comunidad</div>
-<a href="https://t.me/MANDON1" target="_blank"><button class="btn-primary">Soporte</button></a>
-<a href="https://t.me/CanalEjemplo" target="_blank"><button class="btn-soft">Canal de Telegram</button></a>
-<a href="https://t.me/GrupoEjemplo" target="_blank"><button class="btn-soft">Grupo de Telegram</button></a>
-<a href="https://www.youtube.com/" target="_blank"><button class="btn-soft">Canal de YouTube</button></a>
-<a href="https://www.tiktok.com/" target="_blank"><button class="btn-soft">Canal de TikTok</button></a>
-<a href="https://www.instagram.com/" target="_blank"><button class="btn-soft">Canal de Instagram</button></a>
-<a href="mailto:contacto@pandigitalgroup.com"><button class="btn-soft">Correo corporativo</button></a>
-<a href="https://t.me/MANDON1" target="_blank"><button class="btn-soft">Referidos</button></a>
 </div>
 
 <div class="footer">
@@ -117,6 +99,8 @@ tonConnectUI.onStatusChange(wallet=>{
         walletAddress = wallet.account.address;
         document.getElementById("walletText").innerText =
             walletAddress.slice(0,6)+"...";
+
+        loadUserData();
     } else {
         walletAddress = null;
         document.getElementById("walletText").innerText = "No conectada";
@@ -126,6 +110,34 @@ tonConnectUI.onStatusChange(wallet=>{
 function updateUI(){
   document.getElementById("appBalance").innerText = appBalance.toFixed(4);
   document.getElementById("panBalance").innerText = panBalance.toFixed(2);
+}
+
+// 🔥 Guardar datos por wallet
+function saveUserData(){
+    if(walletAddress){
+        localStorage.setItem("PAN_"+walletAddress,
+            JSON.stringify({
+                appBalance,
+                panBalance,
+                history
+            })
+        );
+    }
+}
+
+function loadUserData(){
+    const data = localStorage.getItem("PAN_"+walletAddress);
+    if(data){
+        const parsed = JSON.parse(data);
+        appBalance = parsed.appBalance || 0;
+        panBalance = parsed.panBalance || 0;
+        history = parsed.history || [];
+    } else {
+        appBalance = 0;
+        panBalance = 0;
+        history = [];
+    }
+    updateUI();
 }
 
 async function deposit(){
@@ -151,9 +163,9 @@ async function deposit(){
 
       await tonConnectUI.sendTransaction(transaction);
 
-      // Ahora el balance representa SOLO lo depositado en la app
       appBalance += amount;
       history.push(`Depósito: ${amount} TON`);
+      saveUserData();
       updateUI();
 
       alert("Depósito enviado correctamente");
@@ -173,6 +185,7 @@ function reinvestPlan(){
   if(panBalance>=20){
     appBalance += panBalance;
     panBalance=0;
+    saveUserData();
     updateUI();
     alert("Reinvertido correctamente");
   } else alert("Monto mínimo 20 PAN");
@@ -182,8 +195,6 @@ function claim(){ alert("PAN reclamado (simulado)"); }
 function stake(){ alert("Staking aplicado (simulado)"); }
 function withdraw(){ alert("Retiro solicitado (simulado)"); }
 function historyLog(){ alert(history.join("\n")); }
-
-updateUI();
 
 </script>
 
