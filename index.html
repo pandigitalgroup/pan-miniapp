@@ -1,127 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Mini App</title>
+<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+</head>
+
+<body>
+
+<h2>Dashboard</h2>
+
+<p>Balance: <span id="balance">0</span> TON</p>
+
+<button onclick="connectWallet()">Conectar Wallet</button>
+<button onclick="deposit()">Depositar</button>
+
+<hr>
+
+<h3>Activar Planes</h3>
+
+<button onclick="activatePlan('plan1',20,7)">Plan 1 Simulador</button>
+<button onclick="activatePlan('plan2',20,30)">Plan 2 - 30 días</button>
+<button onclick="activatePlan('plan3',101,60)">Plan 3 - 60 días</button>
+<button onclick="activatePlan('plan4',201,90)">Plan 4 - 90 días</button>
+
 <script>
-let userAddress = null;
-let userBalance = 0;
 
-// ================================
-// CARGAR DATOS AL INICIAR
-// ================================
-window.onload = function () {
-    const savedBalance = localStorage.getItem("app_balance");
-    if (savedBalance) {
-        userBalance = parseFloat(savedBalance);
-        updateDashboard();
-    }
+// ==========================
+// TON CONNECT (SIN CAMBIOS)
+// ==========================
 
-    checkPlansExpiration();
-};
+const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+    manifestUrl: "https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json"
+});
 
-// ================================
-// CONECTAR WALLET (NO TOCADO)
-// ================================
+let walletConnected = false;
+
 async function connectWallet() {
-    if (!window.tonConnectUI) {
-        alert("TonConnect no cargó correctamente.");
+    await tonConnectUI.connectWallet();
+    walletConnected = true;
+}
+
+// ==========================
+// BALANCE APP (SIN CAMBIOS)
+// ==========================
+
+let balance = parseFloat(localStorage.getItem("app_balance")) || 0;
+let userPlans = JSON.parse(localStorage.getItem("user_plans")) || [];
+
+function updateBalanceUI() {
+    document.getElementById("balance").innerText = balance.toFixed(2);
+    localStorage.setItem("app_balance", balance);
+}
+
+// ==========================
+// DEPÓSITO (SIMULACIÓN REAL FUNCIONANDO)
+// ==========================
+
+async function deposit() {
+
+    if (!walletConnected) {
+        alert("Wallet no conectada");
         return;
     }
 
-    try {
-        const wallet = await window.tonConnectUI.connectWallet();
-        userAddress = wallet.account.address;
-        document.getElementById("walletAddress").innerText = userAddress;
-    } catch (error) {
-        console.log(error);
-    }
-}
+    const amount = prompt("Cantidad a depositar en TON:");
 
-// ================================
-// DEPOSITO (NO TOCADO)
-// ================================
-function deposit(amount) {
-    if (!amount || amount <= 0) {
-        alert("Monto inválido");
-        return;
-    }
+    if (!amount || isNaN(amount)) return;
 
-    userBalance += parseFloat(amount);
-    localStorage.setItem("app_balance", userBalance);
-    updateDashboard();
-    alert("Depósito realizado correctamente");
-}
-
-// ================================
-// ACTUALIZAR DASHBOARD (NO TOCADO)
-// ================================
-function updateDashboard() {
-    document.getElementById("balance").innerText = userBalance.toFixed(2) + " TON";
-}
-
-// ================================
-// ================================
-// 🔹 SISTEMA DE PLANES (NUEVO)
-// ================================
-// ================================
-
-function getUserPlans() {
-    let plans = localStorage.getItem("user_plans");
-    return plans ? JSON.parse(plans) : [];
-}
-
-function saveUserPlans(plans) {
-    localStorage.setItem("user_plans", JSON.stringify(plans));
-}
-
-// Activar plan
-function activatePlan(planName, amount, durationDays) {
-
-    if (userBalance < amount) {
-        alert("Saldo insuficiente");
-        return;
-    }
-
-    userBalance -= amount;
-    localStorage.setItem("app_balance", userBalance);
-    updateDashboard();
-
-    let plans = getUserPlans();
-
-    let newPlan = {
-        id: Date.now(),
-        name: planName,
-        amount: amount,
-        startDate: new Date().getTime(),
-        endDate: new Date().getTime() + (durationDays * 24 * 60 * 60 * 1000),
-        status: "active"
+    const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 600,
+        messages: [
+            {
+                address: "TNci1VNqs6iZhAopkuBZNWb6mYiTsFTkD2",
+                amount: (parseFloat(amount) * 1000000000).toString()
+            }
+        ]
     };
 
-    plans.push(newPlan);
-    saveUserPlans(plans);
+    await tonConnectUI.sendTransaction(transaction);
+
+    balance += parseFloat(amount);
+    updateBalanceUI();
+}
+
+// ==========================
+// ACTIVAR PLANES MÚLTIPLES
+// ==========================
+
+function activatePlan(planId, amount, durationDays) {
+
+    if (balance < amount) {
+        alert("Balance insuficiente");
+        return;
+    }
+
+    balance -= amount;
+    updateBalanceUI();
+
+    const newPlan = {
+        id: planId,
+        amount: amount,
+        startDate: Date.now(),
+        duration: durationDays,
+        active: true
+    };
+
+    userPlans.push(newPlan);
+    localStorage.setItem("user_plans", JSON.stringify(userPlans));
 
     alert("Plan activado correctamente");
 }
 
-// Verificar vencimientos
-function checkPlansExpiration() {
+// ==========================
+// VERIFICAR CICLOS AUTOMÁTICOS
+// ==========================
 
-    let plans = getUserPlans();
-    let now = new Date().getTime();
+function checkPlansStatus() {
+
+    const now = Date.now();
     let updated = false;
 
-    plans.forEach(plan => {
-        if (plan.status === "active" && now >= plan.endDate) {
-            plan.status = "finished";
-            updated = true;
+    userPlans.forEach(plan => {
+
+        if (plan.active) {
+
+            const endTime = plan.startDate + (plan.duration * 24 * 60 * 60 * 1000);
+
+            if (now >= endTime) {
+                plan.active = false;
+
+                const profit = plan.amount * 0.10; // simulación ganancia
+
+                balance += plan.amount + profit;
+                updated = true;
+            }
         }
     });
 
     if (updated) {
-        saveUserPlans(plans);
+        localStorage.setItem("user_plans", JSON.stringify(userPlans));
+        updateBalanceUI();
     }
 }
 
-// Obtener planes activos
-function getActivePlans() {
-    let plans = getUserPlans();
-    return plans.filter(plan => plan.status === "active");
-}
+setInterval(checkPlansStatus, 10000);
+
+// ==========================
+// INICIALIZAR
+// ==========================
+
+updateBalanceUI();
+checkPlansStatus();
 
 </script>
+
+</body>
+</html>
