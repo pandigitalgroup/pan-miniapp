@@ -27,6 +27,7 @@ button:hover{opacity:0.85;}
 input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;background:#1E293B;color:white;}
 .footer{text-align:center;font-size:11px;color:#64748B;margin-top:15px;}
 .plan-button{margin-bottom:6px;}
+.plan-item{font-size:12px;margin-top:4px;color:#94A3B8;}
 </style>
 </head>
 
@@ -50,7 +51,10 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div>Balance PAN: <span id="panBalance">0</span></div>
 <div>Rentabilidad: Variable (según rendimiento interno del club)</div>
 <div>Planes activos: <span id="activePlans">0</span></div>
+<div id="planList"></div>
 </div>
+
+<!-- TODO LO DEMÁS EXACTAMENTE IGUAL -->
 
 <div class="card">
 <div class="section-title">Depósito</div>
@@ -96,155 +100,28 @@ PAN Digital Group © 2026
 
 <script>
 
-let tonBalance = 0;
-let panBalance = 0;
-let walletAddress = null;
-let history = [];
-let userPlans = [];
-
-const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
-
-const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-manifestUrl:'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json',
-buttonRootId:'connectWallet'
-});
-
-tonConnectUI.onStatusChange(wallet=>{
-if(wallet && wallet.account){
-walletAddress = wallet.account.address;
-document.getElementById("walletText").innerText =
-walletAddress.slice(0,6)+"...";
-loadUserData();
-}else{
-walletAddress=null;
-document.getElementById("walletText").innerText="No conectada";
-}
-});
+// 🔵 SOLO SE MODIFICA updateUI PARA MOSTRAR PLANES
 
 function updateUI(){
 document.getElementById("tonBalance").innerText=tonBalance.toFixed(4);
 document.getElementById("panBalance").innerText=panBalance.toFixed(4);
 document.getElementById("activePlans").innerText=userPlans.length;
-}
 
-function saveUserData(){
-if(walletAddress){
-localStorage.setItem("PAN_"+walletAddress,
-JSON.stringify({tonBalance,panBalance,history,userPlans}));
-}
-}
-
-function loadUserData(){
-const data=localStorage.getItem("PAN_"+walletAddress);
-if(data){
-const parsed=JSON.parse(data);
-tonBalance=parsed.tonBalance||0;
-panBalance=parsed.panBalance||0;
-history=parsed.history||[];
-userPlans=parsed.userPlans||[];
-}
-processYield();
-updateUI();
-}
-
-function random(min,max){
-return Math.random()*(max-min)+min;
-}
-
-function getYield(plan){
-if(plan===1) return random(0.005,0.012);
-if(plan===2) return random(0.008,0.015);
-if(plan===3) return random(0.01,0.018);
-if(plan===4) return random(0.012,0.022);
-}
-
-function processYield(){
+let list="";
 let now=Date.now();
 
-userPlans=userPlans.filter(plan=>{
-let days=Math.floor((now-plan.start)/86400000);
+userPlans.forEach((p,i)=>{
+let days=Math.floor((now-p.start)/86400000);
+let remaining=p.duration-days;
+if(remaining<0) remaining=0;
 
-if(days>plan.lastDay){
-let profit=plan.amount*getYield(plan.plan);
-panBalance+=profit;
-plan.lastDay=days;
-history.push(`Rendimiento plan ${plan.plan}: ${profit.toFixed(4)} PAN`);
-}
-
-if(days>=plan.duration){
-history.push(`Plan ${plan.plan} finalizado`);
-return false;
-}
-
-return true;
+list+=`<div class="plan-item">
+Plan ${p.plan} | ${p.amount} TON | ${remaining} días restantes
+</div>`;
 });
 
-saveUserData();
+document.getElementById("planList").innerHTML=list;
 }
-
-async function deposit(){
-if(!walletAddress){alert("Conecta tu wallet primero");return;}
-
-let amount=parseFloat(document.getElementById("depositAmount").value);
-if(amount>0){
-try{
-const transaction={
-validUntil:Math.floor(Date.now()/1000)+600,
-messages:[{address:TON_RECEIVER,amount:(amount*1000000000).toString()}]
-};
-await tonConnectUI.sendTransaction(transaction);
-
-tonBalance+=amount;
-history.push(`Depósito: ${amount} TON`);
-saveUserData();
-updateUI();
-alert("Depósito enviado correctamente");
-}catch(e){alert("Transacción cancelada o fallida");}
-}
-}
-
-function activatePlan(plan){
-let amount=parseFloat(document.getElementById("planAmount").value);
-if(!amount||amount<=0)return alert("Monto inválido");
-if(tonBalance<amount)return alert("Saldo insuficiente");
-
-let duration=7;
-if(plan===2)duration=30;
-if(plan===3)duration=60;
-if(plan===4)duration=90;
-
-tonBalance-=amount;
-
-userPlans.push({
-plan,
-amount,
-duration,
-start:Date.now(),
-lastDay:-1
-});
-
-history.push(`Plan ${plan} activado con ${amount} TON`);
-saveUserData();
-updateUI();
-alert("Plan activado correctamente");
-}
-
-function reinvestPlan(){
-if(panBalance>=20){
-tonBalance+=panBalance;
-panBalance=0;
-saveUserData();
-updateUI();
-alert("Reinvertido correctamente");
-}else alert("Monto mínimo 20 PAN");
-}
-
-function claim(){alert("PAN reclamado (simulado)");}
-function stake(){alert("Staking aplicado (simulado)");}
-function withdraw(){alert("Retiro solicitado (simulado)");}
-function historyLog(){alert(history.join("\n"));}
-
-updateUI();
 
 </script>
 </body>
