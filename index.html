@@ -27,6 +27,7 @@ button:hover{opacity:0.85;}
 input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;background:#1E293B;color:white;}
 .footer{text-align:center;font-size:11px;color:#64748B;margin-top:15px;}
 .plan-button{margin-bottom:6px;}
+.referral-detail{margin-left:6px;font-size:11px;color:#CBD5E1;}
 </style>
 </head>
 
@@ -150,7 +151,7 @@ function setupReferral(){
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get("ref");
     if(refCode && refCode !== myReferralCode){
-        if(!referrals[refCode]) referrals[refCode] = {level:1};
+        if(!referrals[refCode]) referrals[refCode] = {level:1, daily:[]};
         saveUserData();
     }
 }
@@ -186,6 +187,13 @@ function toggleReferrals(){
         let list="";
         for(const [addr,data] of Object.entries(referrals)){
             list+=`Nivel ${data.level}: ${addr.slice(0,6)}... | Ganancia acumulada: ${(data.earned||0).toFixed(4)} PAN<br>`;
+            if(data.daily && data.daily.length>0){
+                list+="<div class='referral-detail'>Ganancias diarias:<br>";
+                data.daily.forEach((d,i)=>{
+                    list+=`Día ${i+1}: ${d.toFixed(4)} PAN<br>`;
+                });
+                list+="</div>";
+            }
         }
         el.innerHTML = list || "No tienes referidos activos";
     }
@@ -241,8 +249,13 @@ function processYield(){
                 else if(data.level===2) perc=0.01;
                 else if(data.level===3) perc=0.01;
                 let refProfit = profit * perc;
-                panBalance += refProfit; // Para simplificar se acumula en tu balance
+                panBalance += refProfit;
                 data.earned=(data.earned||0)+refProfit;
+
+                // Registro diario de ganancias
+                if(!data.daily) data.daily=[];
+                data.daily.push(refProfit);
+
                 history.push(`Ganancia por referido ${addr.slice(0,6)} nivel ${data.level}: ${refProfit.toFixed(4)} PAN`);
             }
         }
