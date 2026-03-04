@@ -50,11 +50,7 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div>Balance PAN: <span id="panBalance">0</span></div>
 <div>Rentabilidad: Variable (según rendimiento interno del club)</div>
 <div>Planes activos: <span id="activePlans">0</span></div>
-
-<!-- NUEVO -->
 <div id="planDetails" style="margin-top:8px;font-size:12px;color:#94A3B8;"></div>
-<!-- FIN NUEVO -->
-
 </div>
 
 <div class="card">
@@ -131,7 +127,6 @@ document.getElementById("tonBalance").innerText=tonBalance.toFixed(4);
 document.getElementById("panBalance").innerText=panBalance.toFixed(4);
 document.getElementById("activePlans").innerText=userPlans.length;
 
-// NUEVO
 let details="";
 let now=Date.now();
 
@@ -140,11 +135,10 @@ let days=Math.floor((now-p.start)/86400000);
 let remaining=p.duration-days;
 if(remaining<0) remaining=0;
 
-details+=`Plan ${p.plan} | ${p.amount} TON | ${remaining} días restantes<br>`;
+details+=`Plan ${p.plan} | ${p.amount} TON | Ganado: ${ (p.earned||0).toFixed(4) } PAN | ${remaining} días restantes<br>`;
 });
 
 document.getElementById("planDetails").innerHTML=details;
-// FIN NUEVO
 }
 
 function saveUserData(){
@@ -187,6 +181,11 @@ let days=Math.floor((now-plan.start)/86400000);
 if(days>plan.lastDay){
 let profit=plan.amount*getYield(plan.plan);
 panBalance+=profit;
+
+// NUEVO
+plan.earned = (plan.earned||0) + profit;
+// FIN NUEVO
+
 plan.lastDay=days;
 history.push(`Rendimiento plan ${plan.plan}: ${profit.toFixed(4)} PAN`);
 }
@@ -240,7 +239,8 @@ plan,
 amount,
 duration,
 start:Date.now(),
-lastDay:-1
+lastDay:-1,
+earned:0 // NUEVO
 });
 
 history.push(`Plan ${plan} activado con ${amount} TON`);
