@@ -11,8 +11,7 @@
 body{margin:0;font-family:Inter,sans-serif;background:#0F172A;color:#E2E8F0;}
 .container{max-width:460px;margin:auto;padding:18px;}
 .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;}
-.logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:20px;}
-.logo img{height:32px;width:auto;}
+.logo{font-weight:600;font-size:20px;}
 .level{background:#1E293B;padding:6px 12px;border-radius:12px;font-size:12px;color:#94A3B8;}
 .card{background:#162033;padding:16px;border-radius:16px;margin-bottom:14px;box-shadow:0 4px 12px rgba(0,0,0,0.3);}
 .section-title{font-size:13px;color:#94A3B8;margin-bottom:10px;}
@@ -35,10 +34,7 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div class="container">
 
 <div class="header">
-<div class="logo">
-  <img src="https://i.postimg.cc/ncHMqPdY/file-0000000048c8720e897c6596974ca126.png" alt="PAN Digital Group Logo">
-  PAN Digital Group
-</div>
+<div class="logo">PAN Digital Group</div>
 <div class="level" id="level">Club Privado</div>
 </div>
 
@@ -47,7 +43,11 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div class="section-title">Wallet</div>
 <div id="walletText">No conectada</div>
 <div id="connectWallet"></div>
-<div id="referralLink" style="margin-top:8px;font-size:12px;color:#94A3B8;"></div>
+<div id="referralLink" style="margin-top:8px;font-size:12px;color:#94A3B8;">
+<!-- Link de referido fijo visible siempre -->
+Tu link de referido: <br>
+<input type="text" value="https://tuapp.com/?ref=pan23hgr1" readonly style="width:100%;background:#1E293B;color:#E2E8F0;border:none;padding:4px;border-radius:4px;">
+</div>
 </div>
 
 <!-- DASHBOARD -->
@@ -123,7 +123,7 @@ let walletAddress = null;
 let history = [];
 let userPlans = [];
 let referrals = {};
-let myReferralCode = null;
+let myReferralCode = "pan23hgr1"; // Código fijo
 
 const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
 
@@ -137,27 +137,11 @@ tonConnectUI.onStatusChange(wallet=>{
         walletAddress = wallet.account.address;
         document.getElementById("walletText").innerText = walletAddress.slice(0,6)+"...";
         loadUserData();
-        setupReferral();
-    }else{
+    } else {
         walletAddress=null;
         document.getElementById("walletText").innerText="No conectada";
     }
 });
-
-// ===== REFERRIDOS =====
-function setupReferral(){
-    if(!myReferralCode){
-        myReferralCode = "pan23hgr1";
-        let url = window.location.origin + window.location.pathname + "?ref=" + myReferralCode;
-        document.getElementById("referralLink").innerHTML = `Tu link de referido: <br><input type="text" value="${url}" readonly style="width:100%;background:#1E293B;color:#E2E8F0;border:none;padding:4px;border-radius:4px;">`;
-    }
-    const urlParams = new URLSearchParams(window.location.search);
-    const refCode = urlParams.get("ref");
-    if(refCode && refCode !== myReferralCode){
-        if(!referrals[refCode]) referrals[refCode] = {level:1};
-        saveUserData();
-    }
-}
 
 // ===== DASHBOARD =====
 function updateUI(){
@@ -211,7 +195,7 @@ function loadUserData(){
         history=parsed.history||[];
         userPlans=parsed.userPlans||[];
         referrals=parsed.referrals||{};
-        myReferralCode=parsed.myReferralCode||null;
+        myReferralCode=parsed.myReferralCode||myReferralCode;
     }
     processYield();
     updateUI();
@@ -245,7 +229,7 @@ function processYield(){
                 else if(data.level===2) perc=0.01;
                 else if(data.level===3) perc=0.01;
                 let refProfit = profit * perc;
-                panBalance += refProfit; // Para simplificar se acumula en tu balance
+                panBalance += refProfit;
                 data.earned=(data.earned||0)+refProfit;
                 history.push(`Ganancia por referido ${addr.slice(0,6)} nivel ${data.level}: ${refProfit.toFixed(4)} PAN`);
             }
@@ -262,7 +246,14 @@ async function deposit(){
     let amount=parseFloat(document.getElementById("depositAmount").value);
     if(amount>0){
         try{
-            const transaction={validUntil:Math.floor(Date.now()/1000)+600,messages:[{address:TON_RECEIVER,amount:(amount*1000000000).toString()}]};
+            const transaction={
+                validUntil:Math.floor(Date.now()/1000)+600,
+                messages:[{
+                    address:TON_RECEIVER,
+                    amount:(amount*1000000000).toString()
+                }],
+                iconUrl: "https://i.postimg.cc/ncHMqPdY/file-0000000048c8720e897c6596974ca126.png" // Logo al confirmar
+            };
             await tonConnectUI.sendTransaction(transaction);
             tonBalance+=amount;
             history.push(`Depósito: ${amount} TON`);
