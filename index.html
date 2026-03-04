@@ -15,9 +15,7 @@ body{margin:0;font-family:Inter,sans-serif;background:#0F172A;color:#E2E8F0;}
 .level{background:#1E293B;padding:6px 12px;border-radius:12px;font-size:12px;color:#94A3B8;}
 .card{background:#162033;padding:16px;border-radius:16px;margin-bottom:14px;box-shadow:0 4px 12px rgba(0,0,0,0.3);}
 .section-title{font-size:13px;color:#94A3B8;margin-bottom:10px;}
-.value{font-weight:600;}
-button{width:100%;padding:12px;border:none;border-radius:12px;margin-bottom:8px;font-weight:600;cursor:pointer;transition:0.2s;}
-button:hover{opacity:0.85;}
+button{width:100%;padding:12px;border:none;border-radius:12px;margin-bottom:8px;font-weight:600;cursor:pointer;}
 .btn-primary{background:#2563EB;color:white;}
 .btn-success{background:#15803D;color:white;}
 .btn-warning{background:#C2410C;color:white;}
@@ -35,7 +33,7 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 
 <div class="header">
 <div class="logo">PAN Digital Group</div>
-<div class="level" id="level">Nivel Bronce</div>
+<div class="level" id="level">Club Privado</div>
 </div>
 
 <div class="card">
@@ -48,7 +46,8 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div class="section-title">Dashboard</div>
 <div>Balance TON: <span id="tonBalance">0</span></div>
 <div>Balance PAN: <span id="panBalance">0</span></div>
-<div>Rentabilidad diaria: 2%</div>
+<div>Rentabilidad: Variable según rendimiento del club</div>
+<div>Planes activos: <span id="activePlans">0</span></div>
 </div>
 
 <div class="card">
@@ -59,11 +58,11 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 
 <div class="card">
 <div class="section-title">Activar Plan</div>
-<input type="number" id="planAmount" placeholder="Monto para el plan en TON/USD">
-<button class="btn-success plan-button" onclick="activatePlan(1)">Plan 1 - Prueba (Simulación)</button>
-<button class="btn-success plan-button" onclick="activatePlan(2)">Plan 2 - 30 días (20-100 USD TON)</button>
-<button class="btn-success plan-button" onclick="activatePlan(3)">Plan 3 - 60 días (101-200 USD TON)</button>
-<button class="btn-success plan-button" onclick="activatePlan(4)">Plan 4 - 90 días (201-10000 USD TON)</button>
+<input type="number" id="planAmount" placeholder="Monto para el plan">
+<button class="btn-success plan-button" onclick="activatePlan(1)">Plan 1 - Prueba</button>
+<button class="btn-success plan-button" onclick="activatePlan(2)">Plan 2 - 30 días</button>
+<button class="btn-success plan-button" onclick="activatePlan(3)">Plan 3 - 60 días</button>
+<button class="btn-success plan-button" onclick="activatePlan(4)">Plan 4 - 90 días</button>
 <button class="btn-success" onclick="reinvestPlan()">Reinvertir (+20 PAN min)</button>
 </div>
 
@@ -73,18 +72,6 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <button class="btn-soft" onclick="stake()">Staking PAN</button>
 <button class="btn-danger" onclick="withdraw()">Retirar</button>
 <button class="btn-gray" onclick="historyLog()">Historial</button>
-</div>
-
-<div class="card">
-<div class="section-title">Comunidad</div>
-<a href="https://t.me/MANDON1" target="_blank"><button class="btn-primary">Soporte</button></a>
-<a href="https://t.me/CanalEjemplo" target="_blank"><button class="btn-soft">Canal de Telegram</button></a>
-<a href="https://t.me/GrupoEjemplo" target="_blank"><button class="btn-soft">Grupo de Telegram</button></a>
-<a href="https://www.youtube.com/" target="_blank"><button class="btn-soft">Canal de YouTube</button></a>
-<a href="https://www.tiktok.com/" target="_blank"><button class="btn-soft">Canal de TikTok</button></a>
-<a href="https://www.instagram.com/" target="_blank"><button class="btn-soft">Canal de Instagram</button></a>
-<a href="mailto:contacto@pandigitalgroup.com"><button class="btn-soft">Correo corporativo</button></a>
-<a href="https://t.me/MANDON1" target="_blank"><button class="btn-soft">Referidos</button></a>
 </div>
 
 <div class="footer">
@@ -99,146 +86,153 @@ let tonBalance = 0;
 let panBalance = 0;
 let walletAddress = null;
 let history = [];
-
-// 🔥 NUEVO SISTEMA MULTIPLANES
 let userPlans = [];
 
 const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
 
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-    manifestUrl:'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json',
-    buttonRootId:'connectWallet'
+manifestUrl:'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json',
+buttonRootId:'connectWallet'
 });
 
 tonConnectUI.onStatusChange(wallet=>{
-    if(wallet && wallet.account){
-        walletAddress = wallet.account.address;
-        document.getElementById("walletText").innerText =
-            walletAddress.slice(0,6)+"...";
-        loadUserData();
-    } else {
-        walletAddress = null;
-        document.getElementById("walletText").innerText = "No conectada";
-    }
+if(wallet && wallet.account){
+walletAddress = wallet.account.address;
+document.getElementById("walletText").innerText = walletAddress.slice(0,6)+"...";
+loadUserData();
+} else {
+walletAddress = null;
+document.getElementById("walletText").innerText = "No conectada";
+}
 });
 
 function updateUI(){
-  document.getElementById("tonBalance").innerText = tonBalance.toFixed(4);
-  document.getElementById("panBalance").innerText = panBalance.toFixed(2);
+document.getElementById("tonBalance").innerText = tonBalance.toFixed(4);
+document.getElementById("panBalance").innerText = panBalance.toFixed(4);
+document.getElementById("activePlans").innerText = userPlans.length;
 }
 
 function saveUserData(){
-    if(walletAddress){
-        localStorage.setItem("PAN_"+walletAddress,
-            JSON.stringify({
-                tonBalance,
-                panBalance,
-                history,
-                userPlans
-            })
-        );
-    }
+if(walletAddress){
+localStorage.setItem("PAN_"+walletAddress,
+JSON.stringify({tonBalance,panBalance,history,userPlans})
+);
+}
 }
 
 function loadUserData(){
-    const data = localStorage.getItem("PAN_"+walletAddress);
-    if(data){
-        const parsed = JSON.parse(data);
-        tonBalance = parsed.tonBalance || 0;
-        panBalance = parsed.panBalance || 0;
-        history = parsed.history || [];
-        userPlans = parsed.userPlans || [];
-    }
-    updateUI();
+const data = localStorage.getItem("PAN_"+walletAddress);
+if(data){
+const parsed = JSON.parse(data);
+tonBalance = parsed.tonBalance || 0;
+panBalance = parsed.panBalance || 0;
+history = parsed.history || [];
+userPlans = parsed.userPlans || [];
+}
+processDailyYield();
+updateUI();
+}
+
+function getRandomYield(plan){
+if(plan===1) return random(0.005,0.012);
+if(plan===2) return random(0.008,0.015);
+if(plan===3) return random(0.01,0.018);
+if(plan===4) return random(0.012,0.022);
+}
+
+function random(min,max){
+return Math.random()*(max-min)+min;
+}
+
+function processDailyYield(){
+let now = Date.now();
+
+userPlans = userPlans.filter(plan=>{
+let daysPassed = Math.floor((now - plan.start)/86400000);
+
+if(daysPassed > plan.lastPaidDay){
+let yieldPercent = getRandomYield(plan.plan);
+let profit = plan.amount * yieldPercent;
+panBalance += profit;
+plan.lastPaidDay = daysPassed;
+history.push(`Rendimiento plan ${plan.plan}: ${profit.toFixed(4)} PAN`);
+}
+
+if(daysPassed >= plan.duration){
+history.push(`Plan ${plan.plan} finalizado`);
+return false;
+}
+
+return true;
+});
+
+saveUserData();
 }
 
 async function deposit(){
-  if(!walletAddress){
-    alert("Conecta tu wallet primero");
-    return;
-  }
+if(!walletAddress){ alert("Conecta tu wallet primero"); return; }
 
-  let amount = parseFloat(document.getElementById("depositAmount").value);
+let amount = parseFloat(document.getElementById("depositAmount").value);
 
-  if(amount>0){
-    try{
-      const transaction = {
-        validUntil: Math.floor(Date.now()/1000)+600,
-        messages: [{
-          address: TON_RECEIVER,
-          amount: (amount * 1000000000).toString()
-        }]
-      };
+if(amount>0){
+try{
+const transaction = {
+validUntil: Math.floor(Date.now()/1000)+600,
+messages:[{address:TON_RECEIVER,amount:(amount*1000000000).toString()}]
+};
+await tonConnectUI.sendTransaction(transaction);
 
-      await tonConnectUI.sendTransaction(transaction);
-
-      tonBalance += amount;
-      history.push(`Depósito: ${amount} TON`);
-      saveUserData();
-      updateUI();
-
-      alert("Depósito enviado correctamente");
-
-    }catch(e){
-      alert("Transacción cancelada o fallida");
-    }
-  }
+tonBalance += amount;
+history.push(`Depósito: ${amount} TON`);
+saveUserData();
+updateUI();
+alert("Depósito enviado correctamente");
+}catch(e){
+alert("Transacción cancelada o fallida");
+}
+}
 }
 
-// 🔥 ACTIVAR PLAN MULTIPLE
 function activatePlan(plan){
 
-  let amount = parseFloat(document.getElementById("planAmount").value);
+let amount = parseFloat(document.getElementById("planAmount").value);
+if(!amount || amount<=0) return alert("Monto inválido");
+if(tonBalance < amount) return alert("Saldo insuficiente");
 
-  if(!amount || amount <= 0){
-    alert("Ingresa un monto válido");
-    return;
-  }
+let duration = 7;
+if(plan===2) duration=30;
+if(plan===3) duration=60;
+if(plan===4) duration=90;
 
-  if(tonBalance < amount){
-    alert("Saldo insuficiente");
-    return;
-  }
+tonBalance -= amount;
 
-  let duration = 7;
+userPlans.push({
+plan,
+amount,
+duration,
+start: Date.now(),
+lastPaidDay: -1
+});
 
-  if(plan===2 && (amount<20 || amount>100)) return alert("Rango 20-100");
-  if(plan===3 && (amount<101 || amount>200)) return alert("Rango 101-200");
-  if(plan===4 && (amount<201 || amount>10000)) return alert("Rango 201-10000");
-
-  if(plan===2) duration=30;
-  if(plan===3) duration=60;
-  if(plan===4) duration=90;
-
-  tonBalance -= amount;
-
-  userPlans.push({
-      plan,
-      amount,
-      duration,
-      start: Date.now()
-  });
-
-  history.push(`Plan ${plan} activado con ${amount} TON`);
-  saveUserData();
-  updateUI();
-
-  alert(`Plan ${plan} activado correctamente`);
+history.push(`Plan ${plan} activado con ${amount} TON`);
+saveUserData();
+updateUI();
+alert("Plan activado correctamente");
 }
 
 function reinvestPlan(){
-  if(panBalance>=20){
-    tonBalance += panBalance;
-    panBalance=0;
-    saveUserData();
-    updateUI();
-    alert("Reinvertido correctamente");
-  } else alert("Monto mínimo 20 PAN");
+if(panBalance>=20){
+tonBalance += panBalance;
+panBalance=0;
+saveUserData();
+updateUI();
+alert("Reinvertido correctamente");
+}else alert("Mínimo 20 PAN");
 }
 
-function claim(){ alert("PAN reclamado (simulado)"); }
-function stake(){ alert("Staking aplicado (simulado)"); }
-function withdraw(){ alert("Retiro solicitado (simulado)"); }
+function claim(){ alert("Función reclamo simulada"); }
+function stake(){ alert("Función staking simulada"); }
+function withdraw(){ alert("Función retiro simulada"); }
 function historyLog(){ alert(history.join("\n")); }
 
 updateUI();
