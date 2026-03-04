@@ -33,7 +33,7 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 
 <div class="header">
 <div class="logo">PAN Digital Group</div>
-<div class="level">Nivel Bronce</div>
+<div class="level" id="level">Nivel Bronce</div>
 </div>
 
 <div class="card">
@@ -46,10 +46,14 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div class="section-title">Dashboard</div>
 <div>Balance TON: <span id="tonBalance">0</span></div>
 <div>Balance PAN: <span id="panBalance">0</span></div>
-<div>Rentabilidad: Variable</div>
+<div>Rentabilidad: Variable (según rendimiento interno del club)</div>
 <div>Planes activos: <span id="activePlans">0</span></div>
 <div id="planDetails" style="margin-top:8px;font-size:12px;color:#94A3B8;"></div>
-<div id="refLinkBox" style="margin-top:8px;font-size:12px;color:#94A3B8;"></div>
+
+<!-- NUEVO -->
+<div id="myRefCode" style="margin-top:8px;font-size:12px;color:#94A3B8;"></div>
+<!-- FIN NUEVO -->
+
 </div>
 
 <div class="card">
@@ -60,18 +64,18 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 
 <div class="card">
 <div class="section-title">Activar Plan</div>
-<input type="number" id="planAmount" placeholder="Monto">
-<button class="btn-success plan-button" onclick="activatePlan(1)">Plan 1</button>
-<button class="btn-success plan-button" onclick="activatePlan(2)">Plan 2</button>
-<button class="btn-success plan-button" onclick="activatePlan(3)">Plan 3</button>
-<button class="btn-success plan-button" onclick="activatePlan(4)">Plan 4</button>
+<input type="number" id="planAmount" placeholder="Monto para el plan en TON/USD">
+<button class="btn-success plan-button" onclick="activatePlan(1)">Plan 1 - Prueba (Simulación)</button>
+<button class="btn-success plan-button" onclick="activatePlan(2)">Plan 2 - 30 días</button>
+<button class="btn-success plan-button" onclick="activatePlan(3)">Plan 3 - 60 días</button>
+<button class="btn-success plan-button" onclick="activatePlan(4)">Plan 4 - 90 días</button>
 <button class="btn-success" onclick="reinvestPlan()">Reinvertir</button>
 </div>
 
 <div class="card">
 <div class="section-title">Finanzas</div>
 <button class="btn-warning" onclick="claim()">Reclamar PAN</button>
-<button class="btn-soft" onclick="stake()">Staking</button>
+<button class="btn-soft" onclick="stake()">Staking PAN</button>
 <button class="btn-danger" onclick="withdraw()">Retirar</button>
 <button class="btn-gray" onclick="historyLog()">Historial</button>
 </div>
@@ -79,7 +83,7 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div class="card">
 <div class="section-title">Comunidad</div>
 <a href="https://t.me/MANDON1" target="_blank"><button class="btn-primary">Soporte</button></a>
-<button class="btn-soft" onclick="copyRef()">Referidos</button> <!-- NUEVO -->
+<button class="btn-soft" onclick="copyReferral()">Referidos</button> <!-- NUEVO -->
 </div>
 
 <div class="footer">
@@ -90,35 +94,61 @@ PAN Digital Group © 2026
 
 <script>
 
-let tonBalance=0;
-let panBalance=0;
-let walletAddress=null;
-let history=[];
-let userPlans=[];
-let referralCode=null; // NUEVO
+let tonBalance = 0;
+let panBalance = 0;
+let walletAddress = null;
+let history = [];
+let userPlans = [];
 
-const TON_RECEIVER="UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
+// NUEVO
+let referralCode = null;
+let referredBy = null;
 
-const tonConnectUI=new TON_CONNECT_UI.TonConnectUI({
+function generateReferralCode(){
+const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+let result="PAN";
+for(let i=0;i<6;i++){
+result+=chars.charAt(Math.floor(Math.random()*chars.length));
+}
+return result;
+}
+// FIN NUEVO
+
+const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
+
+const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
 manifestUrl:'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json',
 buttonRootId:'connectWallet'
 });
 
-// NUEVO
-function generateReferralCode(address){
-return address.slice(0,6)+address.slice(-4);
-}
+// NUEVO detectar referido en URL
+const urlParams = new URLSearchParams(window.location.search);
+const incomingRef = urlParams.get("ref");
 // FIN NUEVO
 
 tonConnectUI.onStatusChange(wallet=>{
 if(wallet && wallet.account){
-walletAddress=wallet.account.address;
-document.getElementById("walletText").innerText=walletAddress.slice(0,6)+"...";
+walletAddress = wallet.account.address;
+document.getElementById("walletText").innerText =
+walletAddress.slice(0,6)+"...";
 
-referralCode=generateReferralCode(walletAddress); // NUEVO
+loadUserData();
 
-document.getElementById("refLinkBox").innerHTML=
-"Tu código: "+referralCode;
+// NUEVO generar código si no existe
+if(!referralCode){
+referralCode = generateReferralCode();
+saveUserData();
+}
+
+// NUEVO guardar referido entrante
+if(incomingRef && !referredBy && incomingRef !== referralCode){
+referredBy = incomingRef;
+saveUserData();
+}
+
+// NUEVO mostrar código
+document.getElementById("myRefCode").innerHTML =
+"Tu código de referido: <b>"+referralCode+"</b>";
 
 updateUI();
 }else{
@@ -127,17 +157,37 @@ document.getElementById("walletText").innerText="No conectada";
 }
 });
 
-function copyRef(){ // NUEVO
-if(!referralCode){alert("Conecta wallet");return;}
-const link=window.location.origin+window.location.pathname+"?ref="+referralCode;
+function copyReferral(){ // NUEVO
+if(!referralCode){alert("Conecta tu wallet primero");return;}
+const link = window.location.origin + window.location.pathname + "?ref=" + referralCode;
 navigator.clipboard.writeText(link);
 alert("Link copiado:\n"+link);
 }
 
 function updateUI(){
-document.getElementById("tonBalance").innerText=tonBalance.toFixed(2);
-document.getElementById("panBalance").innerText=panBalance.toFixed(2);
+document.getElementById("tonBalance").innerText=tonBalance.toFixed(4);
+document.getElementById("panBalance").innerText=panBalance.toFixed(4);
 document.getElementById("activePlans").innerText=userPlans.length;
+}
+
+function saveUserData(){
+if(walletAddress){
+localStorage.setItem("PAN_"+walletAddress,
+JSON.stringify({tonBalance,panBalance,history,userPlans,referralCode,referredBy}));
+}
+}
+
+function loadUserData(){
+const data=localStorage.getItem("PAN_"+walletAddress);
+if(data){
+const parsed=JSON.parse(data);
+tonBalance=parsed.tonBalance||0;
+panBalance=parsed.panBalance||0;
+history=parsed.history||[];
+userPlans=parsed.userPlans||[];
+referralCode=parsed.referralCode||null;
+referredBy=parsed.referredBy||null;
+}
 }
 
 function deposit(){alert("Simulado");}
@@ -146,7 +196,9 @@ function reinvestPlan(){alert("Simulado");}
 function claim(){alert("Simulado");}
 function stake(){alert("Simulado");}
 function withdraw(){alert("Simulado");}
-function historyLog(){alert("Simulado");}
+function historyLog(){alert(history.join("\n"));}
+
+updateUI();
 
 </script>
 </body>
