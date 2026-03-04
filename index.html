@@ -34,7 +34,6 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <body>
 <div class="container">
 
-<!-- HEADER -->
 <div class="header">
 <div class="logo">
   <img src="https://i.postimg.cc/ncHMqPdY/file-0000000048c8720e897c6596974ca126.png" alt="PAN Digital Group Logo">
@@ -246,7 +245,7 @@ function processYield(){
                 else if(data.level===2) perc=0.01;
                 else if(data.level===3) perc=0.01;
                 let refProfit = profit * perc;
-                panBalance += refProfit; 
+                panBalance += refProfit; // Para simplificar se acumula en tu balance
                 data.earned=(data.earned||0)+refProfit;
                 history.push(`Ganancia por referido ${addr.slice(0,6)} nivel ${data.level}: ${refProfit.toFixed(4)} PAN`);
             }
