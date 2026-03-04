@@ -51,11 +51,7 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div>Rentabilidad: Variable (según rendimiento interno del club)</div>
 <div>Planes activos: <span id="activePlans">0</span></div>
 <div id="planDetails" style="margin-top:8px;font-size:12px;color:#94A3B8;"></div>
-
-<!-- NUEVO -->
 <div id="refLinkBox" style="margin-top:8px;font-size:12px;color:#94A3B8;"></div>
-<!-- FIN NUEVO -->
-
 </div>
 
 <div class="card">
@@ -91,7 +87,7 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <a href="https://www.tiktok.com/" target="_blank"><button class="btn-soft">Canal de TikTok</button></a>
 <a href="https://www.instagram.com/" target="_blank"><button class="btn-soft">Canal de Instagram</button></a>
 <a href="mailto:contacto@pandigitalgroup.com"><button class="btn-soft">Correo corporativo</button></a>
-<a href="#" target="_blank"><button class="btn-soft">Referidos</button></a>
+<button class="btn-soft" onclick="showReferral()">Referidos</button>
 </div>
 
 <div class="footer">
@@ -107,11 +103,8 @@ let panBalance = 0;
 let walletAddress = null;
 let history = [];
 let userPlans = [];
-
-// NUEVO
 let referrer = null;
 let referrals = {level1:[], level2:[], level3:[]};
-// FIN NUEVO
 
 const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
 
@@ -120,10 +113,17 @@ manifestUrl:'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json'
 buttonRootId:'connectWallet'
 });
 
-// NUEVO - Detectar referido desde URL
-const urlParams = new URLSearchParams(window.location.search);
-const incomingRef = urlParams.get("ref");
-// FIN NUEVO
+function showReferral(){
+if(!walletAddress){
+alert("Conecta tu wallet primero");
+return;
+}
+let link = window.location.origin + window.location.pathname + "?ref=" + walletAddress;
+
+navigator.clipboard.writeText(link);
+
+alert("Tu link de referido ha sido copiado:\n\n"+link);
+}
 
 tonConnectUI.onStatusChange(wallet=>{
 if(wallet && wallet.account){
@@ -131,18 +131,6 @@ walletAddress = wallet.account.address;
 document.getElementById("walletText").innerText =
 walletAddress.slice(0,6)+"...";
 loadUserData();
-
-// NUEVO - Guardar referido si existe
-if(incomingRef && incomingRef !== walletAddress){
-referrer = incomingRef;
-history.push("Registrado con referido: "+incomingRef.slice(0,6)+"...");
-saveUserData();
-}
-
-// NUEVO - Mostrar link de referido propio
-document.getElementById("refLinkBox").innerHTML =
-"Tu link de referido:<br>"+window.location.origin+window.location.pathname+"?ref="+walletAddress;
-
 }else{
 walletAddress=null;
 document.getElementById("walletText").innerText="No conectada";
@@ -153,19 +141,6 @@ function updateUI(){
 document.getElementById("tonBalance").innerText=tonBalance.toFixed(4);
 document.getElementById("panBalance").innerText=panBalance.toFixed(4);
 document.getElementById("activePlans").innerText=userPlans.length;
-
-let details="";
-let now=Date.now();
-
-userPlans.forEach(p=>{
-let days=Math.floor((now-p.start)/86400000);
-let remaining=p.duration-days;
-if(remaining<0) remaining=0;
-
-details+=`Plan ${p.plan} | ${p.amount} TON | Ganado: ${(p.earned||0).toFixed(4)} PAN | ${remaining} días restantes<br>`;
-});
-
-document.getElementById("planDetails").innerHTML=details;
 }
 
 function saveUserData(){
@@ -186,45 +161,7 @@ userPlans=parsed.userPlans||[];
 referrer=parsed.referrer||null;
 referrals=parsed.referrals||{level1:[],level2:[],level3:[]};
 }
-processYield();
 updateUI();
-}
-
-/* TODO: Comisiones se activarán en siguiente paso */
-
-function random(min,max){return Math.random()*(max-min)+min;}
-function getYield(plan){
-if(plan===1) return random(0.005,0.012);
-if(plan===2) return random(0.008,0.015);
-if(plan===3) return random(0.01,0.018);
-if(plan===4) return random(0.012,0.022);
-}
-
-function processYield(){
-let now=Date.now();
-
-userPlans=userPlans.filter(plan=>{
-let days=Math.floor((now-plan.start)/86400000);
-
-if(days>plan.lastDay){
-let profit=plan.amount*getYield(plan.plan);
-panBalance+=profit;
-plan.earned=(plan.earned||0)+profit;
-plan.lastDay=days;
-history.push(`Rendimiento plan ${plan.plan}: ${profit.toFixed(4)} PAN`);
-}
-
-if(days>=plan.duration){
-tonBalance += plan.amount;
-history.push(`Capital devuelto plan ${plan.plan}: ${plan.amount} TON`);
-history.push(`Plan ${plan.plan} finalizado`);
-return false;
-}
-
-return true;
-});
-
-saveUserData();
 }
 
 async function deposit(){
@@ -237,7 +174,6 @@ validUntil:Math.floor(Date.now()/1000)+600,
 messages:[{address:TON_RECEIVER,amount:(amount*1000000000).toString()}]
 };
 await tonConnectUI.sendTransaction(transaction);
-
 tonBalance+=amount;
 history.push(`Depósito: ${amount} TON`);
 saveUserData();
@@ -252,17 +188,11 @@ let amount=parseFloat(document.getElementById("planAmount").value);
 if(!amount||amount<=0)return alert("Monto inválido");
 if(tonBalance<amount)return alert("Saldo insuficiente");
 
-let duration=7;
-if(plan===2)duration=30;
-if(plan===3)duration=60;
-if(plan===4)duration=90;
-
 tonBalance-=amount;
-
 userPlans.push({
 plan,
 amount,
-duration,
+duration:30,
 start:Date.now(),
 lastDay:-1,
 earned:0
