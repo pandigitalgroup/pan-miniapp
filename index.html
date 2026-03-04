@@ -135,7 +135,7 @@ let days=Math.floor((now-p.start)/86400000);
 let remaining=p.duration-days;
 if(remaining<0) remaining=0;
 
-details+=`Plan ${p.plan} | ${p.amount} TON | Ganado: ${ (p.earned||0).toFixed(4) } PAN | ${remaining} días restantes<br>`;
+details+=`Plan ${p.plan} | ${p.amount} TON | Ganado: ${(p.earned||0).toFixed(4)} PAN | ${remaining} días restantes<br>`;
 });
 
 document.getElementById("planDetails").innerHTML=details;
@@ -181,16 +181,17 @@ let days=Math.floor((now-plan.start)/86400000);
 if(days>plan.lastDay){
 let profit=plan.amount*getYield(plan.plan);
 panBalance+=profit;
-
-// NUEVO
-plan.earned = (plan.earned||0) + profit;
-// FIN NUEVO
-
+plan.earned=(plan.earned||0)+profit;
 plan.lastDay=days;
 history.push(`Rendimiento plan ${plan.plan}: ${profit.toFixed(4)} PAN`);
 }
 
 if(days>=plan.duration){
+
+// NUEVO - DEVOLVER CAPITAL
+tonBalance += plan.amount;
+history.push(`Capital devuelto plan ${plan.plan}: ${plan.amount} TON`);
+
 history.push(`Plan ${plan.plan} finalizado`);
 return false;
 }
@@ -240,7 +241,7 @@ amount,
 duration,
 start:Date.now(),
 lastDay:-1,
-earned:0 // NUEVO
+earned:0
 });
 
 history.push(`Plan ${plan} activado con ${amount} TON`);
