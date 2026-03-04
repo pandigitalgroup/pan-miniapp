@@ -43,6 +43,7 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div class="section-title">Wallet</div>
 <div id="walletText">No conectada</div>
 <div id="connectWallet"></div>
+<div id="referralLink" style="margin-top:8px;font-size:12px;color:#94A3B8;"></div>
 </div>
 
 <!-- DASHBOARD -->
@@ -53,8 +54,8 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div>Rentabilidad: Variable (según rendimiento interno del club)</div>
 <div>Planes activos: <span id="activePlans">0</span></div>
 <div id="planDetails" style="margin-top:8px;font-size:12px;color:#94A3B8;"></div>
-<!-- NUEVO: listado de referidos -->
 <div id="referralList" style="margin-top:8px;font-size:12px;color:#94A3B8;"></div>
+<div style="margin-top:4px;font-size:11px;color:#94A3B8;">Ganas hasta 5% sobre las ganancias de tus referidos (3 niveles)</div>
 </div>
 
 <!-- DEPOSITO -->
@@ -111,7 +112,8 @@ let panBalance = 0;
 let walletAddress = null;
 let history = [];
 let userPlans = [];
-let referrals = {}; // NUEVO: almacenar referidos {wallet: {level:1}}
+let referrals = {}; // {wallet: {level:1}}
+let myReferralCode = null;
 
 const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
 
@@ -124,14 +126,32 @@ const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
 tonConnectUI.onStatusChange(wallet=>{
     if(wallet && wallet.account){
         walletAddress = wallet.account.address;
-        document.getElementById("walletText").innerText =
-            walletAddress.slice(0,6)+"...";
+        document.getElementById("walletText").innerText = walletAddress.slice(0,6)+"...";
         loadUserData();
+        setupReferral();
     }else{
         walletAddress=null;
         document.getElementById("walletText").innerText="No conectada";
     }
 });
+
+function setupReferral(){
+    // Generar código único si no existe
+    if(!myReferralCode){
+        myReferralCode = "pan"+Math.random().toString(36).slice(2,9);
+        let url = window.location.origin + window.location.pathname + "?ref=" + myReferralCode;
+        document.getElementById("referralLink").innerHTML = `Tu link de referido: <br><input type="text" value="${url}" readonly style="width:100%;background:#1E293B;color:#E2E8F0;border:none;padding:4px;border-radius:4px;">`;
+    }
+
+    // Registrar quien me refirió si llegué con ?ref=
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get("ref");
+    if(refCode && refCode !== myReferralCode){
+        // Guardar en referrals si no existe
+        if(!referrals[refCode]) referrals[refCode] = {level:1};
+        saveUserData();
+    }
+}
 
 function updateUI(){
     document.getElementById("tonBalance").innerText=tonBalance.toFixed(4);
@@ -149,15 +169,14 @@ function updateUI(){
     });
     document.getElementById("planDetails").innerHTML=details;
 
-    // Listado de referidos
+    // Lista referidos
     updateReferralList();
 }
 
-// 🔥 PERSISTENCIA
 function saveUserData(){
     if(walletAddress){
         localStorage.setItem("PAN_"+walletAddress,
-            JSON.stringify({tonBalance,panBalance,history,userPlans,referrals}));
+            JSON.stringify({tonBalance,panBalance,history,userPlans,referrals,myReferralCode}));
     }
 }
 
@@ -170,6 +189,7 @@ function loadUserData(){
         history=parsed.history||[];
         userPlans=parsed.userPlans||[];
         referrals=parsed.referrals||{};
+        myReferralCode=parsed.myReferralCode||null;
     }
     processYield();
     updateUI();
@@ -192,7 +212,20 @@ function processYield(){
         if(days>plan.lastDay){
             let profit=plan.amount*getYield(plan.plan);
             panBalance+=profit;
+
+            // Gana referidos: 5% dividido en 3 niveles
+            for(const [addr,data] of Object.entries(referrals)){
+                let lvlPerc = 0.05; // 5% total
+                // Nivel 1 = 3%, nivel 2 = 1%, nivel 3 = 1%
+                let perc = 0.03;
+                if(data.level===2) perc=0.01;
+                if(data.level===3) perc=0.01;
+                // Se suma sobre ganancia
+                panBalance += profit*perc;
+            }
+
             plan.lastDay=days;
+            plan.earned=(plan.earned||0)+profit;
             history.push(`Rendimiento plan ${plan.plan}: ${profit.toFixed(4)} PAN`);
         }
         if(days>=plan.duration){
@@ -204,7 +237,6 @@ function processYield(){
     saveUserData();
 }
 
-// ===== FUNCIONES PRINCIPALES =====
 async function deposit(){
     if(!walletAddress){alert("Conecta tu wallet primero");return;}
     let amount=parseFloat(document.getElementById("depositAmount").value);
@@ -267,7 +299,6 @@ function stake(){alert("Staking aplicado (simulado)");}
 function withdraw(){alert("Retiro solicitado (simulado)");}
 function historyLog(){alert(history.join("\n"));}
 
-// NUEVO: mostrar lista de referidos
 function updateReferralList(){
     let list = "";
     for(const [addr, data] of Object.entries(referrals)){
