@@ -128,8 +128,9 @@ let myReferralCode = null;
 
 const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
 
+// === TonConnect UI con logo personalizado ===
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-    manifestUrl:'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json',
+    manifestUrl:'https://raw.githubusercontent.com/francisco-pandigital/manifest/main/tonconnect-manifest.json', // Este manifest contiene nuestro logo
     buttonRootId:'connectWallet'
 });
 
@@ -167,7 +168,6 @@ function updateUI(){
     document.getElementById("activePlans").innerText=userPlans.length;
 }
 
-// Mostrar planes y referidos
 function togglePlans(){
     let el = document.getElementById("planDetails");
     el.style.display = (el.style.display==="none")?"block":"none";
@@ -239,7 +239,6 @@ function processYield(){
             plan.lastDay=days;
             history.push(`Rendimiento plan ${plan.plan}: ${profit.toFixed(4)} PAN`);
 
-            // Ganancia referidos por niveles
             for(const [addr,data] of Object.entries(referrals)){
                 let perc=0;
                 if(data.level===1) perc=0.03;
