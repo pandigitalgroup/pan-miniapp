@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PAN Digital Group</title>
 
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body{margin:0;font-family:Inter,sans-serif;background:#0F172A;color:#E2E8F0;}
@@ -26,7 +26,9 @@ button:hover{opacity:0.85;}
 .btn-soft{background:#1E293B;color:#E2E8F0;}
 input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;background:#1E293B;color:white;}
 .footer{text-align:center;font-size:11px;color:#64748B;margin-top:15px;}
+.plan-button{margin-bottom:6px;}
 </style>
+
 </head>
 
 <body>
@@ -38,76 +40,93 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div class="level">Club Privado</div>
 </div>
 
+<!-- WALLET -->
 <div class="card">
 <div class="section-title">Wallet</div>
 <div id="walletText">No conectada</div>
 <div id="connectWallet"></div>
 </div>
 
+<!-- DASHBOARD -->
 <div class="card">
 <div class="section-title">Dashboard</div>
 
-<div style="font-size:12px;color:#94A3B8;margin-bottom:10px;">
-Capital del club: <span id="clubCapital">0</span> TON<br>
-Miembros activos: <span id="clubMembers">0</span><br>
-Total pagado: <span id="clubPaid">0</span> PAN
-</div>
-
 <div>Balance TON: <span id="tonBalance">0</span></div>
 <div>Balance PAN: <span id="panBalance">0</span></div>
+
+<div>Rentabilidad: Variable (según rendimiento interno del club)</div>
+
 <div>Planes activos: <span id="activePlans">0</span></div>
 
 <button class="btn-gray" onclick="togglePlans()">Ver planes activos</button>
 
-<div id="planDetails" style="display:none;font-size:12px;color:#94A3B8;margin-top:6px;"></div>
+<div id="planDetails" style="margin-top:8px;font-size:12px;color:#94A3B8;display:none;"></div>
 
 </div>
 
+<!-- DEPOSITO -->
 <div class="card">
+
 <div class="section-title">Depósito</div>
+
 <input type="number" id="depositAmount" placeholder="Monto en TON">
+
 <button class="btn-primary" onclick="deposit()">Depositar</button>
+
 </div>
 
+<!-- PLANES -->
 <div class="card">
+
 <div class="section-title">Activar Plan</div>
 
-<input type="number" id="planAmount" placeholder="Monto para el plan">
+<input type="number" id="planAmount" placeholder="Monto para el plan en TON/USD">
 
-<button class="btn-success" onclick="activatePlan(1)">Plan 1</button>
-<button class="btn-success" onclick="activatePlan(2)">Plan 2</button>
-<button class="btn-success" onclick="activatePlan(3)">Plan 3</button>
-<button class="btn-success" onclick="activatePlan(4)">Plan 4</button>
+<button class="btn-success plan-button" onclick="activatePlan(1)">Plan 1 - Prueba (Simulación)</button>
 
-<button class="btn-success" onclick="reinvestPlan()">Reinvertir</button>
+<button class="btn-success plan-button" onclick="activatePlan(2)">Plan 2 - 30 días (20-100 USD TON)</button>
+
+<button class="btn-success plan-button" onclick="activatePlan(3)">Plan 3 - 60 días (101-200 USD TON)</button>
+
+<button class="btn-success plan-button" onclick="activatePlan(4)">Plan 4 - 90 días (201-10000 USD TON)</button>
+
+<button class="btn-success" onclick="reinvestPlan()">Reinvertir (+20 PAN min)</button>
 
 </div>
 
+<!-- FINANZAS -->
 <div class="card">
+
 <div class="section-title">Finanzas</div>
 
 <button class="btn-warning" onclick="claim()">Reclamar PAN</button>
+
 <button class="btn-soft" onclick="stake()">Staking PAN</button>
+
 <button class="btn-danger" onclick="withdraw()">Retirar</button>
+
 <button class="btn-gray" onclick="historyLog()">Historial</button>
 
 </div>
 
+<!-- COMUNIDAD -->
 <div class="card">
-<div class="section-title">Crecimiento del Club</div>
-<canvas id="clubChart"></canvas>
-</div>
 
-<div class="card">
 <div class="section-title">Comunidad</div>
 
 <a href="https://t.me/MANDON1" target="_blank"><button class="btn-primary">Soporte</button></a>
-<a href="https://t.me/CanalEjemplo" target="_blank"><button class="btn-soft">Canal Telegram</button></a>
-<a href="https://t.me/GrupoEjemplo" target="_blank"><button class="btn-soft">Grupo Telegram</button></a>
-<a href="https://youtube.com" target="_blank"><button class="btn-soft">YouTube</button></a>
-<a href="https://tiktok.com" target="_blank"><button class="btn-soft">TikTok</button></a>
-<a href="https://instagram.com" target="_blank"><button class="btn-soft">Instagram</button></a>
-<a href="mailto:contacto@pandigitalgroup.com"><button class="btn-soft">Correo</button></a>
+
+<a href="https://t.me/CanalEjemplo" target="_blank"><button class="btn-soft">Canal de Telegram</button></a>
+
+<a href="https://t.me/GrupoEjemplo" target="_blank"><button class="btn-soft">Grupo de Telegram</button></a>
+
+<a href="https://www.youtube.com/" target="_blank"><button class="btn-soft">Canal de YouTube</button></a>
+
+<a href="https://www.tiktok.com/" target="_blank"><button class="btn-soft">Canal de TikTok</button></a>
+
+<a href="https://www.instagram.com/" target="_blank"><button class="btn-soft">Canal de Instagram</button></a>
+
+<a href="mailto:contacto@pandigitalgroup.com"><button class="btn-soft">Correo corporativo</button></a>
 
 </div>
 
@@ -119,161 +138,288 @@ PAN Digital Group © 2026
 
 <script>
 
-let tonBalance=0
-let panBalance=0
-let walletAddress=null
-let userPlans=[]
-let history=[]
+let tonBalance = 0;
+let panBalance = 0;
 
-let clubCapital=0
-let clubMembers=0
-let clubPaid=0
+let walletAddress = null;
 
-const TON_RECEIVER="UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J"
+let history = [];
+let userPlans = [];
 
-const tonConnectUI=new TON_CONNECT_UI.TonConnectUI({
+const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
+
+const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
 manifestUrl:'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json',
 buttonRootId:'connectWallet'
-})
+});
 
 tonConnectUI.onStatusChange(wallet=>{
-if(wallet){
-walletAddress=wallet.account.address
-document.getElementById("walletText").innerText=walletAddress.slice(0,6)+"..."
+
+if(wallet && wallet.account){
+
+walletAddress = wallet.account.address;
+
+document.getElementById("walletText").innerText =
+walletAddress.slice(0,6)+"...";
+
+loadUserData();
+
 }
-})
+
+else{
+
+walletAddress=null;
+
+document.getElementById("walletText").innerText="No conectada";
+
+}
+
+});
 
 function updateUI(){
 
-document.getElementById("tonBalance").innerText=tonBalance.toFixed(2)
-document.getElementById("panBalance").innerText=panBalance.toFixed(2)
-document.getElementById("activePlans").innerText=userPlans.length
+document.getElementById("tonBalance").innerText=tonBalance.toFixed(4);
+document.getElementById("panBalance").innerText=panBalance.toFixed(4);
 
-document.getElementById("clubCapital").innerText=clubCapital.toFixed(2)
-document.getElementById("clubMembers").innerText=clubMembers
-document.getElementById("clubPaid").innerText=clubPaid.toFixed(2)
-
-chart.update()
+document.getElementById("activePlans").innerText=userPlans.length;
 
 }
 
 function togglePlans(){
 
-let el=document.getElementById("planDetails")
+let el=document.getElementById("planDetails");
 
-if(el.style.display==="none"){
+el.style.display=el.style.display==="none"?"block":"none";
 
-let text=""
+if(el.style.display==="block"){
+
+let details="";
+
+let now=Date.now();
 
 userPlans.forEach(p=>{
-text+=`Plan ${p.plan} | ${p.amount} TON<br>`
-})
 
-el.innerHTML=text || "No hay planes activos"
-el.style.display="block"
+let days=Math.floor((now-p.start)/86400000);
 
-}else{
+let remaining=p.duration-days;
 
-el.style.display="none"
+if(remaining<0)remaining=0;
+
+details+=`Plan ${p.plan} | ${p.amount} TON | Ganado: ${(p.earned||0).toFixed(4)} PAN | ${remaining} días restantes<br>`;
+
+});
+
+el.innerHTML=details||"No tienes planes activos";
 
 }
+
+}
+
+function saveUserData(){
+
+if(walletAddress){
+
+localStorage.setItem("PAN_"+walletAddress,
+JSON.stringify({tonBalance,panBalance,history,userPlans}));
+
+}
+
+}
+
+function loadUserData(){
+
+const data=localStorage.getItem("PAN_"+walletAddress);
+
+if(data){
+
+const parsed=JSON.parse(data);
+
+tonBalance=parsed.tonBalance||0;
+panBalance=parsed.panBalance||0;
+history=parsed.history||[];
+userPlans=parsed.userPlans||[];
+
+}
+
+processYield();
+
+updateUI();
+
+}
+
+function random(min,max){
+
+return Math.random()*(max-min)+min;
+
+}
+
+function getYield(plan){
+
+if(plan===1)return random(0.005,0.012);
+if(plan===2)return random(0.008,0.015);
+if(plan===3)return random(0.01,0.018);
+if(plan===4)return random(0.012,0.022);
+
+}
+
+function processYield(){
+
+let now=Date.now();
+
+userPlans=userPlans.filter(plan=>{
+
+let days=Math.floor((now-plan.start)/86400000);
+
+if(days>plan.lastDay){
+
+let profit=plan.amount*getYield(plan.plan);
+
+panBalance+=profit;
+
+plan.earned=(plan.earned||0)+profit;
+
+plan.lastDay=days;
+
+history.push(`Rendimiento plan ${plan.plan}: ${profit.toFixed(4)} PAN`);
+
+}
+
+if(days>=plan.duration){
+
+history.push(`Plan ${plan.plan} finalizado`);
+
+return false;
+
+}
+
+return true;
+
+});
+
+saveUserData();
 
 }
 
 async function deposit(){
 
-let amount=parseFloat(document.getElementById("depositAmount").value)
+if(!walletAddress){
 
-if(!amount) return alert("Monto inválido")
+alert("Conecta tu wallet primero");
 
-tonBalance+=amount
-clubCapital+=amount
-clubMembers++
+return;
 
-history.push("Depósito "+amount+" TON")
+}
 
-updateUI()
+let amount=parseFloat(document.getElementById("depositAmount").value);
+
+if(amount>0){
+
+try{
+
+const transaction={
+
+validUntil:Math.floor(Date.now()/1000)+600,
+
+messages:[{
+
+address:TON_RECEIVER,
+
+amount:(amount*1000000000).toString()
+
+}],
+
+iconUrl:"https://i.postimg.cc/ncHMqPdY/file-0000000048c8720e897c6596974ca126.png"
+
+};
+
+await tonConnectUI.sendTransaction(transaction);
+
+tonBalance+=amount;
+
+history.push(`Depósito: ${amount} TON`);
+
+saveUserData();
+
+updateUI();
+
+alert("Depósito enviado correctamente");
+
+}
+
+catch(e){
+
+alert("Transacción cancelada o fallida");
+
+}
+
+}
 
 }
 
 function activatePlan(plan){
 
-let amount=parseFloat(document.getElementById("planAmount").value)
+let amount=parseFloat(document.getElementById("planAmount").value);
 
-if(!amount) return alert("Monto inválido")
+if(!amount||amount<=0)return alert("Monto inválido");
 
-if(tonBalance<amount) return alert("Saldo insuficiente")
+if(tonBalance<amount)return alert("Saldo insuficiente");
 
-tonBalance-=amount
+let duration=7;
+
+if(plan===2)duration=30;
+if(plan===3)duration=60;
+if(plan===4)duration=90;
+
+tonBalance-=amount;
 
 userPlans.push({
-plan:plan,
-amount:amount
-})
+plan,
+amount,
+duration,
+start:Date.now(),
+lastDay:-1,
+earned:0
+});
 
-history.push("Plan "+plan+" activado")
+history.push(`Plan ${plan} activado con ${amount} TON`);
 
-updateUI()
+saveUserData();
+
+updateUI();
+
+alert("Plan activado correctamente");
 
 }
 
 function reinvestPlan(){
 
-if(panBalance<20) return alert("mínimo 20 PAN")
+if(panBalance>=20){
 
-tonBalance+=panBalance
-panBalance=0
+tonBalance+=panBalance;
 
-updateUI()
+panBalance=0;
 
-}
+saveUserData();
 
-function claim(){
+updateUI();
 
-let reward=Math.random()*5
-
-panBalance+=reward
-clubPaid+=reward
-
-history.push("Recompensa "+reward.toFixed(2)+" PAN")
-
-updateUI()
+alert("Reinvertido correctamente");
 
 }
 
-function stake(){
-
-alert("Staking simulado")
+else alert("Monto mínimo 20 PAN");
 
 }
 
-function withdraw(){
+function claim(){alert("PAN reclamado (simulado)");}
 
-alert("Retiro simulado")
+function stake(){alert("Staking aplicado (simulado)");}
 
-}
+function withdraw(){alert("Retiro solicitado (simulado)");}
 
-function historyLog(){
+function historyLog(){alert(history.join("\n"));}
 
-alert(history.join("\n"))
-
-}
-
-const ctx=document.getElementById('clubChart')
-
-const chart=new Chart(ctx,{
-type:'line',
-data:{
-labels:["Inicio"],
-datasets:[{
-data:[0],
-borderColor:'#22C55E'
-}]
-},
-options:{plugins:{legend:{display:false}}}
-})
-
-updateUI()
+updateUI();
 
 </script>
 
