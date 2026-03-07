@@ -6,6 +6,7 @@
 <title>PAN Digital Group</title>
 
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body{margin:0;font-family:Inter,sans-serif;background:#0F172A;color:#E2E8F0;}
@@ -15,7 +16,7 @@ body{margin:0;font-family:Inter,sans-serif;background:#0F172A;color:#E2E8F0;}
 .level{background:#1E293B;padding:6px 12px;border-radius:12px;font-size:12px;color:#94A3B8;}
 .card{background:#162033;padding:16px;border-radius:16px;margin-bottom:14px;box-shadow:0 4px 12px rgba(0,0,0,0.3);}
 .section-title{font-size:13px;color:#94A3B8;margin-bottom:10px;}
-button{width:100%;padding:12px;border:none;border-radius:12px;margin-bottom:8px;font-weight:600;cursor:pointer;transition:0.2s;}
+button{width:100%;padding:12px;border:none;border-radius:12px;margin-bottom:8px;font-weight:600;cursor:pointer;}
 button:hover{opacity:0.85;}
 .btn-primary{background:#2563EB;color:white;}
 .btn-success{background:#15803D;color:white;}
@@ -35,7 +36,7 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 
 <div class="header">
 <div class="logo">PAN Digital Group</div>
-<div class="level" id="level">Club Privado</div>
+<div class="level">Club Privado</div>
 </div>
 
 <!-- WALLET -->
@@ -66,6 +67,12 @@ Total pagado: <span id="clubPaid">0</span> PAN
 
 </div>
 
+<!-- GRAFICO -->
+<div class="card">
+<div class="section-title">Crecimiento del Club</div>
+<canvas id="growthChart"></canvas>
+</div>
+
 <!-- DEPOSITO -->
 <div class="card">
 <div class="section-title">Depósito</div>
@@ -73,9 +80,10 @@ Total pagado: <span id="clubPaid">0</span> PAN
 <button class="btn-primary" onclick="deposit()">Depositar</button>
 </div>
 
-<!-- ACTIVAR PLANES -->
+<!-- PLANES -->
 <div class="card">
 <div class="section-title">Activar Plan</div>
+
 <input type="number" id="planAmount" placeholder="Monto para el plan en TON/USD">
 
 <button class="btn-success plan-button" onclick="activatePlan(1)">Plan 1 - Prueba (Simulación)</button>
@@ -105,10 +113,6 @@ Total pagado: <span id="clubPaid">0</span> PAN
 <a href="https://t.me/MANDON1" target="_blank"><button class="btn-primary">Soporte</button></a>
 <a href="https://t.me/CanalEjemplo" target="_blank"><button class="btn-soft">Canal de Telegram</button></a>
 <a href="https://t.me/GrupoEjemplo" target="_blank"><button class="btn-soft">Grupo de Telegram</button></a>
-<a href="https://www.youtube.com/" target="_blank"><button class="btn-soft">Canal de YouTube</button></a>
-<a href="https://www.tiktok.com/" target="_blank"><button class="btn-soft">Canal de TikTok</button></a>
-<a href="https://www.instagram.com/" target="_blank"><button class="btn-soft">Canal de Instagram</button></a>
-<a href="mailto:contacto@pandigitalgroup.com"><button class="btn-soft">Correo corporativo</button></a>
 
 </div>
 
@@ -120,27 +124,29 @@ PAN Digital Group © 2026
 
 <script>
 
-let tonBalance = 0;
-let panBalance = 0;
-let walletAddress = null;
-let history = [];
-let userPlans = [];
+let tonBalance=0;
+let panBalance=0;
+let walletAddress=null;
+let history=[];
+let userPlans=[];
 
-let clubCapital = 0;
-let clubMembers = 0;
-let clubPaid = 0;
+let clubCapital=0;
+let clubMembers=0;
+let clubPaid=0;
 
-const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
+let growthData=[0];
 
-const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+const TON_RECEIVER="UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
+
+const tonConnectUI=new TON_CONNECT_UI.TonConnectUI({
 manifestUrl:'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json',
 buttonRootId:'connectWallet'
 });
 
 tonConnectUI.onStatusChange(wallet=>{
 if(wallet && wallet.account){
-walletAddress = wallet.account.address;
-document.getElementById("walletText").innerText = walletAddress.slice(0,6)+"...";
+walletAddress=wallet.account.address;
+document.getElementById("walletText").innerText=walletAddress.slice(0,6)+"...";
 loadUserData();
 }else{
 walletAddress=null;
@@ -149,6 +155,7 @@ document.getElementById("walletText").innerText="No conectada";
 });
 
 function updateUI(){
+
 document.getElementById("tonBalance").innerText=tonBalance.toFixed(4);
 document.getElementById("panBalance").innerText=panBalance.toFixed(4);
 document.getElementById("activePlans").innerText=userPlans.length;
@@ -156,114 +163,268 @@ document.getElementById("activePlans").innerText=userPlans.length;
 document.getElementById("clubCapital").innerText=clubCapital.toFixed(2);
 document.getElementById("clubMembers").innerText=clubMembers;
 document.getElementById("clubPaid").innerText=clubPaid.toFixed(2);
+
+growthData.push(clubCapital);
+chart.update();
+
 }
 
 function togglePlans(){
-let el = document.getElementById("planDetails");
-el.style.display = (el.style.display==="none")?"block":"none";
+
+let el=document.getElementById("planDetails");
+
+el.style.display=(el.style.display==="none")?"block":"none";
+
 if(el.style.display==="block"){
+
 let details="";
 let now=Date.now();
+
 userPlans.forEach(p=>{
+
 let days=Math.floor((now-p.start)/86400000);
+
 let remaining=p.duration-days;
+
 if(remaining<0) remaining=0;
-details+=`Plan ${p.plan} | ${p.amount} TON | Ganado: ${(p.earned||0).toFixed(4)} PAN | ${remaining} días restantes<br>`;
+
+details+=`Plan ${p.plan} | ${p.amount} TON | Ganado ${(p.earned||0).toFixed(4)} PAN | ${remaining} días restantes<br>`;
+
 });
+
 el.innerHTML=details || "No tienes planes activos";
+
 }
+
 }
 
 function saveUserData(){
+
 if(walletAddress){
-localStorage.setItem("PAN_"+walletAddress,JSON.stringify({tonBalance,panBalance,history,userPlans}));
+
+localStorage.setItem("PAN_"+walletAddress,JSON.stringify({
+tonBalance,
+panBalance,
+history,
+userPlans
+}));
+
 }
+
 }
 
 function loadUserData(){
+
 const data=localStorage.getItem("PAN_"+walletAddress);
+
 if(data){
+
 const parsed=JSON.parse(data);
+
 tonBalance=parsed.tonBalance||0;
 panBalance=parsed.panBalance||0;
 history=parsed.history||[];
 userPlans=parsed.userPlans||[];
-}
-processYield();
-updateUI();
+
 }
 
-function random(min,max){return Math.random()*(max-min)+min;}
+processYield();
+
+updateUI();
+
+}
+
+function random(min,max){
+
+return Math.random()*(max-min)+min;
+
+}
 
 function getYield(plan){
+
 if(plan===1) return random(0.005,0.012);
 if(plan===2) return random(0.008,0.015);
 if(plan===3) return random(0.01,0.018);
 if(plan===4) return random(0.012,0.022);
+
 }
 
 function processYield(){
+
 let now=Date.now();
+
 userPlans=userPlans.filter(plan=>{
+
 let days=Math.floor((now-plan.start)/86400000);
+
 if(days>plan.lastDay){
+
 let profit=plan.amount*getYield(plan.plan);
+
 panBalance+=profit;
+
 clubPaid+=profit;
+
 plan.earned=(plan.earned||0)+profit;
+
 plan.lastDay=days;
+
 history.push(`Rendimiento plan ${plan.plan}: ${profit.toFixed(4)} PAN`);
+
 }
-if(days>=plan.duration){history.push(`Plan ${plan.plan} finalizado`);return false;}
+
+if(days>=plan.duration){
+
+history.push(`Plan ${plan.plan} finalizado`);
+
+return false;
+
+}
+
 return true;
+
 });
+
 saveUserData();
+
 }
 
 async function deposit(){
-if(!walletAddress){alert("Conecta tu wallet primero");return;}
-let amount=parseFloat(document.getElementById("depositAmount").value);
-if(amount>0){
-try{
-const transaction={
-validUntil:Math.floor(Date.now()/1000)+600,
-messages:[{
-address:TON_RECEIVER,
-amount:(amount*1000000000).toString()
-}],
-iconUrl:"https://i.postimg.cc/ncHMqPdY/file-0000000048c8720e897c6596974ca126.png"
-};
-await tonConnectUI.sendTransaction(transaction);
-tonBalance+=amount;
-clubCapital+=amount;
-clubMembers+=1;
-history.push(`Depósito: ${amount} TON`);
-saveUserData();
-updateUI();
-alert("Depósito enviado correctamente");
-}catch(e){alert("Transacción cancelada o fallida");}
+
+if(!walletAddress){
+
+alert("Conecta tu wallet primero");
+
+return;
+
 }
+
+let amount=parseFloat(document.getElementById("depositAmount").value);
+
+if(amount>0){
+
+try{
+
+const transaction={
+
+validUntil:Math.floor(Date.now()/1000)+600,
+
+messages:[{
+
+address:TON_RECEIVER,
+
+amount:(amount*1000000000).toString()
+
+}]
+
+};
+
+await tonConnectUI.sendTransaction(transaction);
+
+tonBalance+=amount;
+
+clubCapital+=amount;
+
+clubMembers+=1;
+
+history.push(`Depósito ${amount} TON`);
+
+saveUserData();
+
+updateUI();
+
+alert("Depósito enviado");
+
+}catch(e){
+
+alert("Transacción cancelada");
+
+}
+
+}
+
 }
 
 function activatePlan(plan){
-let amount=parseFloat(document.getElementById("planAmount").value);
-if(!amount||amount<=0)return alert("Monto inválido");
-if(tonBalance<amount)return alert("Saldo insuficiente");
 
-let duration=7;if(plan===2)duration=30;if(plan===3)duration=60;if(plan===4)duration=90;
+let amount=parseFloat(document.getElementById("planAmount").value);
+
+if(!amount || amount<=0) return alert("Monto inválido");
+
+if(tonBalance<amount) return alert("Saldo insuficiente");
+
+let duration=7;
+
+if(plan===2)duration=30;
+if(plan===3)duration=60;
+if(plan===4)duration=90;
+
 tonBalance-=amount;
-userPlans.push({plan,amount,duration,start:Date.now(),lastDay:-1,earned:0});
+
+userPlans.push({
+
+plan,
+amount,
+duration,
+start:Date.now(),
+lastDay:-1,
+earned:0
+
+});
+
 history.push(`Plan ${plan} activado con ${amount} TON`);
+
 saveUserData();
+
 updateUI();
-alert("Plan activado correctamente");
+
 }
 
-function reinvestPlan(){if(panBalance>=20){tonBalance+=panBalance;panBalance=0;saveUserData();updateUI();alert("Reinvertido correctamente");}else alert("Monto mínimo 20 PAN");}
-function claim(){alert("PAN reclamado (simulado)");}
-function stake(){alert("Staking aplicado (simulado)");}
-function withdraw(){alert("Retiro solicitado (simulado)");}
+function reinvestPlan(){
+
+if(panBalance>=20){
+
+tonBalance+=panBalance;
+
+panBalance=0;
+
+saveUserData();
+
+updateUI();
+
+alert("Reinvertido");
+
+}else{
+
+alert("Mínimo 20 PAN");
+
+}
+
+}
+
+function claim(){alert("PAN reclamado");}
+function stake(){alert("Staking aplicado");}
+function withdraw(){alert("Retiro solicitado");}
 function historyLog(){alert(history.join("\n"));}
+
+const ctx=document.getElementById('growthChart');
+
+const chart=new Chart(ctx,{
+type:'line',
+data:{
+labels:['Inicio'],
+datasets:[{
+label:'Capital del club',
+data:growthData,
+borderColor:'#22C55E',
+backgroundColor:'transparent'
+}]
+},
+options:{
+plugins:{legend:{display:false}},
+scales:{x:{display:false}}
+}
+});
 
 updateUI();
 
