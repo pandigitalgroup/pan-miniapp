@@ -26,11 +26,11 @@ button:hover{opacity:0.85;}
 .btn-soft{background:#1E293B;color:#E2E8F0;}
 input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;background:#1E293B;color:white;}
 .footer{text-align:center;font-size:11px;color:#64748B;margin-top:15px;}
-.plan-button{margin-bottom:6px;}
 </style>
 </head>
 
 <body>
+
 <div class="container">
 
 <div class="header">
@@ -38,18 +38,16 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div class="level">Club Privado</div>
 </div>
 
-<!-- WALLET -->
 <div class="card">
 <div class="section-title">Wallet</div>
 <div id="walletText">No conectada</div>
 <div id="connectWallet"></div>
 </div>
 
-<!-- DASHBOARD -->
 <div class="card">
 <div class="section-title">Dashboard</div>
 
-<div style="margin-bottom:10px;font-size:12px;color:#94A3B8;">
+<div style="font-size:12px;color:#94A3B8;margin-bottom:10px;">
 Capital del club: <span id="clubCapital">0</span> TON<br>
 Miembros activos: <span id="clubMembers">0</span><br>
 Total pagado: <span id="clubPaid">0</span> PAN
@@ -57,36 +55,34 @@ Total pagado: <span id="clubPaid">0</span> PAN
 
 <div>Balance TON: <span id="tonBalance">0</span></div>
 <div>Balance PAN: <span id="panBalance">0</span></div>
-<div>Rentabilidad: Variable (según rendimiento interno del club)</div>
 <div>Planes activos: <span id="activePlans">0</span></div>
 
 <button class="btn-gray" onclick="togglePlans()">Ver planes activos</button>
 
-<div id="planDetails" style="margin-top:8px;font-size:12px;color:#94A3B8;display:none;"></div>
+<div id="planDetails" style="display:none;font-size:12px;color:#94A3B8;margin-top:6px;"></div>
+
 </div>
 
-<!-- DEPOSITO -->
 <div class="card">
 <div class="section-title">Depósito</div>
 <input type="number" id="depositAmount" placeholder="Monto en TON">
 <button class="btn-primary" onclick="deposit()">Depositar</button>
 </div>
 
-<!-- PLANES -->
 <div class="card">
 <div class="section-title">Activar Plan</div>
 
-<input type="number" id="planAmount" placeholder="Monto para el plan en TON/USD">
+<input type="number" id="planAmount" placeholder="Monto para el plan">
 
-<button class="btn-success plan-button" onclick="activatePlan(1)">Plan 1 - Prueba (Simulación)</button>
-<button class="btn-success plan-button" onclick="activatePlan(2)">Plan 2 - 30 días (20-100 USD TON)</button>
-<button class="btn-success plan-button" onclick="activatePlan(3)">Plan 3 - 60 días (101-200 USD TON)</button>
-<button class="btn-success plan-button" onclick="activatePlan(4)">Plan 4 - 90 días (201-10000 USD TON)</button>
+<button class="btn-success" onclick="activatePlan(1)">Plan 1</button>
+<button class="btn-success" onclick="activatePlan(2)">Plan 2</button>
+<button class="btn-success" onclick="activatePlan(3)">Plan 3</button>
+<button class="btn-success" onclick="activatePlan(4)">Plan 4</button>
 
-<button class="btn-success" onclick="reinvestPlan()">Reinvertir (+20 PAN min)</button>
+<button class="btn-success" onclick="reinvestPlan()">Reinvertir</button>
+
 </div>
 
-<!-- FINANZAS -->
 <div class="card">
 <div class="section-title">Finanzas</div>
 
@@ -97,23 +93,21 @@ Total pagado: <span id="clubPaid">0</span> PAN
 
 </div>
 
-<!-- GRAFICO -->
 <div class="card">
 <div class="section-title">Crecimiento del Club</div>
 <canvas id="clubChart"></canvas>
 </div>
 
-<!-- COMUNIDAD -->
 <div class="card">
 <div class="section-title">Comunidad</div>
 
 <a href="https://t.me/MANDON1" target="_blank"><button class="btn-primary">Soporte</button></a>
-<a href="https://t.me/CanalEjemplo" target="_blank"><button class="btn-soft">Canal de Telegram</button></a>
-<a href="https://t.me/GrupoEjemplo" target="_blank"><button class="btn-soft">Grupo de Telegram</button></a>
-<a href="https://www.youtube.com/" target="_blank"><button class="btn-soft">Canal de YouTube</button></a>
-<a href="https://www.tiktok.com/" target="_blank"><button class="btn-soft">Canal de TikTok</button></a>
-<a href="https://www.instagram.com/" target="_blank"><button class="btn-soft">Canal de Instagram</button></a>
-<a href="mailto:contacto@pandigitalgroup.com"><button class="btn-soft">Correo corporativo</button></a>
+<a href="https://t.me/CanalEjemplo" target="_blank"><button class="btn-soft">Canal Telegram</button></a>
+<a href="https://t.me/GrupoEjemplo" target="_blank"><button class="btn-soft">Grupo Telegram</button></a>
+<a href="https://youtube.com" target="_blank"><button class="btn-soft">YouTube</button></a>
+<a href="https://tiktok.com" target="_blank"><button class="btn-soft">TikTok</button></a>
+<a href="https://instagram.com" target="_blank"><button class="btn-soft">Instagram</button></a>
+<a href="mailto:contacto@pandigitalgroup.com"><button class="btn-soft">Correo</button></a>
 
 </div>
 
@@ -125,67 +119,161 @@ PAN Digital Group © 2026
 
 <script>
 
-let tonBalance=0;
-let panBalance=0;
-let walletAddress=null;
-let history=[];
-let userPlans=[];
+let tonBalance=0
+let panBalance=0
+let walletAddress=null
+let userPlans=[]
+let history=[]
 
-let clubCapital=0;
-let clubMembers=0;
-let clubPaid=0;
+let clubCapital=0
+let clubMembers=0
+let clubPaid=0
 
-let growthData=[0];
-
-const TON_RECEIVER="UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
+const TON_RECEIVER="UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J"
 
 const tonConnectUI=new TON_CONNECT_UI.TonConnectUI({
 manifestUrl:'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json',
 buttonRootId:'connectWallet'
-});
+})
 
 tonConnectUI.onStatusChange(wallet=>{
-if(wallet && wallet.account){
-walletAddress=wallet.account.address;
-document.getElementById("walletText").innerText=walletAddress.slice(0,6)+"...";
-loadUserData();
-}else{
-walletAddress=null;
-document.getElementById("walletText").innerText="No conectada";
+if(wallet){
+walletAddress=wallet.account.address
+document.getElementById("walletText").innerText=walletAddress.slice(0,6)+"..."
 }
-});
+})
 
 function updateUI(){
-document.getElementById("tonBalance").innerText=tonBalance.toFixed(4);
-document.getElementById("panBalance").innerText=panBalance.toFixed(4);
-document.getElementById("activePlans").innerText=userPlans.length;
 
-document.getElementById("clubCapital").innerText=clubCapital.toFixed(2);
-document.getElementById("clubMembers").innerText=clubMembers;
-document.getElementById("clubPaid").innerText=clubPaid.toFixed(2);
+document.getElementById("tonBalance").innerText=tonBalance.toFixed(2)
+document.getElementById("panBalance").innerText=panBalance.toFixed(2)
+document.getElementById("activePlans").innerText=userPlans.length
 
-growthData.push(clubCapital);
-chart.update();
+document.getElementById("clubCapital").innerText=clubCapital.toFixed(2)
+document.getElementById("clubMembers").innerText=clubMembers
+document.getElementById("clubPaid").innerText=clubPaid.toFixed(2)
+
+chart.update()
+
 }
 
-const ctx=document.getElementById('clubChart');
+function togglePlans(){
+
+let el=document.getElementById("planDetails")
+
+if(el.style.display==="none"){
+
+let text=""
+
+userPlans.forEach(p=>{
+text+=`Plan ${p.plan} | ${p.amount} TON<br>`
+})
+
+el.innerHTML=text || "No hay planes activos"
+el.style.display="block"
+
+}else{
+
+el.style.display="none"
+
+}
+
+}
+
+async function deposit(){
+
+let amount=parseFloat(document.getElementById("depositAmount").value)
+
+if(!amount) return alert("Monto inválido")
+
+tonBalance+=amount
+clubCapital+=amount
+clubMembers++
+
+history.push("Depósito "+amount+" TON")
+
+updateUI()
+
+}
+
+function activatePlan(plan){
+
+let amount=parseFloat(document.getElementById("planAmount").value)
+
+if(!amount) return alert("Monto inválido")
+
+if(tonBalance<amount) return alert("Saldo insuficiente")
+
+tonBalance-=amount
+
+userPlans.push({
+plan:plan,
+amount:amount
+})
+
+history.push("Plan "+plan+" activado")
+
+updateUI()
+
+}
+
+function reinvestPlan(){
+
+if(panBalance<20) return alert("mínimo 20 PAN")
+
+tonBalance+=panBalance
+panBalance=0
+
+updateUI()
+
+}
+
+function claim(){
+
+let reward=Math.random()*5
+
+panBalance+=reward
+clubPaid+=reward
+
+history.push("Recompensa "+reward.toFixed(2)+" PAN")
+
+updateUI()
+
+}
+
+function stake(){
+
+alert("Staking simulado")
+
+}
+
+function withdraw(){
+
+alert("Retiro simulado")
+
+}
+
+function historyLog(){
+
+alert(history.join("\n"))
+
+}
+
+const ctx=document.getElementById('clubChart')
 
 const chart=new Chart(ctx,{
 type:'line',
 data:{
-labels:['Inicio'],
+labels:["Inicio"],
 datasets:[{
-data:growthData,
+data:[0],
 borderColor:'#22C55E'
 }]
 },
-options:{
-plugins:{legend:{display:false}},
-scales:{x:{display:false}}
-}
-});
+options:{plugins:{legend:{display:false}}}
+})
 
-updateUI();
+updateUI()
 
 </script>
 
