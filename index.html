@@ -133,15 +133,11 @@ PAN Digital Group
 <div class="level">Club Privado</div>
 </div>
 
-<!-- WALLET -->
-
 <div class="card">
 <div class="section-title">Wallet</div>
 <div id="walletText">No conectada</div>
 <div id="connectWallet"></div>
 </div>
-
-<!-- DASHBOARD -->
 
 <div class="card">
 <div class="section-title">Dashboard</div>
@@ -167,8 +163,6 @@ PAN Digital Group
 
 </div>
 
-<!-- DEPOSITO -->
-
 <div class="card">
 
 <div class="section-title">Depósito</div>
@@ -179,27 +173,23 @@ PAN Digital Group
 
 </div>
 
-<!-- PLANES -->
-
 <div class="card">
 
 <div class="section-title">Activar Plan</div>
 
 <input type="number" id="planAmount" placeholder="Monto para el plan en TON/USD">
 
-<button class="btn-success plan-button" onclick="activatePlan(1)">Plan 1 - Prueba (Simulación)</button>
+<button class="btn-success" onclick="activatePlan(1)">Plan 1 - Prueba</button>
 
-<button class="btn-success plan-button" onclick="activatePlan(2)">Plan 2 - 30 días (20-100 USD TON)</button>
+<button class="btn-success" onclick="activatePlan(2)">Plan 2 - 30 días</button>
 
-<button class="btn-success plan-button" onclick="activatePlan(3)">Plan 3 - 60 días (101-200 USD TON)</button>
+<button class="btn-success" onclick="activatePlan(3)">Plan 3 - 60 días</button>
 
-<button class="btn-success plan-button" onclick="activatePlan(4)">Plan 4 - 90 días (201-10000 USD TON)</button>
+<button class="btn-success" onclick="activatePlan(4)">Plan 4 - 90 días</button>
 
 <button class="btn-success" onclick="reinvestPlan()">Reinvertir (+20 PAN min)</button>
 
 </div>
-
-<!-- FINANZAS -->
 
 <div class="card">
 
@@ -216,8 +206,6 @@ PAN Digital Group
 <canvas id="clubChart"></canvas>
 
 </div>
-
-<!-- COMUNIDAD -->
 
 <div class="card">
 
@@ -245,8 +233,6 @@ PAN Digital Group © 2026
 
 </div>
 
-<!-- ADMIN PANEL -->
-
 <div class="admin-panel" id="adminPanel">
 
 <h2>ADMIN PANEL</h2>
@@ -264,20 +250,16 @@ Balance PAN: <span id="adminPan"></span><br><br>
 
 <script>
 
-/* VARIABLES */
-
-let tonBalance = 0;
-let panBalance = 0;
-let walletAddress = null;
-let history = [];
-let userPlans = [];
+let tonBalance=0;
+let panBalance=0;
+let walletAddress=null;
+let history=[];
+let userPlans=[];
 let frozen=false;
 
-/* WALLET */
+const TON_RECEIVER="UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
 
-const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
-
-const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+const tonConnectUI=new TON_CONNECT_UI.TonConnectUI({
 manifestUrl:'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json',
 buttonRootId:'connectWallet'
 });
@@ -286,9 +268,9 @@ tonConnectUI.onStatusChange(wallet=>{
 
 if(wallet && wallet.account){
 
-walletAddress = wallet.account.address;
+walletAddress=wallet.account.address;
 
-document.getElementById("walletText").innerText =
+document.getElementById("walletText").innerText=
 walletAddress.slice(0,6)+"...";
 
 loadUserData();
@@ -304,8 +286,6 @@ document.getElementById("walletText").innerText="No conectada";
 
 });
 
-/* UI */
-
 function updateUI(){
 
 document.getElementById("tonBalance").innerText=tonBalance.toFixed(4);
@@ -313,8 +293,6 @@ document.getElementById("panBalance").innerText=panBalance.toFixed(4);
 document.getElementById("activePlans").innerText=userPlans.length;
 
 }
-
-/* PLANES */
 
 function togglePlans(){
 
@@ -324,28 +302,30 @@ el.style.display=el.style.display==="none"?"block":"none";
 
 if(el.style.display==="block"){
 
-let details="";
+let txt="";
 
 userPlans.forEach(p=>{
 
-details+=`Plan ${p.plan} | ${p.amount} TON | Ganado: ${(p.earned||0).toFixed(4)} PAN<br>`;
+txt+=`Plan ${p.plan} | ${p.amount} TON | Ganado ${p.earned.toFixed(2)} PAN<br>`;
 
 });
 
-el.innerHTML=details||"No tienes planes activos";
+el.innerHTML=txt||"No tienes planes activos";
 
 }
 
 }
-
-/* LOCAL STORAGE */
 
 function saveUserData(){
 
 if(walletAddress){
 
-localStorage.setItem("PAN_"+walletAddress,
-JSON.stringify({tonBalance,panBalance,history,userPlans}));
+localStorage.setItem("PAN_"+walletAddress,JSON.stringify({
+tonBalance,
+panBalance,
+history,
+userPlans
+}));
 
 }
 
@@ -357,12 +337,12 @@ const data=localStorage.getItem("PAN_"+walletAddress);
 
 if(data){
 
-const parsed=JSON.parse(data);
+let d=JSON.parse(data);
 
-tonBalance=parsed.tonBalance||0;
-panBalance=parsed.panBalance||0;
-history=parsed.history||[];
-userPlans=parsed.userPlans||[];
+tonBalance=d.tonBalance||0;
+panBalance=d.panBalance||0;
+history=d.history||[];
+userPlans=d.userPlans||[];
 
 }
 
@@ -370,19 +350,17 @@ updateUI();
 
 }
 
-/* FUNCIONES BOTONES */
-
 function deposit(){
 
 if(!walletAddress)return alert("Conecta tu wallet");
 
 let amount=parseFloat(document.getElementById("depositAmount").value);
 
-if(amount>0){
+if(!amount || amount<=0)return alert("Monto inválido");
 
 tonBalance+=amount;
 
-history.push(`Depósito ${amount} TON`);
+history.push("Depósito "+amount+" TON");
 
 saveUserData();
 
@@ -392,33 +370,41 @@ alert("Depósito registrado");
 
 }
 
-}
-
 function activatePlan(plan){
+
+if(frozen)return alert("Cuenta congelada");
 
 let amount=parseFloat(document.getElementById("planAmount").value);
 
-if(!amount||amount<=0)return alert("Monto inválido");
+if(!amount || amount<=0)return alert("Monto inválido");
 
 if(tonBalance<amount)return alert("Saldo insuficiente");
 
 tonBalance-=amount;
 
-userPlans.push({plan,amount,earned:0});
+let profit=amount*0.10;
 
-history.push(`Plan ${plan} activado`);
+panBalance+=profit;
+
+userPlans.push({plan,amount,earned:profit});
+
+history.push("Plan "+plan+" activado");
 
 saveUserData();
 
 updateUI();
 
+alert("Plan activado");
+
 }
 
 function reinvestPlan(){
 
-if(panBalance>=20){
+if(panBalance<20)return alert("Mínimo 20 PAN");
 
 tonBalance+=panBalance;
+
+history.push("Reinversión "+panBalance+" PAN");
 
 panBalance=0;
 
@@ -426,23 +412,35 @@ saveUserData();
 
 updateUI();
 
-alert("Reinvertido");
+}
+
+function claim(){
+
+alert("PAN disponible: "+panBalance.toFixed(2));
 
 }
 
-else alert("Mínimo 20 PAN");
+function stake(){
+
+alert("Staking activado");
 
 }
 
-function claim(){alert("PAN reclamado");}
+function withdraw(){
 
-function stake(){alert("Staking aplicado");}
+if(tonBalance<=0)return alert("Sin saldo");
 
-function withdraw(){alert("Retiro solicitado");}
+alert("Solicitud de retiro enviada");
 
-function historyLog(){alert(history.join("\n"));}
+}
 
-/* ADMIN */
+function historyLog(){
+
+if(history.length===0)return alert("Sin historial");
+
+alert(history.join("\n"));
+
+}
 
 document.addEventListener("keydown",function(e){
 
@@ -458,15 +456,18 @@ document.getElementById("adminPan").innerText=panBalance;
 });
 
 function closeAdmin(){
+
 document.getElementById("adminPanel").style.display="none";
+
 }
 
 function freezeAccount(){
-frozen=true;
-alert("Cuenta congelada");
-}
 
-/* GRAFICO */
+frozen=true;
+
+alert("Cuenta congelada");
+
+}
 
 const ctx=document.getElementById("clubChart");
 
