@@ -49,6 +49,12 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div class="card">
 <div class="section-title">Dashboard</div>
 
+<div style="margin-bottom:10px;font-size:12px;color:#94A3B8;">
+Capital del club: <span id="clubCapital">0</span> TON<br>
+Miembros activos: <span id="clubMembers">0</span><br>
+Total pagado: <span id="clubPaid">0</span> PAN
+</div>
+
 <div>Balance TON: <span id="tonBalance">0</span></div>
 <div>Balance PAN: <span id="panBalance">0</span></div>
 <div>Rentabilidad: Variable (según rendimiento interno del club)</div>
@@ -120,6 +126,10 @@ let walletAddress = null;
 let history = [];
 let userPlans = [];
 
+let clubCapital = 0;
+let clubMembers = 0;
+let clubPaid = 0;
+
 const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
 
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
@@ -142,6 +152,10 @@ function updateUI(){
 document.getElementById("tonBalance").innerText=tonBalance.toFixed(4);
 document.getElementById("panBalance").innerText=panBalance.toFixed(4);
 document.getElementById("activePlans").innerText=userPlans.length;
+
+document.getElementById("clubCapital").innerText=clubCapital.toFixed(2);
+document.getElementById("clubMembers").innerText=clubMembers;
+document.getElementById("clubPaid").innerText=clubPaid.toFixed(2);
 }
 
 function togglePlans(){
@@ -195,6 +209,7 @@ let days=Math.floor((now-plan.start)/86400000);
 if(days>plan.lastDay){
 let profit=plan.amount*getYield(plan.plan);
 panBalance+=profit;
+clubPaid+=profit;
 plan.earned=(plan.earned||0)+profit;
 plan.lastDay=days;
 history.push(`Rendimiento plan ${plan.plan}: ${profit.toFixed(4)} PAN`);
@@ -220,6 +235,8 @@ iconUrl:"https://i.postimg.cc/ncHMqPdY/file-0000000048c8720e897c6596974ca126.png
 };
 await tonConnectUI.sendTransaction(transaction);
 tonBalance+=amount;
+clubCapital+=amount;
+clubMembers+=1;
 history.push(`Depósito: ${amount} TON`);
 saveUserData();
 updateUI();
