@@ -145,7 +145,7 @@ PAN Digital Group
 <div>Balance TON: <span id="tonBalance">0</span></div>
 <div>Balance PAN: <span id="panBalance">0</span></div>
 
-<div>Rentabilidad: Variable</div>
+<div>Rentabilidad: Variable (según rendimiento interno del club)</div>
 
 <div>Planes activos: <span id="activePlans">0</span></div>
 
@@ -177,14 +177,17 @@ PAN Digital Group
 
 <div class="section-title">Activar Plan</div>
 
-<input type="number" id="planAmount" placeholder="Monto para el plan">
+<input type="number" id="planAmount" placeholder="Monto para el plan en TON/USD">
 
-<button class="btn-success" onclick="activatePlan(1)">Plan 1</button>
-<button class="btn-success" onclick="activatePlan(2)">Plan 2</button>
-<button class="btn-success" onclick="activatePlan(3)">Plan 3</button>
-<button class="btn-success" onclick="activatePlan(4)">Plan 4</button>
+<button class="btn-success plan-button" onclick="activatePlan(1)">Plan 1 - Prueba (Simulación)</button>
 
-<button class="btn-success" onclick="reinvestPlan()">Reinvertir</button>
+<button class="btn-success plan-button" onclick="activatePlan(2)">Plan 2 - 30 días (20-100 USD TON)</button>
+
+<button class="btn-success plan-button" onclick="activatePlan(3)">Plan 3 - 60 días (101-200 USD TON)</button>
+
+<button class="btn-success plan-button" onclick="activatePlan(4)">Plan 4 - 90 días (201-10000 USD TON)</button>
+
+<button class="btn-success" onclick="reinvestPlan()">Reinvertir (+20 PAN min)</button>
 
 </div>
 
@@ -193,11 +196,34 @@ PAN Digital Group
 <div class="section-title">Finanzas</div>
 
 <button class="btn-warning" onclick="claim()">Reclamar PAN</button>
+
 <button class="btn-soft" onclick="stake()">Staking PAN</button>
+
 <button class="btn-danger" onclick="withdraw()">Retirar</button>
+
 <button class="btn-gray" onclick="historyLog()">Historial</button>
 
 <canvas id="clubChart"></canvas>
+
+</div>
+
+<div class="card">
+
+<div class="section-title">Comunidad</div>
+
+<a href="https://t.me/MANDON1" target="_blank"><button class="btn-primary">Soporte</button></a>
+
+<a href="#"><button class="btn-soft">Canal Telegram</button></a>
+
+<a href="#"><button class="btn-soft">Grupo Telegram</button></a>
+
+<a href="#"><button class="btn-soft">YouTube</button></a>
+
+<a href="#"><button class="btn-soft">TikTok</button></a>
+
+<a href="#"><button class="btn-soft">Instagram</button></a>
+
+<a href="#"><button class="btn-soft">Correo corporativo</button></a>
 
 </div>
 
@@ -209,29 +235,26 @@ PAN Digital Group © 2026
 
 <script>
 
-document.addEventListener("DOMContentLoaded",()=>{
+let tonBalance = 0;
+let panBalance = 0;
+let walletAddress = null;
+let history = [];
+let userPlans = [];
 
-let tonBalance=0;
-let panBalance=0;
-let walletAddress=null;
-let history=[];
-let userPlans=[];
+const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
 
-const TON_RECEIVER="UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
-
-const tonConnectUI=new TON_CONNECT_UI.TonConnectUI({
-manifestUrl:"https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json",
-buttonRootId:"connectWallet"
+const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+manifestUrl:'https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json',
+buttonRootId:'connectWallet'
 });
 
 tonConnectUI.onStatusChange(wallet=>{
 
-if(wallet){
+if(wallet && wallet.account){
 
-walletAddress=wallet.account.address;
-
-document.getElementById("walletText").innerText=
-walletAddress.slice(0,6)+"..."+walletAddress.slice(-4);
+walletAddress = wallet.account.address;
+document.getElementById("walletText").innerText =
+walletAddress.slice(0,6)+"...";
 
 }
 
@@ -244,89 +267,38 @@ document.getElementById("walletText").innerText="No conectada";
 
 });
 
-window.deposit=async function(){
-
-if(!walletAddress) return alert("Conecta tu wallet");
-
-let amount=parseFloat(document.getElementById("depositAmount").value);
-
-if(!amount || amount<=0) return alert("Monto inválido");
-
-const transaction={
-validUntil:Math.floor(Date.now()/1000)+600,
-messages:[{
-address:TON_RECEIVER,
-amount:(amount*1000000000).toString()
-}]
-};
-
-try{
-
-await tonConnectUI.sendTransaction(transaction);
-
-tonBalance+=amount;
-
-document.getElementById("tonBalance").innerText=tonBalance;
-
-alert("Depósito enviado");
-
-}catch(e){
-
-alert("Transacción cancelada");
-
+function deposit(){
+alert("Simulación de depósito");
 }
 
+function activatePlan(p){
+alert("Plan activado: "+p);
 }
 
-window.activatePlan=function(plan){
-
-let amount=parseFloat(document.getElementById("planAmount").value);
-
-if(tonBalance<amount) return alert("Saldo insuficiente");
-
-tonBalance-=amount;
-
-panBalance+=amount*0.10;
-
-document.getElementById("tonBalance").innerText=tonBalance;
-document.getElementById("panBalance").innerText=panBalance;
-
-userPlans.push(plan);
-
-document.getElementById("activePlans").innerText=userPlans.length;
-
-alert("Plan activado");
-
+function reinvestPlan(){
+alert("Reinversión realizada");
 }
 
-window.reinvestPlan=function(){
-
-if(panBalance<20) return alert("Mínimo 20 PAN");
-
-tonBalance+=panBalance;
-
-panBalance=0;
-
-document.getElementById("tonBalance").innerText=tonBalance;
-document.getElementById("panBalance").innerText=panBalance;
-
+function claim(){
+alert("PAN reclamado");
 }
 
-window.togglePlans=function(){
+function stake(){
+alert("Staking activado");
+}
 
+function withdraw(){
+alert("Retiro solicitado");
+}
+
+function historyLog(){
+alert("Historial disponible");
+}
+
+function togglePlans(){
 let el=document.getElementById("planDetails");
-
 el.style.display=el.style.display==="none"?"block":"none";
-
 }
-
-window.claim=function(){alert("PAN disponible "+panBalance)}
-
-window.stake=function(){alert("Staking activado")}
-
-window.withdraw=function(){alert("Retiro solicitado")}
-
-window.historyLog=function(){alert("Historial disponible próximamente")}
 
 const ctx=document.getElementById("clubChart");
 
@@ -341,8 +313,6 @@ borderColor:"#FFD700",
 tension:0.4
 }]
 }
-});
-
 });
 
 </script>
