@@ -14,10 +14,8 @@ margin:0;
 font-family:Inter,sans-serif;
 color:#E2E8F0;
 
-/* FONDO MODERNO */
-
 background:
-linear-gradient(rgba(2,6,23,0.85),rgba(2,6,23,0.95)),
+linear-gradient(rgba(2,6,23,0.80),rgba(2,6,23,0.92)),
 url("https://images.unsplash.com/photo-1519681393784-d120267933ba");
 
 background-size:cover;
@@ -25,9 +23,18 @@ background-position:center;
 background-attachment:fixed;
 }
 
-.container{max-width:460px;margin:auto;padding:18px;}
+.container{
+max-width:460px;
+margin:auto;
+padding:18px;
+}
 
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;}
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:15px;
+}
 
 .logo{
 font-weight:600;
@@ -43,61 +50,105 @@ height:28px;
 }
 
 .level{
-background:#1E293B;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(8px);
 padding:6px 12px;
 border-radius:12px;
 font-size:12px;
-color:#94A3B8;
+color:#E2E8F0;
+border:1px solid rgba(255,255,255,0.1);
 }
 
+/* TARJETAS TRANSLÚCIDAS */
+
 .card{
-background:rgba(22,32,51,0.92);
+background:rgba(255,255,255,0.06);
+backdrop-filter:blur(14px);
+border:1px solid rgba(255,255,255,0.08);
 padding:16px;
 border-radius:16px;
 margin-bottom:14px;
-box-shadow:0 4px 12px rgba(0,0,0,0.5);
+box-shadow:0 8px 30px rgba(0,0,0,0.4);
 }
 
-.section-title{font-size:13px;color:#94A3B8;margin-bottom:10px;}
+.section-title{
+font-size:13px;
+color:#CBD5F5;
+margin-bottom:10px;
+}
+
+/* BOTONES TRANSLÚCIDOS */
 
 button{
 width:100%;
 padding:12px;
-border:none;
 border-radius:12px;
 margin-bottom:8px;
 font-weight:600;
 cursor:pointer;
-transition:0.2s;
+transition:0.25s;
+border:1px solid rgba(255,255,255,0.1);
+backdrop-filter:blur(10px);
 }
 
-button:hover{opacity:0.85;}
+button:hover{
+transform:translateY(-1px);
+opacity:0.95;
+}
 
-.btn-primary{background:#2563EB;color:white;}
-.btn-success{background:#15803D;color:white;}
-.btn-warning{background:#C2410C;color:white;}
-.btn-danger{background:#B91C1C;color:white;}
-.btn-gray{background:#334155;color:white;}
-.btn-soft{background:#1E293B;color:#E2E8F0;}
+.btn-primary{
+background:rgba(37,99,235,0.35);
+color:white;
+}
+
+.btn-success{
+background:rgba(22,163,74,0.35);
+color:white;
+}
+
+.btn-warning{
+background:rgba(234,88,12,0.35);
+color:white;
+}
+
+.btn-danger{
+background:rgba(220,38,38,0.35);
+color:white;
+}
+
+.btn-gray{
+background:rgba(100,116,139,0.35);
+color:white;
+}
+
+.btn-soft{
+background:rgba(255,255,255,0.08);
+color:white;
+}
+
+/* INPUTS TRANSLÚCIDOS */
 
 input{
 width:100%;
 padding:10px;
 border-radius:10px;
-border:none;
+border:1px solid rgba(255,255,255,0.08);
 margin-bottom:8px;
-background:#1E293B;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(8px);
 color:white;
 }
 
 .footer{
 text-align:center;
 font-size:11px;
-color:#64748B;
+color:#CBD5F5;
 margin-top:15px;
 }
 
-.plan-button{margin-bottom:6px;}
+.plan-button{
+margin-bottom:6px;
+}
 
 </style>
 </head>
