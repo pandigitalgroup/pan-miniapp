@@ -1,392 +1,206 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PAN Digital Group</title>
-
-<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-
-body{
-margin:0;
-font-family:Inter,sans-serif;
-background:linear-gradient(135deg,#020617,#0F172A,#1E293B);
-color:#E2E8F0;
-}
-
-.container{
-max-width:460px;
-margin:auto;
-padding:18px;
-}
-
-.header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:15px;
-}
-
-.logo{
-display:flex;
-align-items:center;
-gap:8px;
-font-weight:600;
-font-size:20px;
-cursor:pointer;
-}
-
-.logo img{
-width:26px;
-}
-
-.level{
-background:rgba(30,41,59,0.6);
-padding:6px 12px;
-border-radius:12px;
-font-size:12px;
-color:#94A3B8;
-backdrop-filter:blur(6px);
-}
-
-.card{
-background:rgba(22,32,51,0.55);
-padding:16px;
-border-radius:16px;
-margin-bottom:14px;
-box-shadow:0 4px 20px rgba(0,0,0,0.4);
-backdrop-filter:blur(10px);
-}
-
-.section-title{
-font-size:13px;
-color:#94A3B8;
-margin-bottom:10px;
-}
-
-button{
-width:100%;
-padding:12px;
-border:none;
-border-radius:12px;
-margin-bottom:8px;
-font-weight:600;
-cursor:pointer;
-transition:0.2s;
-}
-
-button:hover{opacity:0.85;}
-
-.btn-primary{background:#2563EB;color:white;}
-.btn-success{background:#15803D;color:white;}
-.btn-warning{background:#C2410C;color:white;}
-.btn-danger{background:#B91C1C;color:white;}
-.btn-gray{background:#334155;color:white;}
-.btn-soft{background:#1E293B;color:#E2E8F0;}
-
-input{
-width:100%;
-padding:10px;
-border-radius:10px;
-border:none;
-margin-bottom:8px;
-background:#1E293B;
-color:white;
-}
-
-.footer{
-text-align:center;
-font-size:11px;
-color:#64748B;
-margin-top:15px;
-}
-
-/* ADMIN PANEL */
-
-#adminPanel{
-display:none;
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:#020617;
-z-index:999;
-padding:20px;
-overflow:auto;
-}
-
-</style>
-</head>
-
-<body>
-
-<!-- ADMIN PANEL -->
-
-<div id="adminPanel">
-
-<h2>Panel Admin</h2>
-
-<div id="adminInfo"></div>
-
-<input id="adminAddPan" placeholder="Agregar PAN">
-
-<button onclick="adminAdd()">Agregar PAN</button>
-
-<button onclick="freeze()">Congelar cuenta</button>
-
-<button onclick="closeAdmin()">Cerrar</button>
-
-</div>
-
-
-<div class="container">
-
-<div class="header">
-
-<div class="logo" onclick="logoTap()">
-
-<img src="https://i.postimg.cc/ncHMqPdY/file-0000000048c8720e897c6596974ca126.png">
-
-PAN Digital Group
-
-</div>
-
-<div class="level" id="level">Club Privado</div>
-
-</div>
-
-
-<!-- WALLET -->
-
-<div class="card">
-<div class="section-title">Wallet</div>
-<div id="walletText">No conectada</div>
-<div id="connectWallet"></div>
-</div>
-
-
-<!-- DASHBOARD -->
-
-<div class="card">
-
-<div class="section-title">Dashboard</div>
-
-<div>Balance TON: <span id="tonBalance">0</span></div>
-<div>Balance PAN: <span id="panBalance">0</span></div>
-
-<div>Planes activos: <span id="activePlans">0</span></div>
-
-<br>
-
-<div class="section-title">Estadísticas del Club</div>
-
-<div>Total invertido: <span id="clubInvest">0</span> TON</div>
-<div>Total PAN generado: <span id="clubPan">0</span></div>
-
-<button class="btn-gray" onclick="togglePlans()">Ver planes activos</button>
-
-<div id="planDetails" style="margin-top:8px;font-size:12px;color:#94A3B8;display:none;"></div>
-
-</div>
-
-
-<!-- DEPOSITO -->
-
-<div class="card">
-<div class="section-title">Depósito</div>
-<input type="number" id="depositAmount" placeholder="Monto en TON">
-<button class="btn-primary" onclick="deposit()">Depositar</button>
-</div>
-
-
-<!-- PLANES -->
-
-<div class="card">
-<div class="section-title">Activar Plan</div>
-<input type="number" id="planAmount" placeholder="Monto para el plan en TON/USD">
-<button class="btn-success" onclick="activatePlan(1)">Plan 1 - Prueba</button>
-<button class="btn-success" onclick="activatePlan(2)">Plan 2 - 30 días</button>
-<button class="btn-success" onclick="activatePlan(3)">Plan 3 - 60 días</button>
-<button class="btn-success" onclick="activatePlan(4)">Plan 4 - 90 días</button>
-<button class="btn-success" onclick="reinvestPlan()">Reinvertir</button>
-</div>
-
-
-<!-- FINANZAS -->
-
-<div class="card">
-
-<div class="section-title">Finanzas</div>
-
-<canvas id="clubChart"></canvas>
-
-<br>
-
-<button class="btn-warning" onclick="claim()">Reclamar PAN</button>
-<button class="btn-soft" onclick="stake()">Staking PAN</button>
-<button class="btn-danger" onclick="withdraw()">Retirar</button>
-<button class="btn-gray" onclick="historyLog()">Historial</button>
-
-</div>
-
-
-<!-- COMUNIDAD -->
-
-<div class="card">
-
-<div class="section-title">Comunidad</div>
-
-<a href="https://t.me/MANDON1" target="_blank"><button class="btn-primary">Soporte</button></a>
-
-</div>
-
-
-<div class="footer">
-PAN Digital Group © 2026
-</div>
-
-</div>
-
-
-<script>
-
-let tonBalance=0;
-let panBalance=0;
-let walletAddress=null;
-let history=[];
-let userPlans=[];
-
-let logoClicks=0;
-
-/* ADMIN */
-
-function logoTap(){
-
-logoClicks++;
-
-if(logoClicks>=5){
-
-openAdmin();
-
-logoClicks=0;
-
-}
-
-}
-
-function openAdmin(){
-
-document.getElementById("adminPanel").style.display="block";
-
-document.getElementById("adminInfo").innerText=
-"TON:"+tonBalance+" PAN:"+panBalance+" Planes:"+userPlans.length;
-
-}
-
-function closeAdmin(){
-
-document.getElementById("adminPanel").style.display="none";
-
-}
-
-function adminAdd(){
-
-let val=parseFloat(document.getElementById("adminAddPan").value);
-
-if(val){
-
-panBalance+=val;
-
-updateUI();
-
-}
-
-}
-
-function freeze(){
-
-alert("Cuenta congelada (simulación)");
-
-}
-
-
-/* STATS */
-
-function updateStats(){
-
-let invest=0;
-let pan=0;
-
-userPlans.forEach(p=>{
-
-invest+=p.amount;
-pan+=p.earned||0;
-
-});
-
-document.getElementById("clubInvest").innerText=invest.toFixed(2);
-document.getElementById("clubPan").innerText=pan.toFixed(2);
-
-}
-
-
-/* UI */
-
-function updateUI(){
-
-document.getElementById("tonBalance").innerText=tonBalance.toFixed(4);
-document.getElementById("panBalance").innerText=panBalance.toFixed(4);
-document.getElementById("activePlans").innerText=userPlans.length;
-
-updateStats();
-
-updateChart();
-
-}
-
-
-/* GRAPH */
-
-let chart;
-
-function updateChart(){
-
-let invested=userPlans.reduce((a,b)=>a+b.amount,0);
-
-let profit=userPlans.reduce((a,b)=>a+(b.earned||0),0);
-
-if(!chart){
-
-chart=new Chart(document.getElementById("clubChart"),{
-
-type:"line",
-
-data:{
-labels:["Capital","Ganancias"],
-datasets:[{
-label:"Club",
-data:[invested,profit],
-borderColor:"#22C55E",
-tension:0.4
-}]
-}
-
-});
-
-}else{
-
-chart.data.datasets[0].data=[invested,profit];
-chart.update();
-
-}
-
-}
-
-</script>
-
-</body>
+<!DOCTYPE html>    <html lang="es">    
+<head>    
+<meta charset="UTF-8">    
+<meta name="viewport" content="width=device-width, initial-scale=1.0">    
+<title>PAN Digital Group</title>    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>    <style>    
+body{margin:0;font-family:Inter,sans-serif;background:#0F172A;color:#E2E8F0;}    
+.container{max-width:460px;margin:auto;padding:18px;}    
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;}    
+.logo{font-weight:600;font-size:20px;}    
+.level{background:#1E293B;padding:6px 12px;border-radius:12px;font-size:12px;color:#94A3B8;}    
+.card{background:#162033;padding:16px;border-radius:16px;margin-bottom:14px;box-shadow:0 4px 12px rgba(0,0,0,0.3);}    
+.section-title{font-size:13px;color:#94A3B8;margin-bottom:10px;}    
+.value{font-weight:600;}    
+button{width:100%;padding:12px;border:none;border-radius:12px;margin-bottom:8px;font-weight:600;cursor:pointer;transition:0.2s;}    
+button:hover{opacity:0.85;}    
+.btn-primary{background:#2563EB;color:white;}    
+.btn-success{background:#15803D;color:white;}    
+.btn-warning{background:#C2410C;color:white;}    
+.btn-danger{background:#B91C1C;color:white;}    
+.btn-gray{background:#334155;color:white;}    
+.btn-soft{background:#1E293B;color:#E2E8F0;}    
+input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;background:#1E293B;color:white;}    
+.footer{text-align:center;font-size:11px;color:#64748B;margin-top:15px;}    
+.plan-button{margin-bottom:6px;}    
+</style>    </head>    <body>    
+<div class="container">    <div class="header">    
+<div class="logo">PAN Digital Group</div>    
+<div class="level" id="level">Club Privado</div>    
+</div>    <!-- WALLET -->    <div class="card">    
+<div class="section-title">Wallet</div>    
+<div id="walletText">No conectada</div>    
+<div id="connectWallet"></div>    
+</div>    <!-- DASHBOARD -->    <div class="card">    
+<div class="section-title">Dashboard</div>    
+<div>Balance TON: <span id="tonBalance">0</span></div>    
+<div>Balance PAN: <span id="panBalance">0</span></div>    
+<div>Rentabilidad: Variable (según rendimiento interno del club)</div>    
+<div>Planes activos: <span id="activePlans">0</span></div>    <button class="btn-gray" onclick="togglePlans()">Ver planes activos</button>
+
+<div id="planDetails" style="margin-top:8px;font-size:12px;color:#94A3B8;display:none;"></div>    </div>    <!-- DEPOSITO -->    <div class="card">    
+<div class="section-title">Depósito</div>    
+<input type="number" id="depositAmount" placeholder="Monto en TON">    
+<button class="btn-primary" onclick="deposit()">Depositar</button>    
+</div>    <!-- ACTIVAR PLANES -->    <div class="card">    
+<div class="section-title">Activar Plan</div>    
+<input type="number" id="planAmount" placeholder="Monto para el plan en TON/USD">    
+<button class="btn-success plan-button" onclick="activatePlan(1)">Plan 1 - Prueba (Simulación)</button>    
+<button class="btn-success plan-button" onclick="activatePlan(2)">Plan 2 - 30 días (20-100 USD TON)</button>    
+<button class="btn-success plan-button" onclick="activatePlan(3)">Plan 3 - 60 días (101-200 USD TON)</button>    
+<button class="btn-success plan-button" onclick="activatePlan(4)">Plan 4 - 90 días (201-10000 USD TON)</button>    
+<button class="btn-success" onclick="reinvestPlan()">Reinvertir (+20 PAN min)</button>    
+</div>    <!-- FINANZAS -->    <div class="card">    
+<div class="section-title">Finanzas</div>    
+<button class="btn-warning" onclick="claim()">Reclamar PAN</button>    
+<button class="btn-soft" onclick="stake()">Staking PAN</button>    
+<button class="btn-danger" onclick="withdraw()">Retirar</button>    
+<button class="btn-gray" onclick="historyLog()">Historial</button>    
+</div>    <!-- COMUNIDAD -->    <div class="card">    
+<div class="section-title">Comunidad</div>    
+<a href="https://t.me/MANDON1" target="_blank"><button class="btn-primary">Soporte</button></a>    
+<a href="https://t.me/CanalEjemplo" target="_blank"><button class="btn-soft">Canal de Telegram</button></a>    
+<a href="https://t.me/GrupoEjemplo" target="_blank"><button class="btn-soft">Grupo de Telegram</button></a>    
+<a href="https://www.youtube.com/" target="_blank"><button class="btn-soft">Canal de YouTube</button></a>    
+<a href="https://www.tiktok.com/" target="_blank"><button class="btn-soft">Canal de TikTok</button></a>    
+<a href="https://www.instagram.com/" target="_blank"><button class="btn-soft">Canal de Instagram</button></a>    
+<a href="mailto:contacto@pandigitalgroup.com"><button class="btn-soft">Correo corporativo</button></a>    
+</div>    <div class="footer">    
+PAN Digital Group © 2026    
+</div>    </div>    <script>    
+  
+let tonBalance = 0;    
+let panBalance = 0;    
+let walletAddress = null;    
+let history = [];    
+let userPlans = [];    
+  
+const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";    
+  
+const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({    
+    manifestUrl:'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json',    
+    buttonRootId:'connectWallet'    
+});    
+  
+tonConnectUI.onStatusChange(wallet=>{    
+    if(wallet && wallet.account){    
+        walletAddress = wallet.account.address;    
+        document.getElementById("walletText").innerText = walletAddress.slice(0,6)+"...";    
+        loadUserData();    
+    } else {    
+        walletAddress=null;    
+        document.getElementById("walletText").innerText="No conectada";    
+    }    
+});    
+  
+function updateUI(){    
+    document.getElementById("tonBalance").innerText=tonBalance.toFixed(4);    
+    document.getElementById("panBalance").innerText=panBalance.toFixed(4);    
+    document.getElementById("activePlans").innerText=userPlans.length;    
+}    
+  
+function togglePlans(){    
+    let el = document.getElementById("planDetails");    
+    el.style.display = (el.style.display==="none")?"block":"none";    
+    if(el.style.display==="block"){    
+        let details="";    
+        let now=Date.now();    
+        userPlans.forEach(p=>{    
+            let days=Math.floor((now-p.start)/86400000);    
+            let remaining=p.duration-days;    
+            if(remaining<0) remaining=0;    
+            details+=`Plan ${p.plan} | ${p.amount} TON | Ganado: ${(p.earned||0).toFixed(4)} PAN | ${remaining} días restantes<br>`;    
+        });    
+        el.innerHTML=details || "No tienes planes activos";    
+    }    
+}    
+  
+function saveUserData(){    
+    if(walletAddress){    
+        localStorage.setItem("PAN_"+walletAddress,JSON.stringify({tonBalance,panBalance,history,userPlans}));    
+    }    
+}    
+  
+function loadUserData(){    
+    const data=localStorage.getItem("PAN_"+walletAddress);    
+    if(data){    
+        const parsed=JSON.parse(data);    
+        tonBalance=parsed.tonBalance||0;    
+        panBalance=parsed.panBalance||0;    
+        history=parsed.history||[];    
+        userPlans=parsed.userPlans||[];    
+    }    
+    processYield();    
+    updateUI();    
+}    
+  
+function random(min,max){return Math.random()*(max-min)+min;}    
+  
+function getYield(plan){    
+    if(plan===1) return random(0.005,0.012);    
+    if(plan===2) return random(0.008,0.015);    
+    if(plan===3) return random(0.01,0.018);    
+    if(plan===4) return random(0.012,0.022);    
+}    
+  
+function processYield(){    
+    let now=Date.now();    
+    userPlans=userPlans.filter(plan=>{    
+        let days=Math.floor((now-plan.start)/86400000);    
+        if(days>plan.lastDay){    
+            let profit=plan.amount*getYield(plan.plan);    
+            panBalance+=profit;    
+            plan.earned=(plan.earned||0)+profit;    
+            plan.lastDay=days;    
+            history.push(`Rendimiento plan ${plan.plan}: ${profit.toFixed(4)} PAN`);    
+        }    
+        if(days>=plan.duration){history.push(`Plan ${plan.plan} finalizado`);return false;}    
+        return true;    
+    });    
+    saveUserData();    
+}    
+  
+async function deposit(){    
+    if(!walletAddress){alert("Conecta tu wallet primero");return;}    
+    let amount=parseFloat(document.getElementById("depositAmount").value);    
+    if(amount>0){    
+        try{    
+            const transaction={    
+                validUntil:Math.floor(Date.now()/1000)+600,    
+                messages:[{    
+                    address:TON_RECEIVER,    
+                    amount:(amount*1000000000).toString()    
+                }]    
+            };    
+            await tonConnectUI.sendTransaction(transaction);    
+            tonBalance+=amount;    
+            history.push(`Depósito: ${amount} TON`);    
+            saveUserData();    
+            updateUI();    
+            alert("Depósito enviado correctamente");    
+        }catch(e){alert("Transacción cancelada o fallida");}    
+    }    
+}    
+  
+function activatePlan(plan){    
+    let amount=parseFloat(document.getElementById("planAmount").value);    
+    if(!amount||amount<=0)return alert("Monto inválido");    
+    if(tonBalance<amount)return alert("Saldo insuficiente");    
+  
+    let duration=7;if(plan===2)duration=30;if(plan===3)duration=60;if(plan===4)duration=90;    
+    tonBalance-=amount;    
+    userPlans.push({plan,amount,duration,start:Date.now(),lastDay:-1,earned:0});    
+    history.push(`Plan ${plan} activado con ${amount} TON`);    
+    saveUserData();    
+    updateUI();    
+    alert("Plan activado correctamente");    
+}    
+  
+function reinvestPlan(){if(panBalance>=20){tonBalance+=panBalance;panBalance=0;saveUserData();updateUI();alert("Reinvertido correctamente");}else alert("Monto mínimo 20 PAN");}    
+function claim(){alert("PAN reclamado (simulado)");}    
+function stake(){alert("Staking aplicado (simulado)");}    
+function withdraw(){alert("Retiro solicitado (simulado)");}    
+function historyLog(){alert(history.join("\n"));}    
+  
+updateUI();    
+</script>    </body>    
 </html>
