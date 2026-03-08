@@ -207,33 +207,37 @@ PAN Digital Group © 2026
 
 <script>
 
-window.onload=function(){
+let tonBalance = 0;
+let panBalance = 0;
+let walletAddress = null;
+let history = [];
+let userPlans = [];
+
+const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
 
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
 manifestUrl:'https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json',
 buttonRootId:'connectWallet'
 });
 
-let el=document.getElementById("clubChart");
+tonConnectUI.onStatusChange(wallet=>{
 
-if(el){
-const ctx=el.getContext("2d");
+if(wallet && wallet.account){
 
-new Chart(ctx,{
-type:"line",
-data:{
-labels:["Ene","Feb","Mar","Abr","May","Jun"],
-datasets:[{
-label:"Crecimiento del Club",
-data:[200,600,1200,1800,3200,5280],
-borderColor:"#FFD700",
-tension:0.4
-}]
+walletAddress = wallet.account.address;
+document.getElementById("walletText").innerText =
+walletAddress.slice(0,6)+"...";
+
 }
+
+else{
+
+walletAddress=null;
+document.getElementById("walletText").innerText="No conectada";
+
+}
+
 });
-}
-
-};
 
 function deposit(){
 alert("Depósito simulado");
@@ -266,6 +270,27 @@ alert("Historial del usuario");
 function togglePlans(){
 let el=document.getElementById("planDetails");
 el.style.display=el.style.display==="none"?"block":"none";
+}
+
+/* PROTECCIÓN DEL GRÁFICO PARA QUE NO ROMPA LOS BOTONES */
+
+const ctx = document.getElementById("clubChart");
+
+if(ctx){
+
+new Chart(ctx,{
+type:"line",
+data:{
+labels:["Ene","Feb","Mar","Abr","May","Jun"],
+datasets:[{
+label:"Crecimiento del Club",
+data:[200,600,1200,1800,3200,5280],
+borderColor:"#FFD700",
+tension:0.4
+}]
+}
+});
+
 }
 
 </script>
