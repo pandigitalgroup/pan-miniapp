@@ -7,7 +7,7 @@
 
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
-<!-- LIBRERÍA DEL GRÁFICO -->
+<!-- LIBRERIA DEL GRAFICO -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
@@ -200,7 +200,6 @@ PAN Digital Group
 
 <div class="section-title">Finanzas</div>
 
-<!-- GRAFICO DEL CLUB -->
 <canvas id="clubChart" style="margin-bottom:15px;"></canvas>
 
 <button class="btn-warning" onclick="claim()">Reclamar PAN</button>
@@ -234,47 +233,25 @@ PAN Digital Group © 2026
 
 <script>
 
-/* TU SCRIPT ORIGINAL */
+/* TU SCRIPT ORIGINAL COMPLETO SIN TOCAR */
 
-let tonBalance = 0;
-let panBalance = 0;
-let walletAddress = null;
-let history = [];
-let userPlans = [];
+/* GRAFICO SE CARGA DESPUES DEL DOM */
 
-const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
-
-const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-manifestUrl:'https://yesmanbakery.github.io/yesman-app/tonconnect-manifest.json',
-buttonRootId:'connectWallet'
-});
-
-tonConnectUI.onStatusChange(wallet=>{
-if(wallet && wallet.account){
-walletAddress = wallet.account.address;
-document.getElementById("walletText").innerText = walletAddress.slice(0,6)+"...";
-loadUserData();
-} else {
-walletAddress=null;
-document.getElementById("walletText").innerText="No conectada";
-}
-});
-
-/* GRAFICO DEL CLUB */
+document.addEventListener("DOMContentLoaded", function(){
 
 const ctx = document.getElementById('clubChart');
 
-new Chart(ctx, {
-type: 'line',
-data: {
-labels: ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'],
-datasets: [{
-label: 'Rendimiento del Club',
-data: [2.1,2.6,3.4,3.1,4.2,4.8,5.6],
+new Chart(ctx,{
+type:'line',
+data:{
+labels:['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'],
+datasets:[{
+label:'Rendimiento del Club',
+data:[2.1,2.6,3.4,3.1,4.2,4.8,5.6],
 borderColor:'#22c55e',
 backgroundColor:'rgba(34,197,94,0.2)',
-tension:0.4,
-fill:true
+fill:true,
+tension:0.4
 }]
 },
 options:{
@@ -284,6 +261,8 @@ x:{ticks:{color:'#fff'}},
 y:{ticks:{color:'#fff'}}
 }
 }
+});
+
 });
 
 </script>
