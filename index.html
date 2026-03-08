@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -8,8 +10,65 @@
 
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
-<!-- LIBRERÍA DEL GRÁFICO -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+font-family:Arial, Helvetica, sans-serif;
+background:#0f172a;
+color:white;
+padding:20px;
+}
+
+h1,h2,h3{
+margin-top:25px;
+}
+
+div{
+margin-bottom:20px;
+}
+
+button{
+padding:10px;
+margin:5px;
+border:none;
+border-radius:8px;
+background:#22c55e;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+button:hover{
+opacity:0.85;
+}
+
+input{
+padding:10px;
+border-radius:8px;
+border:none;
+margin-right:10px;
+}
+
+canvas{
+background:rgba(255,255,255,0.05);
+border-radius:12px;
+padding:10px;
+}
+
+a{
+color:#38bdf8;
+text-decoration:none;
+display:block;
+margin:4px 0;
+}
+
+a:hover{
+text-decoration:underline;
+}
+
+</style>
 
 </head>
 
@@ -18,8 +77,11 @@
 <h1>PAN Digital Group</h1>
 
 <div>
+
 <h2>PAN Digital Group</h2>
+
 <p>Club Privado</p>
+
 </div>
 
 <div>
@@ -50,13 +112,11 @@
 
 </div>
 
-<!-- ESTADÍSTICAS DEL CLUB (AGREGADO) -->
-
 <div>
 
 <h3>Estadísticas del Club</h3>
 
-<canvas id="clubChart" height="120"></canvas>
+<canvas id="clubChart"></canvas>
 
 </div>
 
@@ -76,6 +136,8 @@
 
 <input type="number" id="planAmount" placeholder="Monto para el plan">
 
+<br><br>
+
 <button onclick="activatePlan(1)">Plan 1 - Prueba (Simulación)</button>
 
 <button onclick="activatePlan(2)">Plan 2 - 30 días (20-100 USD TON)</button>
@@ -83,6 +145,8 @@
 <button onclick="activatePlan(3)">Plan 3 - 60 días (101-200 USD TON)</button>
 
 <button onclick="activatePlan(4)">Plan 4 - 90 días (201-10000 USD TON)</button>
+
+<br>
 
 <button onclick="reinvestPlan()">Reinvertir (+20 PAN min)</button>
 
@@ -106,17 +170,17 @@
 
 <h3>Comunidad</h3>
 
-<a href="https://t.me/MANDON1">Soporte</a><br>
+<a href="https://t.me/MANDON1">Soporte</a>
 
-<a href="https://t.me/CanalEjemplo">Canal de Telegram</a><br>
+<a href="https://t.me/CanalEjemplo">Canal de Telegram</a>
 
-<a href="https://t.me/GrupoEjemplo">Grupo de Telegram</a><br>
+<a href="https://t.me/GrupoEjemplo">Grupo de Telegram</a>
 
-<a href="https://www.youtube.com/">Canal de YouTube</a><br>
+<a href="https://www.youtube.com/">Canal de YouTube</a>
 
-<a href="https://www.tiktok.com/">Canal de TikTok</a><br>
+<a href="https://www.tiktok.com/">Canal de TikTok</a>
 
-<a href="https://www.instagram.com/">Canal de Instagram</a><br>
+<a href="https://www.instagram.com/">Canal de Instagram</a>
 
 <a href="mailto:contacto@pandigitalgroup.com">Correo corporativo</a>
 
@@ -124,16 +188,69 @@
 
 <p>PAN Digital Group © 2026</p>
 
-
 <script>
 
-/* GRAFICO DEL CLUB (AGREGADO SIN TOCAR NADA) */
+function togglePlans(){
 
-window.addEventListener("load",function(){
+let box=document.getElementById("planDetails");
+
+if(box.innerHTML===""){
+
+box.innerHTML="No hay planes activos aún";
+
+}else{
+
+box.innerHTML="";
+
+}
+
+}
+
+function deposit(){
+
+alert("Depósito simulado");
+
+}
+
+function activatePlan(plan){
+
+alert("Plan "+plan+" activado (simulación)");
+
+}
+
+function reinvestPlan(){
+
+alert("Reinversión simulada");
+
+}
+
+function claim(){
+
+alert("Reclamo de PAN simulado");
+
+}
+
+function stake(){
+
+alert("Staking simulado");
+
+}
+
+function withdraw(){
+
+alert("Retiro simulado");
+
+}
+
+function historyLog(){
+
+alert("Historial simulado");
+
+}
+
+window.onload=function(){
 
 const ctx=document.getElementById("clubChart");
-
-if(!ctx) return;
 
 new Chart(ctx,{
 
@@ -181,7 +298,7 @@ y:{ticks:{color:"#ffffff"}}
 
 });
 
-});
+}
 
 </script>
 
