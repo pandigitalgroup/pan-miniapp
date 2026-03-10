@@ -59,15 +59,11 @@ PAN Digital Group
 
 </div>
 
-<!-- WALLET -->
-
 <div class="card">
 <div class="section-title">Wallet</div>
 <div id="walletText">No conectada</div>
 <div id="connectWallet"></div>
 </div>
-
-<!-- DASHBOARD -->
 
 <div class="card">
 
@@ -86,15 +82,11 @@ PAN Digital Group
 
 </div>
 
-<!-- DEPOSITO -->
-
 <div class="card">
 <div class="section-title">Depósito</div>
 <input type="number" id="depositAmount" placeholder="Monto en TON">
 <button class="btn-primary" onclick="deposit()">Depositar</button>
 </div>
-
-<!-- ACTIVAR PLANES -->
 
 <div class="card">
 
@@ -111,8 +103,6 @@ PAN Digital Group
 
 </div>
 
-<!-- FINANZAS -->
-
 <div class="card">
 
 <div class="section-title">Finanzas</div>
@@ -124,18 +114,16 @@ PAN Digital Group
 
 </div>
 
-<!-- COMUNIDAD -->
-
 <div class="card">
 
 <div class="section-title">Comunidad</div>
 
 <a href="https://t.me/MANDON1" target="_blank"><button class="btn-primary">Soporte</button></a>
-<a href="https://t.me/CanalEjemplo" target="_blank"><button class="btn-soft">Canal de Telegram</button></a>
-<a href="https://t.me/GrupoEjemplo" target="_blank"><button class="btn-soft">Grupo de Telegram</button></a>
-<a href="https://www.youtube.com/" target="_blank"><button class="btn-soft">Canal de YouTube</button></a>
-<a href="https://www.tiktok.com/" target="_blank"><button class="btn-soft">Canal de TikTok</button></a>
-<a href="https://www.instagram.com/" target="_blank"><button class="btn-soft">Canal de Instagram</button></a>
+<a href="#"><button class="btn-soft">Canal de Telegram</button></a>
+<a href="#"><button class="btn-soft">Grupo de Telegram</button></a>
+<a href="#"><button class="btn-soft">Canal de YouTube</button></a>
+<a href="#"><button class="btn-soft">Canal de TikTok</button></a>
+<a href="#"><button class="btn-soft">Canal de Instagram</button></a>
 <a href="mailto:contacto@pandigitalgroup.com"><button class="btn-soft">Correo corporativo</button></a>
 
 </div>
@@ -222,6 +210,36 @@ if(plan===3) return random(0.01,0.018);
 if(plan===4) return random(0.012,0.022);
 }
 
+async function verifyDeposit(amount){
+
+try{
+
+let response = await fetch("https://toncenter.com/api/v2/getTransactions?address="+TON_RECEIVER+"&limit=10");
+
+let data = await response.json();
+
+if(!data.result) return false;
+
+for(let tx of data.result){
+
+let value = parseInt(tx.in_msg.value)/1000000000;
+
+if(value === amount){
+return true;
+}
+
+}
+
+return false;
+
+}catch(e){
+
+return false;
+
+}
+
+}
+
 function processYield(){
 let now=Date.now();
 userPlans=userPlans.filter(plan=>{
@@ -240,10 +258,18 @@ saveUserData();
 }
 
 async function deposit(){
-if(!walletAddress){alert("Conecta tu wallet primero");return;}
+
+if(!walletAddress){
+alert("Conecta tu wallet primero");
+return;
+}
+
 let amount=parseFloat(document.getElementById("depositAmount").value);
+
 if(amount>0){
+
 try{
+
 const transaction={
 validUntil:Math.floor(Date.now()/1000)+600,
 messages:[{
@@ -251,14 +277,43 @@ address:TON_RECEIVER,
 amount:(amount*1000000000).toString()
 }]
 };
+
 await tonConnectUI.sendTransaction(transaction);
+
+alert("Esperando confirmación de la blockchain...");
+
+setTimeout(async ()=>{
+
+let confirmed = await verifyDeposit(amount);
+
+if(confirmed){
+
 tonBalance+=amount;
-history.push(`Depósito: ${amount} TON`);
+
+history.push(`Depósito confirmado en blockchain: ${amount} TON`);
+
 saveUserData();
+
 updateUI();
-alert("Depósito enviado correctamente");
-}catch(e){alert("Transacción cancelada o fallida");}
+
+alert("Depósito confirmado en la red TON");
+
+}else{
+
+alert("No se detectó el depósito aún. Puede tardar unos minutos.");
+
 }
+
+},8000);
+
+}catch(e){
+
+alert("Transacción cancelada o fallida");
+
+}
+
+}
+
 }
 
 function activatePlan(plan){
