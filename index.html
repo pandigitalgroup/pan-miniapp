@@ -192,8 +192,7 @@ document.getElementById("panBalance").innerText=panBalance.toFixed(4);
 document.getElementById("activePlans").innerText=userPlans.length;
 }
 
-/* FUNCIÓN AGREGADA PARA EL BOTÓN DEPOSITAR */
-function deposit(){
+async function deposit(){
 
 let amount=parseFloat(document.getElementById("depositAmount").value);
 
@@ -207,167 +206,30 @@ alert("Monto inválido");
 return;
 }
 
-tonBalance+=amount;
+try{
 
-history.push(`Depósito de ${amount} TON`);
+const transaction = {
+validUntil: Math.floor(Date.now()/1000)+300,
+messages:[
+{
+address: TON_RECEIVER,
+amount: (amount*1000000000).toString()
+}
+]
+};
 
-saveUserData();
-updateUI();
+await tonConnectUI.sendTransaction(transaction);
 
-alert("Depósito registrado correctamente");
+history.push(`Depósito enviado: ${amount} TON`);
+
+alert("Transacción enviada a tu wallet");
 
 document.getElementById("depositAmount").value="";
 
+}catch(e){
+
+alert("Transacción cancelada");
+
 }
 
-function togglePlans(){
-let el = document.getElementById("planDetails");
-el.style.display = (el.style.display==="none")?"block":"none";
-if(el.style.display==="block"){
-let details="";
-let now=Date.now();
-userPlans.forEach(p=>{
-let days=Math.floor((now-p.start)/86400000);
-let remaining=p.duration-days;
-if(remaining<0) remaining=0;
-details+=`Plan ${p.plan} | ${p.amount} TON | Ganado: ${(p.earned||0).toFixed(4)} PAN | ${remaining} días restantes<br>`;
-});
-el.innerHTML=details || "No tienes planes activos";
 }
-}
-
-function saveUserData(){
-if(walletAddress){
-localStorage.setItem("PAN_"+walletAddress,JSON.stringify({tonBalance,panBalance,history,userPlans}));
-}
-}
-
-function loadUserData(){
-const data=localStorage.getItem("PAN_"+walletAddress);
-if(data){
-const parsed=JSON.parse(data);
-tonBalance=parsed.tonBalance||0;
-panBalance=parsed.panBalance||0;
-history=parsed.history||[];
-userPlans=parsed.userPlans||[];
-}
-processYield();
-updateUI();
-}
-
-function random(min,max){return Math.random()*(max-min)+min;}
-
-function getYield(plan){
-if(plan===1) return random(0.005,0.012);
-if(plan===2) return random(0.008,0.015);
-if(plan===3) return random(0.01,0.018);
-if(plan===4) return random(0.012,0.022);
-}
-
-function processYield(){
-let now=Date.now();
-userPlans=userPlans.filter(plan=>{
-let days=Math.floor((now-plan.start)/86400000);
-if(days>plan.lastDay){
-let profit=plan.amount*getYield(plan.plan);
-panBalance+=profit;
-plan.earned=(plan.earned||0)+profit;
-plan.lastDay=days;
-history.push(`Rendimiento plan ${plan.plan}: ${profit.toFixed(4)} PAN`);
-}
-if(days>=plan.duration){history.push(`Plan ${plan.plan} finalizado`);return false;}
-return true;
-});
-saveUserData();
-}
-
-function generateClubStats(){
-document.getElementById("clubUsers").innerText=Math.floor(Math.random()*900+1200);
-document.getElementById("clubTon").innerText=Math.floor(Math.random()*8000+5000);
-document.getElementById("clubPan").innerText=Math.floor(Math.random()*30000+15000);
-}
-
-generateClubStats();
-
-function activatePlan(plan){
-let amount=parseFloat(document.getElementById("planAmount").value);
-if(!amount||amount<=0)return alert("Monto inválido");
-if(tonBalance<amount)return alert("Saldo insuficiente");
-
-let duration=7;if(plan===2)duration=30;if(plan===3)duration=60;if(plan===4)duration=90;
-tonBalance-=amount;
-userPlans.push({plan,amount,duration,start:Date.now(),lastDay:-1,earned:0});
-history.push(`Plan ${plan} activado con ${amount} TON`);
-saveUserData();
-updateUI();
-alert("Plan activado correctamente");
-}
-
-function reinvestPlan(){if(panBalance>=20){tonBalance+=panBalance;panBalance=0;saveUserData();updateUI();alert("Reinvertido correctamente");}else alert("Monto mínimo 20 PAN");}
-function claim(){alert("PAN reclamado (simulado)");}
-function stake(){alert("Staking aplicado (simulado)");}
-function withdraw(){alert("Retiro solicitado (simulado)");}
-function historyLog(){alert(history.join("\n"));}
-
-updateUI();
-
-let adminCode="";
-let frozen=false;
-
-document.addEventListener("keydown",function(e){
-adminCode+=e.key;
-if(adminCode.length>4){adminCode=adminCode.slice(-4);}
-if(adminCode==="7777"){openAdmin();}
-});
-
-function openAdmin(){
-document.getElementById("adminPanel").style.display="block";
-document.getElementById("adminWallet").innerText=walletAddress||"No conectada";
-document.getElementById("adminTon").innerText=tonBalance;
-document.getElementById("adminPan").innerText=panBalance;
-}
-
-function closeAdmin(){document.getElementById("adminPanel").style.display="none";}
-
-function adminSetTon(){
-let v=parseFloat(document.getElementById("adminSetTon").value);
-if(!isNaN(v)){tonBalance=v;updateUI();saveUserData();}
-}
-
-function adminSetPan(){
-let v=parseFloat(document.getElementById("adminSetPan").value);
-if(!isNaN(v)){panBalance=v;updateUI();saveUserData();}
-}
-
-function freezeUser(){frozen=true;alert("Cuenta congelada");}
-function unfreezeUser(){frozen=false;alert("Cuenta activa");}
-
-</script>
-
-<div id="adminPanel" style="display:none;position:fixed;bottom:0;left:0;width:100%;background:#020617;padding:20px;border-top:2px solid #334155;z-index:9999;">
-
-<div style="max-width:460px;margin:auto;">
-
-<h3>Panel Admin</h3>
-
-<div>Wallet: <span id="adminWallet"></span></div>
-<div>Balance TON: <span id="adminTon"></span></div>
-<div>Balance PAN: <span id="adminPan"></span></div>
-
-<input type="number" id="adminSetTon" placeholder="Nuevo TON">
-<button onclick="adminSetTon()">Actualizar TON</button>
-
-<input type="number" id="adminSetPan" placeholder="Nuevo PAN">
-<button onclick="adminSetPan()">Actualizar PAN</button>
-
-<button onclick="freezeUser()">Congelar cuenta</button>
-<button onclick="unfreezeUser()">Descongelar cuenta</button>
-
-<button onclick="closeAdmin()">Cerrar</button>
-
-</div>
-
-</div>
-
-</body>
-</html>
