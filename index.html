@@ -28,9 +28,7 @@ height:28px;
 .level{background:#1E293B;padding:6px 12px;border-radius:12px;font-size:12px;color:#94A3B8;}
 .card{background:#162033;padding:16px;border-radius:16px;margin-bottom:14px;box-shadow:0 4px 12px rgba(0,0,0,0.3);}
 .section-title{font-size:13px;color:#94A3B8;margin-bottom:10px;}
-.value{font-weight:600;}
-button{width:100%;padding:12px;border:none;border-radius:12px;margin-bottom:8px;font-weight:600;cursor:pointer;transition:0.2s;}
-button:hover{opacity:0.85;}
+button{width:100%;padding:12px;border:none;border-radius:12px;margin-bottom:8px;font-weight:600;cursor:pointer;}
 .btn-primary{background:#2563EB;color:white;}
 .btn-success{background:#15803D;color:white;}
 .btn-warning{background:#C2410C;color:white;}
@@ -39,9 +37,7 @@ button:hover{opacity:0.85;}
 .btn-soft{background:#1E293B;color:#E2E8F0;}
 input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;background:#1E293B;color:white;}
 .footer{text-align:center;font-size:11px;color:#64748B;margin-top:15px;}
-.plan-button{margin-bottom:6px;}
 </style>
-
 </head>
 
 <body>
@@ -49,14 +45,11 @@ input{width:100%;padding:10px;border-radius:10px;border:none;margin-bottom:8px;b
 <div class="container">
 
 <div class="header">
-
 <div class="logo">
 <img src="https://i.postimg.cc/ncHMqPdY/file-0000000048c8720e897c6596974ca126.png">
 PAN Digital Group
 </div>
-
 <div class="level" id="level">Club Privado</div>
-
 </div>
 
 <div class="card">
@@ -66,28 +59,11 @@ PAN Digital Group
 </div>
 
 <div class="card">
-
 <div class="section-title">Dashboard</div>
-
 <div>Balance TON: <span id="tonBalance">0</span></div>
 <div>Balance PAN: <span id="panBalance">0</span></div>
-
 <div>Rentabilidad: Variable (según rendimiento interno del club)</div>
-
 <div>Planes activos: <span id="activePlans">0</span></div>
-
-<button class="btn-gray" onclick="togglePlans()">Ver planes activos</button>
-
-<div id="planDetails" style="margin-top:8px;font-size:12px;color:#94A3B8;display:none;"></div>
-
-<br>
-
-<div class="section-title">Estadísticas del Club</div>
-
-<div>Usuarios del club: <span id="clubUsers"></span></div>
-<div>TON gestionado: <span id="clubTon"></span></div>
-<div>PAN generado: <span id="clubPan"></span></div>
-
 </div>
 
 <div class="card">
@@ -97,22 +73,18 @@ PAN Digital Group
 </div>
 
 <div class="card">
-
 <div class="section-title">Activar Plan</div>
 
 <input type="number" id="planAmount" placeholder="Monto para el plan en TON/USD">
 
-<button class="btn-success plan-button" onclick="activatePlan(1)">Plan 1 - Prueba (Simulación)</button>
-<button class="btn-success plan-button" onclick="activatePlan(2)">Plan 2 - 30 días (20-100 USD TON)</button>
-<button class="btn-success plan-button" onclick="activatePlan(3)">Plan 3 - 60 días (101-200 USD TON)</button>
-<button class="btn-success plan-button" onclick="activatePlan(4)">Plan 4 - 90 días (201-10000 USD TON)</button>
-
-<button class="btn-success" onclick="reinvestPlan()">Reinvertir (+20 PAN min)</button>
+<button class="btn-success" onclick="activatePlan(1)">Plan 1 - Prueba</button>
+<button class="btn-success" onclick="activatePlan(2)">Plan 30 días</button>
+<button class="btn-success" onclick="activatePlan(3)">Plan 60 días</button>
+<button class="btn-success" onclick="activatePlan(4)">Plan 90 días</button>
 
 </div>
 
 <div class="card">
-
 <div class="section-title">Finanzas</div>
 
 <button class="btn-warning" onclick="claim()">Reclamar PAN</button>
@@ -123,7 +95,6 @@ PAN Digital Group
 </div>
 
 <div class="card">
-
 <div class="section-title">Comunidad</div>
 
 <a href="https://t.me/MANDON1" target="_blank">
@@ -165,8 +136,6 @@ PAN Digital Group © 2026
 let tonBalance = 0;
 let panBalance = 0;
 let walletAddress = null;
-let history = [];
-let userPlans = [];
 
 const TON_RECEIVER = "UQC_bn7pmX48L4cwHyR8xykM_PK34zNXQdQ0cgE6FCwGi59J";
 
@@ -176,11 +145,10 @@ buttonRootId:'connectWallet'
 });
 
 tonConnectUI.onStatusChange(wallet=>{
-if(wallet && wallet.account){
+if(wallet){
 walletAddress = wallet.account.address;
 document.getElementById("walletText").innerText = walletAddress.slice(0,6)+"...";
-loadUserData();
-} else {
+}else{
 walletAddress=null;
 document.getElementById("walletText").innerText="No conectada";
 }
@@ -189,7 +157,6 @@ document.getElementById("walletText").innerText="No conectada";
 function updateUI(){
 document.getElementById("tonBalance").innerText=tonBalance.toFixed(4);
 document.getElementById("panBalance").innerText=panBalance.toFixed(4);
-document.getElementById("activePlans").innerText=userPlans.length;
 }
 
 async function deposit(){
@@ -220,9 +187,7 @@ amount: (amount*1000000000).toString()
 
 await tonConnectUI.sendTransaction(transaction);
 
-history.push(`Depósito enviado: ${amount} TON`);
-
-alert("Transacción enviada a tu wallet");
+alert("Transacción enviada. Confirma en tu wallet.");
 
 document.getElementById("depositAmount").value="";
 
@@ -233,3 +198,30 @@ alert("Transacción cancelada");
 }
 
 }
+
+function activatePlan(plan){
+alert("Plan activado (simulación)");
+}
+
+function claim(){
+alert("PAN reclamado (simulado)");
+}
+
+function stake(){
+alert("Staking aplicado (simulado)");
+}
+
+function withdraw(){
+alert("Retiro solicitado (simulado)");
+}
+
+function historyLog(){
+alert("Historial no disponible aún");
+}
+
+updateUI();
+
+</script>
+
+</body>
+</html>
