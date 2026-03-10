@@ -192,6 +192,34 @@ document.getElementById("panBalance").innerText=panBalance.toFixed(4);
 document.getElementById("activePlans").innerText=userPlans.length;
 }
 
+/* FUNCIÓN AGREGADA PARA EL BOTÓN DEPOSITAR */
+function deposit(){
+
+let amount=parseFloat(document.getElementById("depositAmount").value);
+
+if(!walletAddress){
+alert("Primero conecta tu wallet");
+return;
+}
+
+if(!amount || amount<=0){
+alert("Monto inválido");
+return;
+}
+
+tonBalance+=amount;
+
+history.push(`Depósito de ${amount} TON`);
+
+saveUserData();
+updateUI();
+
+alert("Depósito registrado correctamente");
+
+document.getElementById("depositAmount").value="";
+
+}
+
 function togglePlans(){
 let el = document.getElementById("planDetails");
 el.style.display = (el.style.display==="none")?"block":"none";
